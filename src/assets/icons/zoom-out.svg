@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 2</title>
+    <defs>
+        <circle id="path-1" cx="12" cy="12" r="12"></circle>
+    </defs>
+    <g id="基础" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="联邦项目-添加项目" transform="translate(-762.000000, -56.000000)">
+            <g id="Group-8" transform="translate(722.000000, 52.000000)">
+                <g id="Group-5" transform="translate(0.000000, 4.000000)">
+                    <g id="Group-2" transform="translate(40.000000, 0.000000)">
+                        <g id="Oval-Copy">
+                            <use fill-opacity="0" fill="#D8D8D8" xlink:href="#path-1"></use>
+                            <use fill-opacity="0.1" fill="#4376FF" xlink:href="#path-1"></use>
+                        </g>
+                        <g id="收起" transform="translate(6.400000, 6.400000)">
+                            <rect id="Rectangle-7-Copy-9" stroke="#4376FF" stroke-width="0.8" x="0.4" y="0.4" width="10.4" height="10.4" rx="1.6"></rect>
+                            <rect id="合并形状" fill="#4376FF" x="2.4" y="5.2" width="6.4" height="1" rx="0.4"></rect>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

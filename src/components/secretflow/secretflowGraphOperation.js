@@ -1,0 +1,258 @@
+import { h } from 'vue';
+import { Graph } from '@antv/x6';
+import '@antv/x6-vue-shape';
+import GraphNode from '../graph-viewer/GraphNode.vue';
+import { listComponents } from '../../apis/secretflow/secretflow.api';
+import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
+import dictionary from '../../utils/dictionary';
+import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
+
+const secretflowStore = useSecretflowStore();
+
+const nodeWidth = 266;
+const nodeHeight = 50;
+const color = {
+  host: '',
+  guest: '',
+  model: '#2aa74fff',
+  data: '#d7af13ff',
+  validateData: '#d7af1388',
+  trainData: '#d7af1300',
+  cache: '#0f0',
+};
+// 添加状态管理
+let isDataLoaded = false;
+let retryCount = 0;
+const MAX_RETRY_COUNT = 3;
+/**
+ * TODO: to test
+ */
+export let customNodeTypeList = [];
+export const yyCustomNodeTypeList = [];
+
+export function getSecretflowGraphNodeShape(val) {
+  console.log(val, customNodeTypeList, 'VVAALL');
+
+  const result =
+    customNodeTypeList.find((item) => item.name === val) ??
+    customNodeTypeList.find(
+      (item) => item.name === dictionary.yinyu_algorithm[val],
+    );
+  // const result = customNodeTypeList.find((item) => item.name === val);
+  console.log(result, 'VALVALVAL');
+  if (result) {
+    return `graph-node-${result.name}`;
+  }
+  console.error(`unknown graph shape: [${val}]`);
+  return 'graph-node-default';
+}
+
+export function secretflowRegister() {
+  registerNode();
+}
+
+async function registerNode() {
+  try {
+    // 设置超时（例如10秒）
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('数据加载超时')), 10000);
+    });
+
+    // 并行执行数据请求
+    const dataPromise = listComponents();
+    const algorithmPromise = getInEffectLibAndAlgList();
+
+    // 使用Promise.race实现超时控制
+    const [data, algorithmData] = await Promise.race([
+      Promise.all([dataPromise, algorithmPromise]),
+      timeoutPromise,
+    ]);
+
+    // 处理数据
+    data.secretflow.comps.forEach((item) => {
+      yyCustomNodeTypeList.push({
+        app: 'secretflow',
+        name: item.name,
+        domain: item.domain,
+      });
+    });
+
+    customNodeTypeList = algorithmData.algorithmVersionList;
+    await secretflowStore.getNodeDetail(yyCustomNodeTypeList);
+
+    // 标记数据已加载
+    isDataLoaded = true;
+
+    let x = 82;
+    let y = 50;
+    // const data = await listComponents()
+    // console.log(data, 'await listComponents()');
+    // data.secretflow.comps.forEach(item => {
+    //     yyCustomNodeTypeList.push({ app: 'secretflow', name: item.name, domain: item.domain })
+    // })
+    // // await secretflowStore.getNodeDetail(customNodeTypeList)
+    // const { algorithmVersionList } = await getInEffectLibAndAlgList()
+    // customNodeTypeList = algorithmVersionList
+    // await secretflowStore.getNodeDetail(yyCustomNodeTypeList)
+    // console.log(secretflowStore.nodeDetail, 'secretflowStore.nodeDetail');
+
+    secretflowStore.nodeDetail.forEach(async (item) => {
+      console.log(item, '看看好不好');
+      const outputPortObj = JSON.parse(JSON.stringify(item.outputs ?? []));
+      //筛选出不需要的输出节点
+      outputPortObj.forEach((output, i) => {
+        if (output.types.includes('sf.report')) {
+          console.log(output, '输出节点');
+          outputPortObj.splice(i, 1);
+        }
+      });
+      const items = [];
+      const nodePlace = {};
+      let top = 0;
+      let bottom = 0;
+      if (item.inputs?.length === 2) {
+        item.inputs.forEach((inputNode) => {
+          nodePlace[inputNode.name] = {
+            position: {
+              name: 'absolute',
+              args: {
+                x: x + 100 * top,
+              },
+            },
+            zIndex: 2,
+            attrs: {
+              magnet: true,
+              circle: {
+                r: 6,
+                magnet: true,
+                stroke: color.data,
+                strokeWidth: 1,
+                fill: '#fff',
+              },
+            },
+          };
+          top += 1;
+          items.push({
+            group: inputNode.name,
+            id: inputNode.name,
+            desc: inputNode.desc,
+          });
+        });
+      } else if (item.inputs?.length === 1) {
+        nodePlace[item.inputs[0].name] = {
+          position: {
+            name: 'absolute',
+            args: {
+              x: 133,
+            },
+          },
+          zIndex: 2,
+          attrs: {
+            magnet: true,
+            circle: {
+              r: 6,
+              magnet: true,
+              stroke: color.data,
+              strokeWidth: 1,
+              fill: '#fff',
+            },
+          },
+        };
+        items.push({
+          group: item.inputs[0].name,
+          id: item.inputs[0].name,
+          desc: item.inputs[0].desc,
+        });
+      }
+
+      if (outputPortObj?.length === 2) {
+        outputPortObj.forEach((outputNode) => {
+          nodePlace[outputNode.name] = {
+            position: {
+              name: 'absolute',
+              args: {
+                x: x + 100 * bottom,
+                y,
+              },
+            },
+            zIndex: 2,
+            attrs: {
+              magnet: true,
+              circle: {
+                r: 6,
+                magnet: true,
+                stroke: color.validateData,
+                strokeWidth: 1,
+                fill: '#fff',
+              },
+            },
+          };
+          bottom++;
+          items.push({
+            group: outputNode.name,
+            id: outputNode.name,
+            desc: outputNode.desc,
+          });
+        });
+      } else if (outputPortObj?.length === 1) {
+        nodePlace[outputPortObj[0].name] = {
+          position: {
+            name: 'absolute',
+            args: {
+              x: 133,
+              y,
+            },
+          },
+          zIndex: 2,
+          attrs: {
+            magnet: true,
+            circle: {
+              r: 6,
+              magnet: true,
+              stroke: color.validateData,
+              strokeWidth: 1,
+              fill: '#fff',
+            },
+          },
+        };
+        items.push({
+          group: outputPortObj[0].name,
+          id: outputPortObj[0].name,
+          desc: outputPortObj[0].desc,
+        });
+      }
+      console.log(nodePlace, 'nodePlace');
+      Graph.registerNode(
+        // `graph-node-${item.name}`,
+        `graph-node-${dictionary.yinyu_algorithm[item.name]}`,
+        {
+          inherit: 'vue-shape',
+          width: nodeWidth,
+          height: nodeHeight,
+          component: {
+            render: () => {
+              return h(GraphNode);
+            },
+          },
+          ports: {
+            groups: nodePlace,
+            items: items,
+          },
+        },
+        true,
+      );
+    });
+    secretflowStore.setSecretflowSuccess(true);
+  } catch (error) {
+    console.error('节点数据加载失败:', error);
+
+    if (retryCount < MAX_RETRY_COUNT) {
+      retryCount++;
+      console.log(`正在重试 (${retryCount}/${MAX_RETRY_COUNT})...`);
+      setTimeout(registerNode, 2000 * retryCount); // 指数退避重试
+    } else {
+      // 显示错误提示
+      ElMessage.error('节点数据加载失败，请检查网络连接后刷新页面重试');
+    }
+  }
+}

@@ -1,0 +1,35 @@
+.el-button--default {
+  color: $color-primary !important;
+  border-color: $color-primary !important;
+  &:hover {
+    background: linear-gradient(206deg, #7ba0e4 0%, $colorPrimarySharp 100%);
+    color: #fff !important;
+  }
+  &.is-disabled {
+    background: #f0f3f8 !important;
+    border: 1px solid rgba(67, 118, 255, 0.2) !important;
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+  .el-icon {
+    margin-right: 4px;
+  }
+}
+
+.el-button--primary {
+  background: linear-gradient(216deg, #96bcff 0%, $color-primary 100%);
+  border: 0 !important;
+  color: #fff !important;
+}
+
+.el-button--text {
+  border: 0 !important;
+  &:hover {
+    background: transparent !important;
+    color: $colorPrimarySharp !important;
+  }
+  &.is-disabled {
+    background: transparent !important;
+    border: 0 !important;
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+}

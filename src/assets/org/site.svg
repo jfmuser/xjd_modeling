@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="124px" height="125px" viewBox="0 0 124 125" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>部门名称（大）</title>
+    <defs>
+        <linearGradient x1="22.9436127%" y1="6.36483179%" x2="83.9553108%" y2="85.6873195%" id="linearGradient-1">
+            <stop stop-color="#1876FF" stop-opacity="0.05" offset="0%"></stop>
+            <stop stop-color="#4F84FF" stop-opacity="0.534309793" offset="63.9914773%"></stop>
+            <stop stop-color="#6991FA" stop-opacity="0.695995411" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="20.0270486%" y1="8.71826412%" x2="82.4732381%" y2="88.1980096%" id="linearGradient-2">
+            <stop stop-color="#77AEFF" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#4276FF" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-87.6%" y="-87.6%" width="275.1%" height="275.1%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="11" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-100.3%" y="-100.3%" width="300.6%" height="300.6%" filterUnits="objectBoundingBox" id="filter-4">
+            <feGaussianBlur stdDeviation="2.7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-100.3%" y="-100.3%" width="300.6%" height="300.6%" filterUnits="objectBoundingBox" id="filter-5">
+            <feGaussianBlur stdDeviation="2.7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-100.3%" y="-100.3%" width="300.6%" height="300.6%" filterUnits="objectBoundingBox" id="filter-6">
+            <feGaussianBlur stdDeviation="2.7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-100.3%" y="-100.3%" width="300.6%" height="300.6%" filterUnits="objectBoundingBox" id="filter-7">
+            <feGaussianBlur stdDeviation="2.7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+    </defs>
+    <g id="基础" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="驾驶舱-dark" transform="translate(-778.000000, -225.000000)">
+            <g id="Group" transform="translate(240.000000, 68.000000)">
+                <g id="Group-18" transform="translate(263.000000, 63.000000)">
+                    <g id="部门名称（大）" transform="translate(284.000000, 103.000000)">
+                        <g id="Group-22" transform="translate(4.485981, 4.485981)">
+                            <circle id="Oval-Copy" stroke="url(#linearGradient-2)" fill="url(#linearGradient-1)" cx="43.5140187" cy="43.5140187" r="43.5140187"></circle>
+                            <circle id="Oval" fill="#8EADFF" filter="url(#filter-3)" cx="58.0654206" cy="59.317757" r="18.8411215"></circle>
+                        </g>
+                        <g id="Group-18-Copy" transform="translate(43.962617, 0.000000)">
+                            <circle id="Oval" fill="#4683FF" filter="url(#filter-4)" cx="4.03738318" cy="4.03738318" r="4.03738318"></circle>
+                            <circle id="Oval" fill="#FFFFFF" cx="4.03738318" cy="4.03738318" r="1.34579439"></circle>
+                        </g>
+                        <g id="Group-18-Copy-4" transform="translate(0.000000, 43.962617)">
+                            <circle id="Oval" fill="#4683FF" filter="url(#filter-5)" cx="4.03738318" cy="4.03738318" r="4.03738318"></circle>
+                            <circle id="Oval" fill="#FFFFFF" cx="4.03738318" cy="4.03738318" r="1.34579439"></circle>
+                        </g>
+                        <g id="Group-18-Copy-5" transform="translate(43.962617, 87.925234)">
+                            <circle id="Oval" fill="#4683FF" filter="url(#filter-6)" cx="4.03738318" cy="4.03738318" r="4.03738318"></circle>
+                            <circle id="Oval" fill="#FFFFFF" cx="4.03738318" cy="4.03738318" r="1.34579439"></circle>
+                        </g>
+                        <g id="Group-18-Copy-6" transform="translate(87.925234, 43.962617)">
+                            <circle id="Oval" fill="#4683FF" filter="url(#filter-7)" cx="4.03738318" cy="4.03738318" r="4.03738318"></circle>
+                            <circle id="Oval" fill="#FFFFFF" cx="4.03738318" cy="4.03738318" r="1.34579439"></circle>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="46px" height="46px" viewBox="0 0 46 46" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>铃客</title>
+    <defs>
+        <linearGradient x1="95.4649984%" y1="-7.29232975%" x2="5.46878761%" y2="116.161918%" id="linearGradient-1">
+            <stop stop-color="#96BCFF" offset="0%"></stop>
+            <stop stop-color="#4376FF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="-21.2331196%" x2="5.46878761%" y2="116.161918%" id="linearGradient-2">
+            <stop stop-color="#BAD1FF" offset="0%"></stop>
+            <stop stop-color="#5D93FF" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-33.8%" y="-33.8%" width="167.5%" height="167.5%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="3" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+    </defs>
+    <g id="基础" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="驾驶舱" transform="translate(-259.000000, -639.000000)">
+            <g id="铃客" transform="translate(260.000000, 640.000000)">
+                <rect id="矩形" fill="url(#linearGradient-1)" x="8.88888889" y="8.88888889" width="31.1111111" height="31.1111111" rx="3.78250591"></rect>
+                <rect id="矩形" stroke="#FFFFFF" stroke-width="0.766283525" fill="#E2ECFF" x="-0.383141762" y="-0.383141762" width="36.3218391" height="36.3218391" rx="3.78250591"></rect>
+                <rect id="矩形备份-12" fill="url(#linearGradient-2)" opacity="0.55" filter="url(#filter-3)" x="9.29078014" y="9.29078014" width="26.6666667" height="26.6666667" rx="3.78250591"></rect>
+                <path d="M20.9843041,26 L20.9843041,20.9953733 L17.9726459,22.7644262 L20.9843041,26 L20.9843041,26 Z M12.9750367,23.9887739 L19.0793399,20.6829618 L10.184918,10.275308 L20.6681186,19.8296541 L26,16.9475459 L10,10 L12.9750546,23.9887739 L12.9750367,23.9887739 Z" id="形状" fill="#FFFFFF" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

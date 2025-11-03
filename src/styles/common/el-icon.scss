@@ -1,0 +1,27 @@
+.el-icon {
+  &[clickable] {
+    cursor: pointer;
+    &:hover {
+      transform: scale(0.95);
+    }
+  }
+  &[clickable='false'] {
+    cursor: default;
+  }
+
+  &[type='primary'] {
+    color: $color-primary;
+  }
+  &[type='success'] {
+    color: $color-success;
+  }
+  &[type='info'] {
+    color: $color-info;
+  }
+  &[type='warning'] {
+    color: $color-warning;
+  }
+  &[type='danger'] {
+    color: $color-danger;
+  }
+}

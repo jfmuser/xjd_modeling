@@ -1,0 +1,9 @@
+export const GET_GRAPH = Symbol();
+export const I18N = Symbol();
+export const ON_AGREE = Symbol();
+export const ON_REJECT = Symbol();
+export const SHOW_INSTITUTION_FORM_DIALOG = Symbol();
+export const ON_ACTIVE = Symbol();
+export const ON_STORED = Symbol();
+export const ON_READ = Symbol();
+export const SHOW_PASSWORD_DIALOG = Symbol();

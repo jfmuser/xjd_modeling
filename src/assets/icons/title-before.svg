@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="5px" height="14px" viewBox="0 0 5 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 2</title>
+    <defs>
+        <linearGradient x1="81.8747295%" y1="-8.33334335%" x2="37.6686495%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#BAD1FF" offset="0%"></stop>
+            <stop stop-color="#5D93FF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="66.2626171%" y1="-8.33334335%" x2="43.7084946%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#BAD1FF" offset="0%"></stop>
+            <stop stop-color="#5D93FF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="基础" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" fill-opacity="0.8">
+        <g id="联邦管理-所有组织" transform="translate(-264.000000, -89.000000)">
+            <g id="Group-4" transform="translate(260.000000, 88.000000)">
+                <g id="编组-21" transform="translate(4.000000, 0.000000)">
+                    <g id="编组-2" transform="translate(0.000000, 1.000000)">
+                        <rect id="矩形-copy-9" fill="url(#linearGradient-1)" opacity="0.280343192" x="1.66666667" y="2" width="3.33333333" height="10"></rect>
+                        <rect id="矩形-copy-9" fill="url(#linearGradient-2)" x="0" y="0" width="3.33333333" height="14"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

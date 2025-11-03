@@ -1,0 +1,29 @@
+@forward 'element-plus/theme-chalk/src/common/var.scss' with ($colors: ('primary': ('base': #4376ff,
+    ),
+    'success': ('base': #2aa74fff,
+    ),
+    'warning': ('base': #d7af13ff,
+    ),
+    'danger': ('base': #ce3f57ff,
+    ),
+    'error': ('base': #ce3f57ff,
+    ),
+    'info': ('base': rgba(0, 0, 0, 0.25),
+    ),
+  ),
+  $button-padding-horizontal: ('default': 26px,
+  ));
+@import './position.scss';
+@import './common_style.scss';
+
+// $headerHeight: 48px;
+$headerHeight: 0.21875rem;
+$layoutHeaderBackgroundColor: rgba(15, 21, 38, 1);
+$headerBackgroundColor: rgba(67, 118, 255, 0.1);
+// $menuWidth: 220px;
+$menuWidth: 0.859375rem;
+$colorPrimarySharp: #355ecc;
+$mainBackgroundColor: #eaeef4;
+
+$darkBackground: #060b15;
+$darkTextColor: #ffffffa6;

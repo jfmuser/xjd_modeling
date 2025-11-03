@@ -1,0 +1,15 @@
+.el-form-item__content {
+  display: flex;
+  align-items: center;
+}
+
+.el-form-item {
+  &.with-action {
+    .el-input {
+      width: 75%;
+    }
+    .el-button {
+      margin-left: auto;
+    }
+  }
+}
