@@ -222,6 +222,7 @@ async function registerNode() {
         });
       }
       console.log(nodePlace, 'nodePlace');
+      console.log(`graph-node-${dictionary.yinyu_algorithm[item.name]}`, 'nodePlace22');
       Graph.registerNode(
         // `graph-node-${item.name}`,
         `graph-node-${dictionary.yinyu_algorithm[item.name]}`,

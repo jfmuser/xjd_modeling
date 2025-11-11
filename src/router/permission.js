@@ -14,11 +14,12 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const deptConfigStore = useDeptConfigStore();
   const siteStore = useSiteStore();
-  if (localStorage.getItem('token') === 'undefined') {
-    localStorage.clear();
-    next({ path: '/' });
-  }
   const token = localStorage.getItem('token');
+  if (token === 'undefined') {
+    localStorage.clear();
+    next({ path: '/', query: {redirect: to.path} });
+  }
+  
   // if (authStore.isLogin) {
   if (token) {
     if (authStore.userInfo === null) {
@@ -32,18 +33,20 @@ router.beforeEach(async (to, from, next) => {
         let newRouter = getRouter(authStore.permissions);
         newRouter.forEach((route) => router.addRoute('MainLayout', route));
         routes.forEach((route) => router.addRoute('writeList', route));
-        next({ path: `${to.path}` });
+        next({ path: `${to.path}`, query: to.query });
       } catch (error) {
-        return;
+        next({ path: '/', query: {...to.query, redirect: to.path} });
+        // return;
       }
-      return;
+      // return;
     }
     next();
   } else {
-    if (to.path === '/' || to.path === '/not-allowed' || to.name === '404') {
+    //  || to.path === '/not-allowed' || to.name === '404'
+    if (to.path === '/') {
       next();
     } else {
-      next({ path: '/' });
+      next({ path: '/', query: {redirect: to.path} });
     }
   }
 });

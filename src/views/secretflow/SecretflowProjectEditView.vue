@@ -34,7 +34,8 @@ import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
 import dictionary from '../../utils/dictionary';
 import ResultDrawer from './ResultDrawer.vue';
 import { ElMessage } from 'element-plus';
-import { createJob } from '../../apis/workspace/project.api';
+import { startJob } from '../../apis/secretflowApi/secretflow.api';
+// import { createJob } from '../../apis/workspace/project.api';
 import LogDrawer from './LogDrawer.vue';
 
 const route = useRoute();
@@ -111,8 +112,16 @@ const operatorCategories = computed(() => {
   }));
 });
 
-const projectInfo = computed(() =>
-  JSON.parse(localStorage.getItem('projectInfo')),
+const projectInfo = computed(() =>{
+  // return {
+  //   "projectName": route.query.projectName,
+  //   "nodeTag":["主体A","主体B"],
+  //   "projectId": route.query.projectId,
+  //   "graphId": route.query.graphId
+  // }
+  return JSON.parse(localStorage.getItem('projectInfo'))
+}
+  // 
 );
 
 async function getOperators() {
@@ -631,7 +640,10 @@ async function onRun() {
   insertAnimationCSS(); // 确保样式注入
 
   try {
-    const response = await createJob(route.query.projectId);
+    const response = await startJob({   
+      graphId: projectInfo.value.graphId,
+      projectId: projectInfo.value.projectId,
+    });
     ElMessage.success(response.retmsg || '操作成功');
     startPollingStatus();
   } catch (error) {
@@ -935,7 +947,7 @@ const onCheckResult = async (node) => {
 $header-tool-height: 40px;
 $side-tool-height: 32px;
 $side-width: 300px;
-$project-info-height: 300px;
+$project-info-height: 100px;
 
 .project-edit {
   height: 100%;

@@ -7,6 +7,7 @@ import {
   computed,
   inject,
   nextTick,
+  ref
 } from 'vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -511,7 +512,7 @@ const onCheckResult = async (args) => {
 $header-tool-height: 40px;
 $side-tool-height: 32px;
 $side-width: 300px;
-$project-info-height: 300px;
+$project-info-height: 100px;
 
 .project-edit {
   height: 100%;

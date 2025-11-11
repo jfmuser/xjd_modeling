@@ -96,6 +96,7 @@ export default {
             });
 
             StencilRef.value.appendChild(stencil.container);
+            console.log('props.menus', props.menus)
             props.menus.forEach((item) => {
                 const nodes = item.operators.map((item) => {
                     console.log(item, 'ITEMAA');

@@ -20,6 +20,9 @@ instance.interceptors.request.use(
         const path = window.location.href.split('/#/')[1]
         config.headers['FromRoute'] = path.includes('?') ? path.split('?')[0] : path
         config.headers['ref'] = `${Base64.encode(window.location.href.split('/#/')[0] + '/')}`
+        // 直接放行
+        config.headers['pzToken'] = 'pzToken'
+        
         // 把时间戳第一次请求放到请求头里
         config.headers.timestamp = Times;
 

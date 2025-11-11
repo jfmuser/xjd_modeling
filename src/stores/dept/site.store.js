@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 // import { getMySite, getOtherSite } from '../../apis/dept/site.api';
-import { getAllParties, getSelfParties } from '../../apis/manager/managerApi'
-import { useRouter } from 'vue-router';
+import { getAllParties } from '../../apis/dp/api'
 import storeId from '../store.id';
 
 // function formatTreeData(data = []) {
@@ -50,19 +49,54 @@ const useSiteStore = defineStore(storeId.site, {
   actions: {
     async fetchMySite() {
       try {
-        const response = await getSelfParties();
-        sessionStorage.setItem('selfParties', JSON.stringify(response))
-        this.mySite = response;
-        return response;
+        // let response = await getSelfParties();
+        // if(response === undefined){
+        //   response = {
+        //     tDomainEngineList: []
+        //   };
+        // }
+        
+        // sessionStorage.setItem('selfParties', JSON.stringify(response))
+        // this.mySite = response;
+        return Promise.resolve();
       } catch (error) {
         console.error(error);
       }
     },
     async fetchOtherSite() {
       try {
-        const response = await getAllParties();
-        this.otherSite = response
-        return response;
+        const res = await getAllParties();
+        const list = [];
+        let mySite = undefined;
+
+        res.list.forEach((item)=>{
+          const outterPartyId = JSON.parse(item.outterPartyId);
+          const row = {
+            id: item.id,
+            isSelf: item.ptype === '1' ? 1 : 0,
+            name: item.pname,
+            tDomainEngineList: [{
+              domainId: item.id,
+              engine: 1,
+              engineInfo: JSON.stringify({ 
+                nodeId: outterPartyId.nodeId,
+                partyId: item.id
+              })
+            }]
+          };
+
+          if(item.ptype === '1'){
+            mySite = row;
+          } 
+
+          list.push(row);
+        });
+
+        sessionStorage.setItem('selfParties', JSON.stringify(mySite));
+        this.mySite = mySite;
+
+        this.otherSite = list;
+        return list;
       } catch (error) {
         console.error(error);
       }

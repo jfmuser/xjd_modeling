@@ -8,8 +8,11 @@ import useAuthStore from '../../stores/auth.store';
 import { ElMessage } from 'element-plus';
 // 签名方法
 import useGetConfig from "@/utils/changeParams"
-import router from '../../router/index'
+import { useRouter, useRoute } from 'vue-router';
 import * as Base64 from 'js-base64'
+
+const router = useRouter()
+const route = useRoute();
 
 const instance = axios.create({
   baseURL: '/auth',
@@ -53,7 +56,7 @@ instance.interceptors.response.use(
         // 设置续约token
         localStorage.setItem('token', headers.authorization);
       } else {
-        router.push({ path: '/' })
+        router.push({ path: '/', query: {redirect: route.path} })
         throw new Error('登陆失效，请重新登陆!')
       }
       return;

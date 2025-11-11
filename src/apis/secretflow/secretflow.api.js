@@ -16,11 +16,13 @@ export function listComponents(data) {
 */
 export function listProject(data) {
     return request({
-        url: '/v1alpha1/project/list',
+        url: '/v1alpha1/p2p/project/list',
         method: 'post',
         data
     })
 }
+
+
 
 /**
  * @description 获取画布列表

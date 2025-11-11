@@ -10,16 +10,16 @@ const menuStore = useMenuStore();
 </script>
 <template>
   <el-container :class="{ dark: route.meta.dark }">
-    <el-header>
+    <!-- <el-header>
       <LayoutHeader></LayoutHeader>
-    </el-header>
+    </el-header> -->
     <el-container class="layout-content">
-      <el-aside
+      <!-- <el-aside
         v-if="route.name !== 'crossroad'"
         :class="{ collapse: menuStore.collapse }"
       >
         <MenuLayout></MenuLayout>
-      </el-aside>
+      </el-aside> -->
       <el-main :class="{ [route.name]: true }">
         <BreadcrumbWidget v-if="false"></BreadcrumbWidget>
         <router-view></router-view>

@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue';
 import { registerSelfParties } from '../../apis/manager/managerApi'
 import { ElMessage } from 'element-plus';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 // import { activateAccount } from '../../apis/dept/auth.api';
 // import AES from '../../utils/aesCrypto'
 
@@ -14,6 +14,8 @@ const state = reactive({
   model: {},
 });
 const router = useRouter()
+const route = useRoute();
+
 const rules = reactive({
   // link: [{ required: true, message: '请输入激活链接' }],
   // username: [{ required: true, message: '请输入管理员名称' }],
@@ -89,7 +91,7 @@ async function onConfirm() {
 function closeDialog() {
   localStorage.clear()
   state.visible = false
-  router.push({ path: '/' })
+  router.push({ path: '/', query: {redirect: route.path} })
 }
 </script>
 

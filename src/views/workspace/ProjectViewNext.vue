@@ -46,9 +46,7 @@ const handelClose = (val) => {
   <SecretflowProjectEditView v-else-if="isEdit && core == '1'" />
   <div v-else style="height: 100%">
     <CatalogTableContainer v-if="allShow">
-      <template #catalog>
-        <ProjectCatalog v-if="allShow" />
-      </template>
+      
       <template #table>
         <!-- 右边的内容区域 -->
         <ProjectInfo

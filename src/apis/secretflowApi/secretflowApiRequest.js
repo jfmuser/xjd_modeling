@@ -6,7 +6,7 @@ import useGetConfig from "@/utils/changeParams"
 import useAuthStore from '../../stores/auth.store';
 import * as Base64 from 'js-base64'
 const instance = axios.create({
-    baseURL: '/secretflow-api/api',
+    baseURL: '/secretflow-api',
 });
 
 instance.interceptors.request.use(

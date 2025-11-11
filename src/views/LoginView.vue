@@ -15,7 +15,8 @@ const { VITE_APP, VITE_APP_TITLE } = useEnv();
 const router = useRouter();
 const route = useRoute();
 const siteStore = useSiteStore();
-const form = reactive({ username: '', password: '', verificationCode: '' });
+//  / 
+const form = reactive({ username: 'admin', password: '123456', verificationCode: '' });
 const formRef = ref(null);
 const activeAccountRef = ref(null);
 const loading = ref(false);
@@ -34,6 +35,8 @@ const visible = ref(localStorage.getItem('code') === '10101' ? true : false);
 onBeforeMount(async () => {
   // 随机验证码 调用后端getcode
   await WorkinitGetHouCode();
+  // 自动登录
+  onLogin();
 });
 // 后端请求 workspace
 const WorkinitGetHouCode = async () => {
@@ -79,7 +82,11 @@ async function onLogin() {
     // authStore.setIsLogin(true);
 
     authStore.userInfo = null;
-    router.push({ name: 'home' });
+
+    const redirect = route.query?.redirect || '/data';
+    console.log(redirect)
+    router.push(redirect);
+    // router.push({ name: 'home' });
   } catch (error) {
     await WorkinitGetHouCode();
     // ElMessage.error(error);
@@ -125,7 +132,9 @@ onBeforeMount(() => {
   if (!token) {
     return;
   }
-  router.push({ name: 'home' });
+
+  const redirect = route.query?.redirect || '/data';
+  router.push(redirect);
 });
 
 async function updataPasswordSucceed() {
@@ -173,7 +182,7 @@ async function updataPasswordSucceed() {
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="verificationCode" class="verificationCode">
+      <!-- <el-form-item prop="verificationCode" class="verificationCode">
         <el-input
           v-model.trim="form.verificationCode"
           placeholder="请输入验证码"
@@ -192,7 +201,7 @@ async function updataPasswordSucceed() {
           :src="`data:image/png;base64,${state.codeImg}`"
           @click="WorkinitGetHouCode"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item>
         <div class="help">
           <!-- <el-checkbox

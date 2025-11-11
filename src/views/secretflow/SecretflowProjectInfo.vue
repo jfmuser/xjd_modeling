@@ -9,11 +9,13 @@ import { computed, onMounted, reactive, ref, watch, defineEmits, onBeforeMount }
 import ListContainer from '@/layouts/ListContainer.vue';
 import ListContainerItem from '@/layouts/ListContainerItem.vue';
 import { FormType, SourceType } from '@/utils/const';
-import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
+// import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
 import SecretflowProjectForm from '@/components/secretflow/SecretflowProjectForm.vue';
 import { ElMessage } from 'element-plus';
 import { listGraph, getGraphDetail } from '@/apis/secretflow/secretflow.api.js'
 import { getProjectById, createJob } from '../../apis/workspace/project.api'
+import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
+
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js'
 import useSiteStore from '../../stores/dept/site.store'
 
@@ -65,10 +67,12 @@ async function fetchData() {
 
             await secretflowStore.getProjectList()
             if (!projectId.value) return
-            projectDetail.value = await getProjectById(projectId.value);
-            const scretflowProjectId = projectDetail.value?.tProjectAlgConfig.configData
+            const res = await dpProjectTasks05Form({id: projectId.value});
+            const outterTask = JSON.parse(res.dpProjectTasks05.outterTaskId);
+
+            const scretflowProjectId = outterTask.projectId;
             const currentProject = secretflowStore.projectList.find(item => item.projectId === scretflowProjectId)
-            currentProject?.nodes.forEach(item => {
+           currentProject?.nodes.forEach(item => {
                 // item.nodeName
                 siteStore.otherSite.forEach(site => {
                     if (site.tDomainEngineList && site.tDomainEngineList.find(engine => engine.engine == '1')) {
@@ -215,10 +219,10 @@ const handelJobDetail = (val) => {
             </template>
             <SecretflowProjectForm ref="ProjectFormRef" :defaultModel="state.model" :formType="action" />
         </ListContainerItem>
-        <ListContainerItem title="作业概览">
+        <!-- <ListContainerItem title="作业概览">
             <SecretflowJobTable ref="ScretflowJobTableRef" :projectId="projectId" :projectName="projectName"
                 @JobDetail="handelJobDetail" />
-        </ListContainerItem>
+        </ListContainerItem> -->
     </ListContainer>
 </template>
 

@@ -23,9 +23,7 @@ const isEdit = computed(() => {
   <ProjectListView v-if="isShowAll" ref="ProjectListViewRef" />
   <ProjectEditView v-else-if="isEdit" ref="ProjectEditViewRef" />
   <CatalogTableContainer v-else>
-    <template #catalog>
-      <ProjectCatalog />
-    </template>
+    
     <template #table>
       <ProjectInfo v-if="projectName" />
       <el-empty v-else />
