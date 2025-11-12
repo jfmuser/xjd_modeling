@@ -1,5 +1,5 @@
 <script setup>
-import CatalogTableContainer from '../../layouts/CatalogTableContainer.vue';
+import CatalogTableContainer from '../../layouts/CatalogTableContainer2.vue';
 import ProjectInfo from '../../components/workspace/project/ProjectInfo.vue';
 import ProjectCatalog from '../../components/workspace/project/ProjectCatalog.vue';
 import ProjectListView from './ProjectListView.vue';
