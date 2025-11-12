@@ -12,7 +12,7 @@ import { FormType, SourceType } from '@/utils/const';
 // import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
 import SecretflowProjectForm from '@/components/secretflow/SecretflowProjectForm.vue';
 import { ElMessage } from 'element-plus';
-import { listGraph, getGraphDetail } from '@/apis/secretflow/secretflow.api.js'
+import { listGraph, getGraphDetail, startGraph } from '@/apis/secretflow/secretflow.api.js'
 import { getProjectById, createJob } from '../../apis/workspace/project.api'
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
 
@@ -158,7 +158,10 @@ async function onRun() {
     try {
         state.loading = true;
         // const nodes = graphInfo.value.nodes.map(node => node.graphNodeId)
-        const response = await createJob(projectId.value);
+        const response = await startGraph({   
+            graphId: graphId.value,
+            projectId: state.model.projectId,
+        });
         ElMessage.success('操作成功');
         ScretflowJobTableRef.value.fetchTableData();
     } catch (error) {

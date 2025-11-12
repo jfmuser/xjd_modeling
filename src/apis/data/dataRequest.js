@@ -56,7 +56,7 @@ instance.interceptors.response.use(
                 // 设置续约token
                 localStorage.setItem('token', headers.authorization);
             } else {
-                router.push({ path: '/', query: {redirect: route.path} })
+                router.push({ path: '/', query: {redirect: route.fullPath} })
             }
             return;
         }

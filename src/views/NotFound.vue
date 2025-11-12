@@ -6,7 +6,7 @@ const router = useRouter();
 const route = useRoute();
 
 function onBack() {
-  router.push({ path: '/', query: {redirect: route.path} })
+  router.push({ path: '/', query: {redirect: route.fullPath} })
 }
 </script>
 <template>

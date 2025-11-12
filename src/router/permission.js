@@ -17,7 +17,7 @@ router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token');
   if (token === 'undefined') {
     localStorage.clear();
-    next({ path: '/', query: {redirect: to.path} });
+    next({ path: '/', query: {redirect: to.fullPath} });
   }
   
   // if (authStore.isLogin) {
@@ -35,7 +35,7 @@ router.beforeEach(async (to, from, next) => {
         routes.forEach((route) => router.addRoute('writeList', route));
         next({ path: `${to.path}`, query: to.query });
       } catch (error) {
-        next({ path: '/', query: {...to.query, redirect: to.path} });
+        next({ path: '/', query: {redirect: to.fullPath} });
         // return;
       }
       // return;
@@ -46,7 +46,7 @@ router.beforeEach(async (to, from, next) => {
     if (to.path === '/') {
       next();
     } else {
-      next({ path: '/', query: {redirect: to.path} });
+      next({ path: '/', query: {redirect: to.fullPath} });
     }
   }
 });

@@ -91,7 +91,7 @@ async function onConfirm() {
 function closeDialog() {
   localStorage.clear()
   state.visible = false
-  router.push({ path: '/', query: {redirect: route.path} })
+  router.push({ path: '/', query: {redirect: route.fullPath} })
 }
 </script>
 
