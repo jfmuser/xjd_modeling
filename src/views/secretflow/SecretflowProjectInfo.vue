@@ -12,7 +12,7 @@ import { FormType, SourceType } from '@/utils/const';
 // import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
 import SecretflowProjectForm from '@/components/secretflow/SecretflowProjectForm.vue';
 import { ElMessage } from 'element-plus';
-import { listGraph, getGraphDetail, startGraph } from '@/apis/secretflow/secretflow.api.js'
+import { listGraph, getGraphDetail, startGraph, getProject } from '@/apis/secretflow/secretflow.api.js'
 import { getProjectById, createJob } from '../../apis/workspace/project.api'
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
 
@@ -65,14 +65,14 @@ async function fetchData() {
         if (projectId.value && type.value == '1') {
             const nodeTag = []
 
-            await secretflowStore.getProjectList()
             if (!projectId.value) return
             const res = await dpProjectTasks05Form({id: projectId.value});
             const outterTask = JSON.parse(res.dpProjectTasks05.outterTaskId);
 
             const scretflowProjectId = outterTask.projectId;
-            const currentProject = secretflowStore.projectList.find(item => item.projectId === scretflowProjectId)
-           currentProject?.nodes.forEach(item => {
+            const currentProject = await getProject({ projectId: scretflowProjectId });
+
+            currentProject?.nodes.forEach(item => {
                 // item.nodeName
                 siteStore.otherSite.forEach(site => {
                     if (site.tDomainEngineList && site.tDomainEngineList.find(engine => engine.engine == '1')) {
@@ -161,6 +161,7 @@ async function onRun() {
         const response = await startGraph({   
             graphId: graphId.value,
             projectId: state.model.projectId,
+            nodes: graphInfo.value.nodes.map(item=>item.graphNodeId)
         });
         ElMessage.success('操作成功');
         ScretflowJobTableRef.value.fetchTableData();

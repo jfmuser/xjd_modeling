@@ -274,7 +274,8 @@ async function onClickNode(item) {
   currentGraphNodeName.value = item.node.store.data.data.label;
 
   // 如果不是 PSI 算子，直接显示 paramDrawer 并退出
-  if (!item.node.store.data.data.algorithm_name.includes('psi')) {
+  if (!(item.node.store.data.data.algorithm_name.includes('psi') || item.node.store.data.data.type === 'psi')) {
+  // if () {
     paramDrawer.visible = true;
     data.value = {
       graphId: projectInfo.value.graphId,
@@ -321,7 +322,7 @@ async function onClickNode(item) {
     }
 
     const dataIdList = attrs.map((attr) => attr?.s);
-
+    console.log(dataIdList, 'dataIdList.nodeList')
     for (const node of res.nodes) {
       const datatableId = node.datatables.find((datatable) =>
         dataIdList.includes(datatable.datatableId),
@@ -651,13 +652,14 @@ const insertAnimationCSS = () => {
 
 async function onRun() {
   insertAnimationCSS(); // 确保样式注入
-
+  console.log(graphInfo.value.nodes, 'graphInfo.value.nodes11');
   try {
     const response = await startGraph({   
       graphId: projectInfo.value.graphId,
       projectId: projectInfo.value.projectId,
+      nodes: graphInfo.value.nodes.map(item=>item.graphNodeId)
     });
-    ElMessage.success(response.status.msg || '操作成功');
+    ElMessage.success('操作成功');
     startPollingStatus();
   } catch (error) {
     ElMessage.error(error);

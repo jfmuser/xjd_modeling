@@ -627,7 +627,7 @@ async function initParam() {
         // })
         // if (!saveNode[0]) return { name: item.name, desc: item.desc, renderType: 'selected' }
         const options = [];
-        // console.log(props.PrivacyExchangeData.value["nodeList"],'props.PrivacyExchangeData.value["nodeList"]')
+        console.log(props.PrivacyExchangeData.nodeList,'props.PrivacyExchangeData.value["nodeList"]')
         if (props.PrivacyExchangeData['nodeList'].length > 0) {
           props.PrivacyExchangeData['nodeList'].forEach((node) =>
             options.push({
