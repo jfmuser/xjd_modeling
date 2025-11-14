@@ -9,7 +9,7 @@ import { computed, onMounted, reactive, ref, watch, defineEmits, onBeforeMount }
 import ListContainer from '@/layouts/ListContainer.vue';
 import ListContainerItem from '@/layouts/ListContainerItem.vue';
 import { FormType, SourceType } from '@/utils/const';
-// import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
+import SecretflowJobTable from '@/components/secretflow/SecretflowJobTable.vue';
 import SecretflowProjectForm from '@/components/secretflow/SecretflowProjectForm.vue';
 import { ElMessage } from 'element-plus';
 import { listGraph, getGraphDetail, startGraph, getProject } from '@/apis/secretflow/secretflow.api.js'
@@ -223,10 +223,10 @@ const handelJobDetail = (val) => {
             </template>
             <SecretflowProjectForm ref="ProjectFormRef" :defaultModel="state.model" :formType="action" />
         </ListContainerItem>
-        <!-- <ListContainerItem title="作业概览">
+        <ListContainerItem title="作业概览">
             <SecretflowJobTable ref="ScretflowJobTableRef" :projectId="projectId" :projectName="projectName"
                 @JobDetail="handelJobDetail" />
-        </ListContainerItem> -->
+        </ListContainerItem>
     </ListContainer>
 </template>
 

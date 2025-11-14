@@ -21,10 +21,11 @@ import { listJob,getJobDetail } from '@/apis/secretflow/secretflow.api.js';
 import TableContainer from '@/layouts/TableContainer.vue';
 // import ModelCollect from './ModelCollect.vue';
 import { CollectType, Status, JobType } from '@/utils/const';
-import { formatTimestamp, getTimeCost } from '@/utils';
+import { formatDateTime, formatTimestamp, getTimeCost } from '@/utils';
 import { getProjectById, getProjectJobList } from '../../apis/workspace/project.api'
 import {downloadCsvData} from '../../apis/secretflowApi/secretflow.api'
 import { downloadFile } from '../../utils';
+import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
 
 let jobStatusInterval;
 let needRun = false;
@@ -89,24 +90,36 @@ async function fetchTableData(page) {
     try {
         if (type.value == '1' || type.value == '3' || props.projectId) {
             
-            const res = await getProjectById(props.projectId)
-            state.info.secretflowProjectId = res.tProjectAlgConfig.configData
-            state.info.graphId = res.tProjectAlgConfig.dependencyData
+            const res = await dpProjectTasks05Form({id: props.projectId});
+            const outterTask = JSON.parse(res.dpProjectTasks05.outterTaskId);
+
+            const scretflowProjectId = outterTask.projectId;
+
+            
+            state.info.secretflowProjectId = scretflowProjectId
+            state.info.graphId = outterTask.graphId;
             state.loading = true;
             const pager = TableContainerRef.value?.pager;
             const currentPage = page || pager?.page;
-            const response = await getProjectJobList({
-                "pageRequest": {
-                    "pageNumber": currentPage,
-                    "pageSize": pager.size
-                },
-                "requestData": {
-                    projectId: props.projectId
-                }
+            const response = await listJob({
+                pageNum: currentPage,
+                pageSize: pager.size,
+                projectId: outterTask.projectId,
+                graphId: outterTask.graphId,
             }
             );
-            const { records, size, total } = response;
-            state.tableData = records;
+            // const response = await getProjectJobList({
+            //     "pageRequest": {
+            //         "pageNumber": currentPage,
+            //         "pageSize": pager.size
+            //     },
+            //     "requestData": {
+            //         projectId: props.projectId
+            //     }
+            // }
+            // );
+            const { data, size, total } = response;
+            state.tableData = data;
             console.log(state.tableData, 'records');
             pager.size = size;
             pager.total = total;
@@ -249,26 +262,28 @@ async function downloadAlgCsvData() {
         <el-table v-loading="state.loading" :data="state.tableData">
             <el-table-column label="作业ID" fixed show-overflow-tooltip min-width="200px">
                 <template #default="{ row }">
+                    <span>{{row.jobId }}</span>
+                    
                     <!-- <el-link type="primary" :disabled="!row.status || row.status === Status.WAITING" -->
-                     {{ row.platform == 3 ? row.jobId : '' }}
-                    <el-link type="primary" @click="toDetail(row)" v-show="!(row.platform == 3)">{{
-        row.jobId }}
-                    </el-link>
+                     <!-- {{ row.platform == 3 ? row.jobId : '' }} -->
+                     <!-- <el-link type="primary" @click="toDetail(row)" v-show="!(row.platform == 3)">
+                        {{row.jobId }}
+                    </el-link> -->
                 </template>
             </el-table-column>
             <el-table-column label="开始时间" min-width="170px">
                 <template #default="{ row }">
-                    {{ row.startDate }}
+                    {{ formatDateTime(row.gmtCreate) }}
                 </template>
             </el-table-column>
             <el-table-column label="结束时间" min-width="170px">
                 <template #default="{ row }">
-                    {{ row.endDate }}
+                    {{ formatDateTime(row.gmtFinished) }}
                 </template>
             </el-table-column>
             <el-table-column prop="fEndTime" label="耗时">
                 <template #default="{ row }">
-                    {{row.endDate ? getTimeCost(row.startDate, row.endDate) : ''}}
+                    {{row.gmtFinished ? getTimeCost(row.gmtCreate, row.gmtFinished) : ''}}
                 </template>
             </el-table-column>
             <!-- <el-table-column prop="jobType" label="作业类型">
