@@ -37,6 +37,7 @@ import dictionary from '../../utils/dictionary';
 import ResultDrawer from './ResultDrawer.vue';
 import { ElMessage } from 'element-plus';
 // import { createJob } from '../../apis/workspace/project.api';
+import { refreshDatas } from '../../apis/dp/api'
 import LogDrawer from './LogDrawer.vue';
 
 const route = useRoute();
@@ -654,6 +655,16 @@ async function onRun() {
   insertAnimationCSS(); // 确保样式注入
   console.log(graphInfo.value.nodes, 'graphInfo.value.nodes11');
   try {
+    const scretflowProject = await getProject({ projectId: graphInfo.value.projectId });
+    await refreshDatas(
+          scretflowProject.nodes.filter(item=>item.datatables !== null).map((item)=>{
+              return {
+                  domainId: item.nodeId,
+                  datalds: item.datatables.map(db=>db.datatableId),
+              }
+          })
+      ) 
+
     const response = await startGraph({   
       graphId: projectInfo.value.graphId,
       projectId: projectInfo.value.projectId,

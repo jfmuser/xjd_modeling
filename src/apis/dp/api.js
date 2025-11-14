@@ -1,4 +1,5 @@
 import request from './request'
+import algorithmRequest from './algorithmRequest'
 
 /**
  * @description 查询所有参与方
@@ -25,5 +26,9 @@ export const dpProjectTasks05Form = (params) => {
 */
 export const getSelfParties = () => {
     return request.post('/domain/self');
+};
+
+export const refreshDatas = (data) => {
+    return algorithmRequest.post('/psi/dataenhance/refreshDatas', data);
 };
 

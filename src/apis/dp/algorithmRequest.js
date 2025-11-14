@@ -1,9 +1,9 @@
 import axios from 'axios';
 // 不做任何处理，只做最简单的请求
 const instance = axios.create({
-    baseURL: '/js/a',
+    baseURL: '/algorithm',
     headers: {
-      'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      'content-type': 'application/json;charset=UTF-8',
       'x-requested-with': 'XMLHttpRequest',
       'x-ajax': 'json',
     },

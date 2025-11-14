@@ -287,6 +287,10 @@ export default ({ mode }) => {
           target: 'http://119.23.69.219:3071/',
           changeOrigin: true,
         },
+        '/algorithm': {
+          target: 'http://119.23.69.219:3071/',
+          changeOrigin: true,
+        },
         '/manager-api': {
           // target: 'http://192.168.50.122:7072',
           // target: 'http://1.hz-test.manager-api.test.pcp.convcloud.cn:18082',

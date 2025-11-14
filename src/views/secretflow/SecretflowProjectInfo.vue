@@ -14,7 +14,7 @@ import SecretflowProjectForm from '@/components/secretflow/SecretflowProjectForm
 import { ElMessage } from 'element-plus';
 import { listGraph, getGraphDetail, startGraph, getProject } from '@/apis/secretflow/secretflow.api.js'
 import { getProjectById, createJob } from '../../apis/workspace/project.api'
-import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
+import { dpProjectTasks05Form, refreshDatas } from '../../apis/dp/api'
 
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js'
 import useSiteStore from '../../stores/dept/site.store'
@@ -26,7 +26,8 @@ const siteStore = useSiteStore()
 const secretflowStore = useSecretflowStore()
 const ProjectFormRef = ref(null);
 const ScretflowJobTableRef = ref(null);
-const graphInfo = ref('')
+const graphInfo = ref('');
+const scretflowProject = ref(null);
 const state = reactive({
     loading: false,
     model: {},
@@ -71,7 +72,7 @@ async function fetchData() {
 
             const scretflowProjectId = outterTask.projectId;
             const currentProject = await getProject({ projectId: scretflowProjectId });
-
+            
             currentProject?.nodes.forEach(item => {
                 // item.nodeName
                 siteStore.otherSite.forEach(site => {
@@ -85,6 +86,8 @@ async function fetchData() {
             })
             console.log(nodeTag, 'NODETAG');
             const data = await listGraph({ projectId: scretflowProjectId })
+
+            scretflowProject.value = currentProject;
             graphId.value = data[0]?.graphId
             graphInfo.value = await getGraphDetail({ projectId: scretflowProjectId, graphId: graphId.value })
             state.model = { projectName: projectName.value, nodeTag, projectId: scretflowProjectId, graphId: graphId.value }
@@ -158,13 +161,24 @@ async function onRun() {
     try {
         state.loading = true;
         // const nodes = graphInfo.value.nodes.map(node => node.graphNodeId)
+        if(scretflowProject.value){
+            await refreshDatas(
+                scretflowProject.value.nodes.filter(item=>item.datatables !== null).map((item)=>{
+                    return {
+                        domainId: item.nodeId,
+                        datalds: item.datatables.map(db=>db.datatableId),
+                    }
+                })
+            )
+        }        
+
         const response = await startGraph({   
             graphId: graphId.value,
             projectId: state.model.projectId,
             nodes: graphInfo.value.nodes.map(item=>item.graphNodeId)
         });
         ElMessage.success('操作成功');
-        ScretflowJobTableRef.value.fetchTableData();
+        ScretflowJobTableRef.value.fetchTableData(1);
     } catch (error) {
         ElMessage.error(error);
     } finally {
