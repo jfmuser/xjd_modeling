@@ -16,7 +16,7 @@ const router = useRouter();
 const route = useRoute();
 const siteStore = useSiteStore();
 //  / 
-const form = reactive({ username: 'admin', password: 'adminPzlab@123', verificationCode: '' });
+const form = reactive({ username: 'admin', password: 'admin', verificationCode: '' });
 const formRef = ref(null);
 const activeAccountRef = ref(null);
 const loading = ref(false);
@@ -179,8 +179,7 @@ async function updataPasswordSucceed () {
                   placeholder="请输入密码"
                   autocomplete="off"
                   :input-style="inputStyle"
-                  @keydown.enter="onLogin"
-                  disabled>
+                  @keydown.enter="onLogin">
           <template #prefix>
             <el-icon>
               <Lock />
