@@ -50,7 +50,7 @@ export default {
     hetero_data_split: '数据拆分',
     hetero_lr: '纵向逻辑回归',
   },
-  algorithm_En: {
+  algorithm_En_self: {
     数据读入_1: 'data_in_1',
     纵向逻辑回归: 'v_lr',
     '纵向线性回归（同态加密-LinR)': 'v_linr',
@@ -111,7 +111,7 @@ export default {
     // '线性回归': 'ss_sgd_train_custom',
     // '分心驾驶识别': 'table_statistics'
   },
-  yy_algName: {
+  algorithm_En: {
     联邦样本求交_1: 'psi',
     数据读入_1: 'datatable',
     纵向逻辑回归: 'ss_sgd_train',
