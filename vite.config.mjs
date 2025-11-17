@@ -31,6 +31,9 @@ export default ({ mode }) => {
   // 替代 __dirname
   const dirname = path.dirname(fileURLToPath(import.meta.url));
   return defineConfig({
+    base: process.env.NODE_ENV === 'production'
+    ? '/xj/' // 生产环境的路径
+    : '/' ,// 开发环境的路径,
     resolve: {
       alias: [
         {
