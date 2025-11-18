@@ -63,6 +63,8 @@ async function registerNode() {
     const algorithmPromise = getInEffectLibAndAlgList();
 
     // 使用Promise.race实现超时控制
+    // const data = await dataPromise
+    // const algorithmData = await algorithmPromise
     const [data, algorithmData] = await Promise.race([
       Promise.all([dataPromise, algorithmPromise]),
       timeoutPromise,
@@ -95,7 +97,7 @@ async function registerNode() {
     // customNodeTypeList = algorithmVersionList
     // await secretflowStore.getNodeDetail(yyCustomNodeTypeList)
     // console.log(secretflowStore.nodeDetail, 'secretflowStore.nodeDetail');
-
+    registerNode = []
     secretflowStore.nodeDetail.forEach(async (item) => {
       console.log(item, '看看好不好');
       const outputPortObj = JSON.parse(JSON.stringify(item.outputs ?? []));
@@ -222,27 +224,32 @@ async function registerNode() {
         });
       }
       console.log(nodePlace, 'nodePlace');
-      console.log(`graph-node-${dictionary.yinyu_algorithm[item.name]}`, 'nodePlace22');
-      Graph.registerNode(
-        // `graph-node-${item.name}`,
-        `graph-node-${dictionary.yinyu_algorithm[item.name]}`,
-        {
-          inherit: 'vue-shape',
-          width: nodeWidth,
-          height: nodeHeight,
-          component: {
-            render: () => {
-              return h(GraphNode);
+      if (dictionary.yinyu_algorithm[item.name]) {
+        console.log(`graph-node-${dictionary.yinyu_algorithm[item.name]}`, 'nodePlace22');
+        registerNode.push(`graph-node-${dictionary.yinyu_algorithm[item.name]}`)
+        // 如果定义了，再注册到画布
+        Graph.registerNode(
+          // `graph-node-${item.name}`,
+          `graph-node-${dictionary.yinyu_algorithm[item.name]}`,
+          {
+            inherit: 'vue-shape',
+            width: nodeWidth,
+            height: nodeHeight,
+            component: {
+              render: () => {
+                return h(GraphNode);
+              },
+            },
+            ports: {
+              groups: nodePlace,
+              items: items,
             },
           },
-          ports: {
-            groups: nodePlace,
-            items: items,
-          },
-        },
-        true,
-      );
+          true,
+        );
+      }
     });
+    console.log(registerNode, 'registerNode');
     secretflowStore.setSecretflowSuccess(true);
   } catch (error) {
     console.error('节点数据加载失败:', error);

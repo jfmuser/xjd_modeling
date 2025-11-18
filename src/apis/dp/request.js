@@ -13,6 +13,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         const search = window.location.search;
+        console.log("window url is: "+search)
         if(search){
           const arr = search.split('&');
           arr.forEach((item)=>{
@@ -23,7 +24,18 @@ instance.interceptors.request.use(
             }
           })
         }
-              
+        // const hash = window.location.hash;
+        // console.log("window hash is: "+hash)
+        // if (hash.includes('?')) {
+        //     const searchParams = hash.split('?')[2];
+        //     const params = new URLSearchParams(searchParams);
+        //     console.log("params is: "+params)
+        //     const dpToken = params.get('dpToken');
+        //     if (dpToken) {
+        //         // 内嵌时使用，dpToken需要由父级传入
+        //         config.headers['x-token'] = dpToken;
+        //     }
+        // }
         return config;
     },
     (error) => {
