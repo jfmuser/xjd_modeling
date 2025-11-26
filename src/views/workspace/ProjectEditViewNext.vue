@@ -7,7 +7,7 @@ import {
   computed,
   inject,
   nextTick,
-  ref
+  ref,
 } from 'vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -155,6 +155,7 @@ async function setCurrentAlgorithms() {
     console.log(item, 'OITEMOITEM');
     item.x = item.data.x;
     item.y = item.data.y;
+    console.log(GraphViewerRef.value, 'GraphViewerRef.value');
     GraphViewerRef.value.addNode(item);
   });
   GraphViewerRef.value.addEdges(formattedData.edges);
@@ -168,11 +169,12 @@ onMounted(async () => {
     const dom = Array.from(
       document.querySelectorAll('.graph-area .graph-node-wrapper'),
     );
+    console.log(dom, '看看变色dom');
     dom.forEach((dom) => (dom.style.borderBottom = '6px solid #0068fa'));
     if (dom.length !== 0) {
       clearTimeout(timerId);
     }
-  }, 0);
+  }, 100);
 });
 
 function onClickNode(item) {
@@ -242,7 +244,8 @@ function onAddNode(node) {
   const projectNodeCoord = JSON.parse(
     localStorage.getItem('projectNodeCoord') ?? '{}',
   );
-  const graphInfo = JSON.parse(localStorage.getItem('graphInfo') ?? '[]');
+  let graphInfo = JSON.parse(localStorage.getItem('graphInfo') ?? '[]');
+  graphInfo = graphInfo == null ? [] : graphInfo;
   // localStorage.setItem('graphInfo')
   // console.log(node,'NODE节点');
 
@@ -288,110 +291,92 @@ async function onRun() {
     }
     await onSaveGraphInfo(nodes, edges);
     const response = await createJob(route.query.id);
-    state.newJobId = response.data;
-    startPollingStatus();
+    console.log(response.data, 'NEWJOBID');
+    state.newJobId = response;
+    fetchStatus();
     ElMessage.success(response.retmsg || '操作成功');
   } catch (error) {
     ElMessage.error(error);
   }
 }
 
-const isRunning = ref(false);
-
-// 2. 增强版的轮询控制
-const startPollingStatus = () => {
-  stopPolling(); // 先停止已有轮询
-  fetchStatus(); // 立即执行一次
-  isRunning.value = true;
-  pollingInterval = setInterval(fetchStatus, 2000);
-};
-
-const stopPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-    pollingInterval = null;
-    isRunning.value = false;
-  }
-};
-
-// 3. 带调试日志的状态检查
+// 带调试日志的状态检查
 const fetchStatus = async () => {
   try {
     const ws = new WebSocket(`/websocket/progress/${state.newJobId}/guest/1`);
-    localStorage.setItem('nodeStatusInfo', JSON.stringify(response.nodes));
-    const graph = GraphViewerRef.value?.getGraph();
-    const edges = graph.getEdges();
+    ws.onopen = () => {
+      console.log('WebSocket连接成功');
+    };
 
-    // 1. 调试输出节点和边信息
-    console.log(
-      '当前节点状态:',
-      response.nodes.map((n) => `${n.graphNodeId}:${n.status}`),
-    );
-    console.log('边数量:', edges.length);
+    ws.onmessage = (event) => {
+      console.log('收到消息:', event.data);
+      const wsData = JSON.parse(event.data);
+      localStorage.setItem(
+        'nodeStatusInfo',
+        JSON.stringify(wsData.dependency_data.component_list),
+      );
+      const graph = GraphViewerRef.value?.getGraph();
+      const edges = graph.getEdges();
 
-    // 2. 先清除所有动画
-    edges.forEach((edge) => {
-      edge.attr({
-        line: {
-          strokeDasharray: '',
-          style: {
-            animation: 'none',
-            stroke: edge.attr('line/stroke'), // 强制触发重绘
-          },
-        },
-      });
-    });
+      // 1. 调试输出节点和边信息
+      console.log(`当前节点状态:`);
+      console.log('边数量:', edges.length);
 
-    // 3. 仅对RUNNING节点的连线添加动画
-    if (!response.finished) {
-      const runningNodeIds = response.nodes
-        .filter((node) => node.status === 'RUNNING')
-        .map((node) => node.graphNodeId);
-
-      console.log('RUNNING节点ID:', runningNodeIds);
-
+      // 2. 先清除所有动画
       edges.forEach((edge) => {
-        const sourceId = edge.getSourceCell()?.store.changed.zIndex;
-        const targetId = edge.getTargetCell()?.store.changed.zIndex;
-        const edgeId = edge?.store?.data?.data.edgeId;
-        // 只需要target的节点ID
-        const targetNodeId = edgeId.split('__')[1];
-
-        console.log(edge, edge.getTargetCell(), '>>>edge.getTargetCell()');
-
-        // const tempRunningNodeIds = runningNodeIds.map((i) =>
-        //   Number(i[i.length - 1]),
-        // );
-
-        // console.log(
-        //   'tempRUNNING节点ID:',
-        //   sourceId,
-        //   targetId,
-        // );
-
-        // const isActive =
-        //   (sourceId && tempRunningNodeIds.includes(sourceId)) ||
-        //   (targetId && tempRunningNodeIds.includes(targetId));
-        const isActive = runningNodeIds.some((item) =>
-          targetNodeId.includes(item),
-        );
-
-        if (isActive) {
-          console.log(`激活边: ${edge.id} (${sourceId} -> ${targetId})`);
-          edge.attr({
-            line: {
-              strokeDasharray: 5,
-              style: {
-                animation: 'running-line 30s linear infinite',
-                stroke: edge.attr('line/stroke'), // 强制重绘
-              },
+        edge.attr({
+          line: {
+            strokeDasharray: '',
+            style: {
+              animation: 'none',
+              stroke: edge.attr('line/stroke'), // 强制触发重绘
             },
-          });
-        }
+          },
+        });
       });
-    } else {
-      stopPolling();
-    }
+
+      // 3. 仅对RUNNING节点的连线添加动画
+      if (wsData.status == 'running') {
+        const runningNodeIds = wsData.dependency_data.component_list
+          .filter((node) => node.status === 'running')
+          .map((node) => node.component_name);
+
+        console.log('RUNNING节点ID:', runningNodeIds);
+
+        edges.forEach((edge) => {
+          const sourceId = edge.getSourceCell()?.store.data.data.label;
+          const targetId = edge.getTargetCell()?.store.data.data.label;
+          const edgeId = edge?.store?.data?.data.edgeId;
+          // 只需要target的节点ID
+          const targetNodeId = edgeId.split('__')[1];
+
+          console.log(
+            edge,
+            edge.getTargetCell(),
+            sourceId,
+            targetId,
+            '>>>edge.getTargetCell()',
+          );
+
+          const isActive = runningNodeIds.some((item) =>
+            targetNodeId.includes(item),
+          );
+          console.log(isActive, runningNodeIds, targetNodeId, 'isActive');
+          if (isActive) {
+            console.log(`激活边: ${edge.id} (${sourceId} -> ${targetId})`);
+            edge.attr({
+              line: {
+                strokeDasharray: 5,
+                style: {
+                  animation: 'running-line 30s linear infinite',
+                  stroke: edge.attr('line/stroke'), // 强制重绘
+                },
+              },
+            });
+          }
+        });
+      }
+    };
   } catch (error) {
     console.error('轮询出错:', error);
   }
@@ -512,7 +497,7 @@ const onCheckResult = async (args) => {
 $header-tool-height: 40px;
 $side-tool-height: 32px;
 $side-width: 300px;
-$project-info-height: 100px;
+$project-info-height: 300px;
 
 .project-edit {
   height: 100%;

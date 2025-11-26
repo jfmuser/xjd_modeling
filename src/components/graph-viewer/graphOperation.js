@@ -456,7 +456,7 @@ export function getGraphNodeShape(val) {
 }
 
 export function register() {
-  registerNode();
+  return registerNode();
 }
 
 async function registerNode() {
@@ -499,7 +499,7 @@ async function registerNode() {
     nodeNameList.forEach((item) => {
       items.push({ group: item, id: item });
     });
-    console.log(nodeNameList, '爱卡卡卡卡卡');
+
     const nodePlace = {};
     let top = 0;
     let bottom = 0;
@@ -820,5 +820,13 @@ async function registerNode() {
       },
       true,
     );
+  });
+  //为了保证先执行register方法
+  return new Promise((resolve) => {
+    // 模拟异步操作
+    setTimeout(() => {
+      console.log('register 执行完毕');
+      resolve();
+    }, 1000);
   });
 }

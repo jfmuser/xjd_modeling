@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, computed, watch, reactive, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { syncEngineInfo } from '../../apis/manager/managerApi'
-import { formatTimestamp } from '../../utils'
+import { syncEngineInfo } from '../../apis/manager/managerApi';
+import { formatTimestamp } from '../../utils';
 // import { EditStatus, SiteRole, SiteStatus } from '../../utils/const';
 // import { formatDateTime, formatTimestamp } from '../../utils';
 // import { getSiteInfo, getSiteMsg } from '../../apis/dept/site.api';
@@ -15,18 +15,18 @@ import ListContainerItem from '../../layouts/ListContainerItem.vue';
 // import useAuthStore from '../../stores/auth.store';
 import useSiteStore from '../../stores/dept/site.store';
 import AddEngineDialog from './AddEngineDialog.vue';
-import { engineType } from '../../utils'
-import useAuthStore from '../../stores/auth.store'
-import { secretflowLogin } from '../../apis/secretflow/secretflow.api'
-import { getSecretflowInfo } from '../../apis/secretflowApi/secretflow.api.js'
+import { engineType } from '../../utils';
+import useAuthStore from '../../stores/auth.store';
+import { secretflowLogin } from '../../apis/secretflow/secretflow.api';
+import { getSecretflowInfo } from '../../apis/secretflowApi/secretflow.api.js';
 import rsa from '../../utils/encrypt';
-import { getBoardInfo } from '../../apis/innovate/innovate.api.js'
+import { getBoardInfo } from '../../apis/innovate/innovate.api.js';
 import { security, fblogin } from '../../apis/workspace/job.api';
 import AES from '../../utils/aesCrypto';
 
 let msgInterval;
 const siteStore = useSiteStore();
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 // const authStore = useAuthStore();
 // const router = useRouter();
 const route = useRoute();
@@ -41,12 +41,12 @@ const state = reactive({
   fateInfo: '',
   innovateInfo: '',
   secretflowInfo: '',
-  mySite: {}
+  mySite: {},
   // cloudManagerExchange: {},
 });
-const showAddEngineDialog = ref(false)
-const selfinfo = ref(JSON.parse(sessionStorage.getItem('selfParties')))
-const tableData = ref([])
+const showAddEngineDialog = ref(false);
+const selfinfo = ref(JSON.parse(sessionStorage.getItem('selfParties')));
+const tableData = ref([]);
 // const partyId = ref('')
 // const siteID = ref('')
 // const federatedId = ref('')
@@ -192,21 +192,22 @@ const tableData = ref([])
 //   });
 // }
 
-
 onBeforeMount(async () => {
-  state.mySite = siteStore.mySite
-  state.mySite.tDomainEngineList.forEach(item => {
-    handleCommand(item.id)
-  })
-  if (state.mySite.tDomainEngineList.find(engine => engine.engine == '1')) {
-    const secretflowInfo = await getSecretflowInfo()
-    const data = await secretflowLogin({ name: AES.decrypt(secretflowInfo.username), passwordHash: AES.decrypt(secretflowInfo.password) })
-    localStorage.setItem('User-Token', data.token)
-    localStorage.setItem('secretflowUserInfo', JSON.stringify(data))
-    localStorage.setItem('neverLogined', true)
+  state.mySite = siteStore.mySite;
+  state.mySite.tDomainEngineList.forEach((item) => {
+    handleCommand(item.id);
+  });
+  if (state.mySite?.tDomainEngineList.find((engine) => engine.engine == '1')) {
+    const secretflowInfo = await getSecretflowInfo();
+    const data = await secretflowLogin({
+      name: AES.decrypt(secretflowInfo.username),
+      passwordHash: AES.decrypt(secretflowInfo.password),
+    });
+    localStorage.setItem('User-Token', data.token);
+    localStorage.setItem('secretflowUserInfo', JSON.stringify(data));
+    localStorage.setItem('neverLogined', true);
   }
-  if (state.mySite.tDomainEngineList.find(engine => engine.engine == '0')) {
-
+  if (state.mySite.tDomainEngineList.find((engine) => engine.engine == '0')) {
     //   getkey fb 获取密钥对密码加密
     const securityInfo = await security();
     let securityData = '';
@@ -218,40 +219,38 @@ onBeforeMount(async () => {
     const password = rsa(securityData, AES.decrypt(getInfo.password));
     // fb login 再次登录设置cookie
     await fblogin(AES.decrypt(getInfo.username), password);
-    localStorage.setItem('CurrentUser', getInfo.username)
+    localStorage.setItem('CurrentUser', getInfo.username);
   }
-  await authStore.asyncAuthority()
-})
+  await authStore.asyncAuthority();
+});
 
-const subjectId = computed(() => route.query.id)
-watch(() => subjectId.value, (newVal) => {
-  siteStore.otherSite.forEach(site => {
-    if (site.id === newVal) {
-      tableData.value = site.tDomainEngineList
-    }
-  })
-  console.log(tableData.value, 'tDomainEngineList');
-
-})
-
-
+const subjectId = computed(() => route.query.id);
+watch(
+  () => subjectId.value,
+  (newVal) => {
+    siteStore.otherSite.forEach((site) => {
+      if (site.id === newVal) {
+        tableData.value = site.tDomainEngineList;
+      }
+    });
+    console.log(tableData.value, 'tDomainEngineList');
+  },
+);
 
 async function handleCommand(engineId) {
   try {
-    await syncEngineInfo(engineId)
+    await syncEngineInfo(engineId);
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-
-
 }
 
 async function closeAddEngineDialog() {
-  await siteStore.fetchMySite()
-  state.mySite.tDomainEngineList.forEach(item => {
-    handleCommand(item.id)
-  })
-  showAddEngineDialog.value = false
+  await siteStore.fetchMySite();
+  state.mySite.tDomainEngineList.forEach((item) => {
+    handleCommand(item.id);
+  });
+  showAddEngineDialog.value = false;
 }
 </script>
 
@@ -261,22 +260,31 @@ async function closeAddEngineDialog() {
       <span class="el-dropdown-link" @click="showAddEngineDialog = true">
         <el-icon>
           <Plus />
-        </el-icon> 添加引擎
+        </el-icon>
+        添加引擎
       </span>
     </template>
     <ListContainerItem title="基本信息">
       <el-form ref="FormRefBasic" label-width="130px" inline>
         <el-form-item label="主体名称">
           <el-link type="primary">
-            {{ siteStore.otherSite.find(site => site.id === subjectId)?.name }}
+            {{
+              siteStore.otherSite.find((site) => site.id === subjectId)?.name
+            }}
             <!-- {{ siteStore.otherSite[1] }} -->
           </el-link>
         </el-form-item>
         <el-form-item label="注册时间">
-          {{ siteStore.otherSite.find(site => site.id === subjectId)?.createdTime }}
+          {{
+            siteStore.otherSite.find((site) => site.id === subjectId)
+              ?.createdTime
+          }}
         </el-form-item>
         <el-form-item label="最后健康检查时间" label-width="130px">
-          {{ siteStore.otherSite.find(site => site.id === subjectId)?.lastHealthCheckDate }}
+          {{
+            siteStore.otherSite.find((site) => site.id === subjectId)
+              ?.lastHealthCheckDate
+          }}
         </el-form-item>
       </el-form>
     </ListContainerItem>
@@ -298,7 +306,10 @@ async function closeAddEngineDialog() {
       </el-table>
     </ListContainerItem>
   </ListContainer>
-  <AddEngineDialog :showAddEngineDialog="showAddEngineDialog" @close="closeAddEngineDialog"></AddEngineDialog>
+  <AddEngineDialog
+    :showAddEngineDialog="showAddEngineDialog"
+    @close="closeAddEngineDialog"
+  ></AddEngineDialog>
   <!-- <SiteRegister ref="SiteRegisterRef"></SiteRegister> -->
   <!-- <SiteApply ref="siteApplyRef" /> -->
   <!-- <ExchangeChangeDialog ref="ExchangeChangeDialogRef" :data="exchangeInfo" @update="onSetCloudManagerExchange">

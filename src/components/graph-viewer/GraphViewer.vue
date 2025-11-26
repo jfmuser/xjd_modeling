@@ -18,15 +18,34 @@ const siteStore = useSiteStore();
 const secretflowStore = useSecretflowStore();
 // 在文件顶部定义标志变量
 let isButtonRemoveRegistered = false;
+// if (
+//   siteStore.mySite.tDomainEngineList.find(
+//     async (engine) => engine.engine == '0',
+//   )
+// ) {
+//   await register();
+// }
 
-if (siteStore.mySite.tDomainEngineList.find((engine) => engine.engine == '1')) {
-  console.log('进入了运行了');
-  secretflowStore.getSecretflowI18n();
-  secretflowRegister();
-}
-if (siteStore.mySite.tDomainEngineList.find((engine) => engine.engine == '0')) {
-  register();
-}
+// if (siteStore.mySite.tDomainEngineList.find((engine) => engine.engine == '1')) {
+//   secretflowStore.getSecretflowI18n();
+//   await secretflowRegister();
+// }
+(async () => {
+  const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
+    (engine) => engine.engine == '0',
+  );
+
+  if (hasEngine0) {
+    await register();
+  }
+  const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
+    (engine) => engine.engine == '1',
+  );
+  if (hasEngine1) {
+    secretflowStore.getSecretflowI18n();
+    await secretflowRegister();
+  }
+})();
 export default {
   name: 'GraphViewer',
   props: { editable: { type: Boolean, default: false } },
@@ -76,11 +95,14 @@ export default {
         const source = nodes.find(
           (item) => item.store.data.data.label === edgeItem.source,
         );
+        const edgeId = `${source.store.data.data.label}__${target.store.data.data.label}`;
+        console.log(target, source, '帮我看看a');
         addEdge({
           target,
           source,
           targetPort: edgeItem.targetPort,
           sourcePort: edgeItem.sourcePort,
+          edgeId: edgeId,
         });
       }
     }
@@ -371,6 +393,88 @@ export default {
         // 隐藏删除按钮
         cell.removeTools();
       });
+
+      // // 添加不同颜色的矩形区域
+      // const backgroundNode = graph.addNode({
+      //   shape: 'rect',
+      //   x: 0,
+      //   y: 0,
+      //   width: ContainerRef.value.offsetWidth / 2,
+      //   height: ContainerRef.value.offsetHeight / 2,
+      //   attrs: {
+      //     body: {
+      //       fill: '#29419619', // 深蓝色区域
+      //       // stroke: '#FF0000',
+      //       strokeWidth: 2,
+      //     },
+      //     label: {
+      //       text: '榆林市公安局建模区',
+      //       fill: '#000',
+      //       fontSize: 24,
+      //     },
+      //   },
+      //   data: {
+      //     disableMove: false, //true为可拖拽，false不可拖拽、
+      //   },
+      //   draggable: false, // 不可移动
+      //   selectable: false, // 不可选中
+      // });
+
+      // // 设置背景节点不可移动
+      // backgroundNode.setProp('draggable', false);
+
+      // graph.addNode({
+      //   shape: 'rect',
+      //   x: ContainerRef.value.offsetWidth / 2,
+      //   y: 0,
+      //   width: ContainerRef.value.offsetWidth / 2,
+      //   height: ContainerRef.value.offsetHeight / 2,
+      //   attrs: {
+      //     body: {
+      //       fill: '#29419619', // 淡蓝色区域
+      //       // stroke: '#00FF00',
+      //       strokeWidth: 2,
+      //     },
+      //     label: {
+      //       text: '互联网企业建模区',
+      //       fill: '#000',
+      //       fontSize: 24,
+      //       // 设置标签的对齐方式
+      //       // textAnchor: 'start', // 水平对齐方式
+      //       // textVerticalAnchor: 'start', // 垂直对齐方式
+      //     },
+      //   },
+      //   data: {
+      //     disableMove: false, //true为可拖拽，false不可拖拽
+      //   },
+      //   draggable: false, // 不可移动
+      //   selectable: false, // 不可选中
+      // });
+
+      // graph.addNode({
+      //   shape: 'rect',
+      //   x: 0,
+      //   y: ContainerRef.value.offsetHeight / 2,
+      //   width: ContainerRef.value.offsetWidth,
+      //   height: ContainerRef.value.offsetHeight / 2,
+      //   attrs: {
+      //     body: {
+      //       fill: '#00462819', // 绿色区域
+      //       // stroke: '#0000FF',
+      //       strokeWidth: 2,
+      //     },
+      //     label: {
+      //       text: '密态可信空间',
+      //       fill: '#000',
+      //       fontSize: 24,
+      //     },
+      //   },
+      //   data: {
+      //     disableMove: false, //true为可拖拽，false不可拖拽
+      //   },
+      //   draggable: false, // 不可移动
+      //   selectable: false, // 不可选中
+      // });
 
       graph.on('node:click', (...args) => {
         emit('clickNode', ...args);
