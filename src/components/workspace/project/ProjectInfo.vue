@@ -25,6 +25,7 @@ import { formattedFormResult } from '../../../views/workspace/project/algorithmU
 import { getOperator } from '../../../apis/manager/managerApi';
 import useSiteStore from '../../../stores/dept/site.store';
 import { getAuthData } from '../../../apis/manager/managerApi';
+import { dpProjectTasks05Form, refreshDatas, dpProjectForm } from '../../../apis/dp/api'
 
 const router = useRouter();
 const route = useRoute();
@@ -69,7 +70,7 @@ watch(
   },
 );
 
-function getSiteInfo() {
+function getSiteInfo () {
   if (
     siteStore.mySite.tDomainEngineList &&
     siteStore.mySite.tDomainEngineList.some((item) => item.engine == '0')
@@ -81,18 +82,25 @@ function getSiteInfo() {
   }
 }
 
-async function fetchData() {
+async function fetchData () {
   try {
     state.loading = true;
     if (projectId.value && type.value != '1') {
-      state.projectDetail = await getProjectById(projectId.value);
+      const res = await dpProjectTasks05Form({ id: projectId.value });
+      const { taskName, prjId, outterTaskId = '{}' } = res.dpProjectTasks05 || {}
+      const prjRes = await dpProjectForm({ id: prjId.id })
+      const { projectJson } = JSON.parse(outterTaskId)
+      console.log({ prjRes, projectJson })
+      let participants = JSON.stringify(prjRes?.dpProject?.dpProjectPartysList?.map(item => item?.partyId?.id) || [])
+      const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson }
+      state.projectDetail = detail
     }
   } finally {
     state.loading = false;
   }
 }
 
-async function onSaveProjectBaseInfo() {
+async function onSaveProjectBaseInfo () {
   console.log('onSaveProjectBaseInfo');
   if (type.value == '4') {
     // 如果是python项目，获取授权数据并打开弹框
@@ -312,7 +320,7 @@ async function onSaveProjectBaseInfo() {
 // defaultValues:当前项目配置的算子参数
 // componentName:当前算子名称
 // hostList:多方联邦时使用，代表这个项目有多少个host方
-function setDefaultValue(params, componentName, hostList) {
+function setDefaultValue (params, componentName, hostList) {
   console.log(params, componentName, hostList, '33311111OOOO');
   const hostParams = {};
   const guestParams = [];
@@ -391,7 +399,7 @@ function setDefaultValue(params, componentName, hostList) {
   return projectParamsList;
 }
 
-function setSubParam(params, componentName, num) {
+function setSubParam (params, componentName, num) {
   let defaultValue = null;
   params.forEach((subParam) => {
     // 避免level下面还有level
@@ -419,7 +427,7 @@ function setSubParam(params, componentName, num) {
   });
 }
 
-async function onRun() {
+async function onRun () {
   try {
     state.loading = true;
     const response = await createJob(route.query.id);
@@ -432,11 +440,11 @@ async function onRun() {
   }
 }
 
-function onCancel() {
+function onCancel () {
   ProjectFormRef.value.cancel();
 }
 
-function onEdit() {
+function onEdit () {
   router.push({
     name: route.name,
     query: {
@@ -455,7 +463,7 @@ const handleJobDetail = (val) => {
   emits('ProjectDetail', val);
 };
 
-async function runPythonProject() {
+async function runPythonProject () {
   if (state.projectDetail.projectJson.includes('grna')) {
     const projectJson = JSON.parse(state.projectDetail.projectJson);
     projectJson.grna = {
@@ -512,26 +520,31 @@ async function runPythonProject() {
 </script>
 
 <template>
-  <ListContainer v-loading="state.loading" title="项目详情">
+  <ListContainer v-loading="state.loading"
+                 title="项目详情">
     <!-- <el-button v-if="state.model.projectSourceType === SourceType.SELF" type="text" @click="onRun" -->
     <template #header-tool>
-      <el-button type="text" @click="onRun" v-permission="'start'">
-        <el-icon
-          ><img src="../../../assets/workspace/play.svg" alt=""
-        /></el-icon>
+      <el-button type="text"
+                 @click="onRun"
+                 v-permission="'start'">
+        <el-icon><img src="../../../assets/workspace/play.svg"
+               alt="" /></el-icon>
         运行
       </el-button>
     </template>
     <ListContainerItem title="基本信息">
       <template #header-tool>
         <template v-if="FormType.EDIT === action">
-          <el-button type="text" @click="onSaveProjectBaseInfo"
-            >下一步
+          <el-button type="text"
+                     @click="onSaveProjectBaseInfo">下一步
           </el-button>
-          <el-button type="text" @click="onCancel">取消</el-button>
+          <el-button type="text"
+                     @click="onCancel">取消</el-button>
         </template>
         <template v-else-if="FormType.READ === action">
-          <el-button type="text" @click="onEdit" v-permission="'edit'">
+          <el-button type="text"
+                     @click="onEdit"
+                     v-permission="'edit'">
             <el-icon>
               <Edit />
             </el-icon>
@@ -540,90 +553,71 @@ async function runPythonProject() {
         </template>
       </template>
       <!-- 备注 -->
-      <ProjectForm
-        ref="ProjectFormRef"
-        :defaultModel="state.projectDetail"
-        :formType="action"
-      />
+      <ProjectForm ref="ProjectFormRef"
+                   :defaultModel="state.projectDetail"
+                   :formType="action" />
     </ListContainerItem>
     <ListContainerItem title="作业概览">
-      <JobTable
-        ref="JobTableRef"
-        :projectId="projectId"
-        :projectName="projectName"
-        @JobDetail="handleJobDetail"
-      />
+      <JobTable ref="JobTableRef"
+                :projectId="projectId"
+                :projectName="projectName"
+                @JobDetail="handleJobDetail" />
     </ListContainerItem>
   </ListContainer>
-  <el-dialog v-model="dialogVisible" title="编辑python引擎项目" width="800px">
-    <el-select
-      v-model="state.authData"
-      placeholder="选择要使用的数据"
-      v-if="
+  <el-dialog v-model="dialogVisible"
+             title="编辑python引擎项目"
+             width="800px">
+    <el-select v-model="state.authData"
+               placeholder="选择要使用的数据"
+               v-if="
         state.projectDetail.projectJson.includes('grna') ||
         state.projectDetail.projectJson.includes('fake')
-      "
-    >
-      <el-option
-        v-for="item in authDataList"
-        :key="item.id"
-        :label="item.name"
-        :value="item.name"
-      />
+      ">
+      <el-option v-for="item in authDataList"
+                 :key="item.id"
+                 :label="item.name"
+                 :value="item.name" />
     </el-select>
-    <el-form
-      :inline="true"
-      :model="formInline"
-      class="demo-form-inline"
-      v-if="state.projectDetail.projectJson.includes('one-shot')"
-    >
+    <el-form :inline="true"
+             :model="formInline"
+             class="demo-form-inline"
+             v-if="state.projectDetail.projectJson.includes('one-shot')">
       <el-form-item label="原始数据">
-        <el-select
-          v-model="formInline.realPath"
-          placeholder="请选择原始数据"
-          clearable
-        >
-          <el-option
-            v-for="item in authDataList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
-          />
+        <el-select v-model="formInline.realPath"
+                   placeholder="请选择原始数据"
+                   clearable>
+          <el-option v-for="item in authDataList"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.name" />
         </el-select>
       </el-form-item>
       <el-form-item label="本方数据">
-        <el-select
-          v-model="formInline.party1"
-          placeholder="请选择本方数据"
-          clearable
-        >
-          <el-option
-            v-for="item in authDataList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
-          />
+        <el-select v-model="formInline.party1"
+                   placeholder="请选择本方数据"
+                   clearable>
+          <el-option v-for="item in authDataList"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.name" />
         </el-select>
       </el-form-item>
       <el-form-item label="他方数据">
-        <el-select
-          v-model="formInline.party2"
-          placeholder="请选择他方数据"
-          clearable
-        >
-          <el-option
-            v-for="item in authDataList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
-          />
+        <el-select v-model="formInline.party2"
+                   placeholder="请选择他方数据"
+                   clearable>
+          <el-option v-for="item in authDataList"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.name" />
         </el-select>
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="runPythonProject"> 确定 </el-button>
+        <el-button type="primary"
+                   @click="runPythonProject"> 确定 </el-button>
       </div>
     </template>
   </el-dialog>

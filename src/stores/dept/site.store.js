@@ -69,12 +69,13 @@ const useSiteStore = defineStore(storeId.site, {
         const list = [];
         let mySite = undefined;
 
-        res.list.forEach((item)=>{
+        res?.list?.forEach((item)=>{
           const outterPartyId = JSON.parse(item.outterPartyId);
           const row = {
             id: item.id,
             isSelf: item.ptype === '1' ? 1 : 0,
             name: item.pname,
+            nodeId:outterPartyId.nodeId,
             tDomainEngineList: [{
               domainId: item.id,
               engine: 1,

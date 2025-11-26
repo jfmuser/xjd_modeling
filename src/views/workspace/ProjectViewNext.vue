@@ -13,6 +13,7 @@ import SecretflowProjectInfo from '../secretflow/SecretflowProjectInfo.vue';
 import FateBoard from '@/components/workspace/iframe/FateBoard.vue';
 const route = useRoute();
 const projectType = computed(() => route.query.type);
+console.log({ projectType })
 const isShowAll = computed(() => {
   return !_.isNil(route.query.all);
 });
@@ -38,33 +39,28 @@ const handelClose = (val) => {
 </script>
 
 <template>
-  <ProjectListView v-if="isShowAll" ref="ProjectListViewRef" />
-  <ProjectEditViewNext
-    v-else-if="isEdit && core == '0'"
-    ref="ProjectEditViewRef"
-  />
+  <ProjectListView v-if="isShowAll"
+                   ref="ProjectListViewRef" />
+  <ProjectEditViewNext v-else-if="isEdit && core == '0'"
+                       ref="ProjectEditViewRef" />
   <SecretflowProjectEditView v-else-if="isEdit && core == '1'" />
-  <div v-else style="height: 100%">
+  <div v-else
+       style="height: 100%">
     <CatalogTableContainer v-if="allShow">
-      
+
       <template #table>
         <!-- 右边的内容区域 -->
-        <ProjectInfo
-          v-if="projectType == '0' || projectType == '4'"
-          @ProjectDetail="handelProjectDetail"
-        />
-        <SecretflowProjectInfo
-          v-show="projectType == '1' || projectType == '3'"
-          @ProjectDetail="handelProjectDetail"
-        />
-        <el-empty description="暂无数据" v-show="!projectType" />
+        <ProjectInfo v-if="projectType == '0' || projectType == '4'"
+                     @ProjectDetail="handelProjectDetail" />
+        <SecretflowProjectInfo v-show="projectType == '1' || projectType == '3'"
+                               @ProjectDetail="handelProjectDetail" />
+        <el-empty description="暂无数据"
+                  v-show="!projectType" />
       </template>
     </CatalogTableContainer>
-    <FateBoard
-      :FateBoardUrl="FateBoardUrl"
-      @close="handelClose"
-      v-show="FateBoardUrl"
-    ></FateBoard>
+    <FateBoard :FateBoardUrl="FateBoardUrl"
+               @close="handelClose"
+               v-show="FateBoardUrl"></FateBoard>
   </div>
   <!-- FateBoard -->
 </template>
