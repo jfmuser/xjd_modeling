@@ -17,10 +17,8 @@ import {
   getProject,
   getOutputData,
   getStatus,
-  startGraph,
 } from '../../apis/secretflow/secretflow.api';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { FormType } from '@/utils/const';
 import { useRouter } from 'vue-router';
 import { get, useFullscreen } from '@vueuse/core';
 import GraphViewer from '../../components/graph-viewer/GraphViewer.vue';
@@ -33,12 +31,11 @@ import useGraph from '../../hooks/useGraph';
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
 import { useRoute } from 'vue-router';
 import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
-import dictionary from '../../utils/dictionary';
 import ResultDrawer from './ResultDrawer.vue';
 import { ElMessage } from 'element-plus';
-// import { createJob } from '../../apis/workspace/project.api';
-import { refreshDatas } from '../../apis/dp/api'
+import { createJob } from '../../apis/workspace/project.api';
 import LogDrawer from './LogDrawer.vue';
+import { graphNodeList } from '../../components/secretflow/secretflowGraphOperation';
 
 const route = useRoute();
 const secretflwoStore = useSecretflowStore();
@@ -71,7 +68,7 @@ const currentGraphNodeName = ref(null);
 
 let timerId = null;
 const core = computed(() => {
-  return route.query.core;
+  return route.query.type;
 });
 const PrivacyExchangeData = ref({ nodeList: [] });
 
@@ -105,7 +102,15 @@ const categories = computed(() => {
 });
 
 const operatorCategories = computed(() => {
-  console.log(categories.value);
+  console.log(categories.value, 'categories.value');
+
+  //先筛选出没有的算子然后计算左侧算子列表应该留的高度
+  categories.value.forEach((item) => {
+    item.operators = item.operators.filter((operator) =>
+      graphNodeList.includes(`graph-node-${operator.name}`),
+    );
+  });
+
   return categories.value.map((item) => ({
     title: item.name,
     name: item.key,
@@ -114,16 +119,8 @@ const operatorCategories = computed(() => {
   }));
 });
 
-const projectInfo = computed(() =>{
-  // return {
-  //   "projectName": route.query.projectName,
-  //   "nodeTag":["主体A","主体B"],
-  //   "projectId": route.query.projectId,
-  //   "graphId": route.query.graphId
-  // }
-  return JSON.parse(localStorage.getItem('projectInfo'))
-}
-  // 
+const projectInfo = computed(() =>
+  JSON.parse(localStorage.getItem('projectInfo')),
 );
 
 async function getOperators() {
@@ -154,7 +151,7 @@ async function getOperators() {
     });
     console.log(temporary);
     state.operators = [...state.operators, ...temporary];
-    console.log(state.operators);
+    console.log(state.operators, 'state.operators');
   } catch (error) {
     console.error(error);
   } finally {
@@ -195,6 +192,13 @@ async function setCurrentAlgorithms() {
   }
   graphInfo.value = JSON.parse(localStorage.getItem('graphInfo'));
   estimatePrivacyExchangeData();
+  const algMap = {};
+  const zhAlgMap = {};
+  state.operators.forEach((item) => {
+    algMap[item.name] = item;
+    zhAlgMap[item.labelName] = item;
+  });
+  console.log(algMap, zhAlgMap, 'algMapalgMap');
   graphInfo.value.nodes.forEach((item, i) => {
     console.log(item, '这里是ITEM');
 
@@ -208,7 +212,9 @@ async function setCurrentAlgorithms() {
         algorithm_name: item.label.slice(0, -2),
       },
       label: item.label,
-      type: dictionary.algorithm_En[item.label.slice(0, -2)],
+      type:
+        algMap[item.label.slice(0, -2)]?.module ??
+        zhAlgMap[item.label.slice(0, -2)]?.module,
       // type: item.label,
       x: item.x,
       y: item.y,
@@ -257,26 +263,27 @@ async function onClickNode(item) {
   currentNode.value = item.node;
   graph.value = GraphViewerRef.value?.getGraph();
   console.log(item, '111123');
-
-  paramDrawer.operator =
-    secretflwoStore.nodeDetail.find(
-      (node) =>
-        node.name ===
-        dictionary.yinyu_algorithm_reverse[
-          item.node.store.data.data.algorithm_name
-        ],
-    ) ??
-    secretflwoStore.nodeDetail.find(
-      (node) =>
-        node.name ===
-        dictionary.algorithm_En[item.node.store.data.data.algorithm_name],
-    );
+  const algMap = {};
+  const zhAlgMap = {};
+  state.operators.forEach((item) => {
+    algMap[item.name] = item;
+    zhAlgMap[item.labelName] = item;
+  });
+  console.log(zhAlgMap, '>>>>>>>>zhAlgMap');
+  paramDrawer.operator = secretflwoStore.nodeDetail.find(
+    (node) =>
+      node.name === algMap[item.node.store.data.data.algorithm_name]?.module ||
+      node.name === zhAlgMap[item.node.store.data.data.algorithm_name]?.module,
+  );
 
   currentGraphNodeName.value = item.node.store.data.data.label;
-
-  // 如果不是 PSI 算子，直接显示 paramDrawer 并退出
-  if (!(item.node.store.data.data.algorithm_name.includes('psi') || item.node.store.data.data.type === 'psi')) {
-  // if () {
+  // 如果不是 PSI 和 评估 算子，直接显示 paramDrawer 并退出
+  if (
+    !item.node.store.data.data.type?.includes('psi') &&
+    !item.node.store.data.data.type?.includes('predict') &&
+    !item.node.store.data.data.algorithm_name?.includes('predict') &&
+    !item.node.store.data.data.algorithm_name?.includes('psi')
+  ) {
     paramDrawer.visible = true;
     data.value = {
       graphId: projectInfo.value.graphId,
@@ -294,9 +301,10 @@ async function onClickNode(item) {
     const datatableListAll = graphInfo.value.nodes.filter((node) =>
       node.codeName.includes('datatable'),
     );
-    const psi = graphInfo.value.nodes.find(
-      (node) => node.label === item.node.store.data.data.label,
+    const psi = graphInfo.value.nodes.find((node) =>
+      node.codeName.includes('psi'),
     );
+
     const datatableList = datatableListAll.filter((datatable) =>
       graphInfo.value.edges.some(
         (edge) =>
@@ -321,9 +329,8 @@ async function onClickNode(item) {
       paramDrawer.visible = true; // 确保显示抽屉
       return;
     }
-
     const dataIdList = attrs.map((attr) => attr?.s);
-    console.log(dataIdList, 'dataIdList.nodeList')
+
     for (const node of res.nodes) {
       const datatableId = node.datatables.find((datatable) =>
         dataIdList.includes(datatable.datatableId),
@@ -381,13 +388,7 @@ async function onClickNode(item) {
 
 function goProjectPage() {
   cleanLocalStorage();
-  router.push({ name: 'project', query: {
-    projectName: route.query.projectName,
-    id: route.query.projectId,
-    action: FormType.READ,
-    type: 1
-  } });
-  // http://localhost:5173/#/project?projectName=联合建模1107&id=1986611313994878976&action=%E6%9F%A5%E7%9C%8B&type=1&dpToken=7d1c7a2ce09d46388a03077b7be290ba
+  router.push({ name: 'project' });
 }
 
 function onEdit() {
@@ -406,12 +407,6 @@ async function onSave() {
 
 function onCancelEdit() {
   state.editable = false;
-  router.push({ name: 'project', query: {
-    projectName: route.query.projectName,
-    id: route.query.projectId,
-    action: FormType.READ,
-    type: 1
-  } });
 }
 
 onBeforeUnmount(() => {
@@ -521,20 +516,38 @@ async function onEdgeConnected(view, edge) {
 
 // 往画布上添加算子的时候触发(保存)
 async function onAddNode(node, index, options) {
-  if (!core.value === 1) return;
+  if (core.value != 1) return;
   const nodes = GraphViewerRef.value.getNodes();
-  const nodeName = node.store.data.data.component_name;
+  const nodeName = node.store.data.data.algorithm_name;
   let max = 0;
-
+  const algMap = {};
+  const zhAlgMap = {};
+  state.operators.forEach((item) => {
+    algMap[item.name] = item;
+    zhAlgMap[item.labelName] = item;
+  });
+  console.log(node, algMap, nodeName, 'nodeName在这');
   graphInfo.value = graphInfo.value
     ? graphInfo.value
     : await getGraphDetail({
         projectId: projectInfo.value.projectId,
         graphId: projectInfo.value.graphId,
       });
+
+  //   //防止回写画布内容的时候触发这个方法反复添加节点
+  if (
+    graphInfo.value.nodes.some(
+      (item) => item.label === node?.store?.data.data.label,
+    )
+  )
+    return;
+
   const currentNode = secretflwoStore.nodeDetail.find(
-    (item) => item.name === dictionary.yinyu_algorithm_reverse[nodeName],
+    (item) =>
+      item.name === algMap[nodeName]?.module ||
+      item.name === zhAlgMap[nodeName]?.module,
   );
+  console.log(currentNode, '>>>>>>>>>currentNode');
   if (!currentNode) return;
   console.log(
     JSON.stringify(graphInfo.value.nodes),
@@ -545,6 +558,7 @@ async function onAddNode(node, index, options) {
       max = node.graphNodeId.split('-')[2];
     }
   });
+  console.log(currentNode, 'currentNode');
   graphInfo.value.nodes.push({
     codeName: `${currentNode.domain}/${currentNode.name}`,
     graphNodeId: `${projectInfo.value.graphId}-node-${max - 0 + 1}`,
@@ -653,27 +667,12 @@ const insertAnimationCSS = () => {
 
 async function onRun() {
   insertAnimationCSS(); // 确保样式注入
-  console.log(graphInfo.value.nodes, 'graphInfo.value.nodes11');
-  try {
-    const scretflowProject = await getProject({ projectId: graphInfo.value.projectId });
-    await refreshDatas(
-          scretflowProject.nodes.filter(item=>item.datatables !== null).map((item)=>{
-              return {
-                  domainId: item.nodeId,
-                  datalds: item.datatables.map(db=>db.datatableId),
-              }
-          })
-      ) 
 
-    const response = await startGraph({   
-      graphId: projectInfo.value.graphId,
-      projectId: projectInfo.value.projectId,
-      nodes: graphInfo.value.nodes.map(item=>item.graphNodeId)
-    });
-    ElMessage.success('操作成功');
+  try {
+    const response = await createJob(route.query.projectId);
+    ElMessage.success(response.retmsg || '操作成功');
     startPollingStatus();
   } catch (error) {
-    ElMessage.error(error);
     console.error('运行失败:', error);
   }
 }
@@ -849,7 +848,9 @@ const onCheckResult = async (node) => {
 <template>
   <div class="project-edit">
     <div class="header">
-      
+      <el-button type="text" :icon="ArrowLeft" @click="goProjectPage"
+        >返回
+      </el-button>
       <div class="graph-operations">
         <el-icon type="primary" @click="onZoomIn">
           <zoom-in />
@@ -972,7 +973,7 @@ const onCheckResult = async (node) => {
 $header-tool-height: 40px;
 $side-tool-height: 32px;
 $side-width: 300px;
-$project-info-height: 100px;
+$project-info-height: 300px;
 
 .project-edit {
   height: 100%;

@@ -97,6 +97,10 @@
               v-model="param.default"
               @change="changeParam(param.name, param.default)"
             />
+            <!-- <el-button
+              @click="handleRandomNum(param)"
+              v-if="param.name == 'random_state'"
+              >生成随机种子数</el-button -->
           </el-form-item>
         </el-form>
       </div>
@@ -128,6 +132,7 @@ import {
 } from '@/apis/secretflow/secretflow.api.js';
 import SetField from '@/components/secretflow/SetField.vue';
 import dictionary from '../../utils/dictionary';
+import PZarithmetic from '../../utils/PZarithmetic';
 
 const secretflowStore = useSecretflowStore();
 const emit = defineEmits(['close']);
@@ -183,7 +188,14 @@ const specialParam = ref('');
 const currentI18n = computed(() => {
   const keys = Object.keys(secretflowStore.i18n);
   const key =
-    keys.find((key) => key.includes(props.operator.name)) ??
+    keys.find((key) =>
+      key.includes(
+        props.operator.name
+          .replace('_v1', '')
+          .replace('_v2', '')
+          .replace('_v3', ''),
+      ),
+    ) ??
     keys.find((key) =>
       key.includes(dictionary.algorithm_En[props.operator.name]),
     );
@@ -295,6 +307,17 @@ async function confirmClick() {
       attrPaths.push('receiver_parties');
     } else if (param.name === 'receiver_parties') {
       attrPaths.push('allow_duplicate_keys/no/receiver_parties');
+    } else if (
+      param.name === 'frac' ||
+      param.name === 'random_state' ||
+      param.name === 'observe_feature' ||
+      param.name === 'replacements' ||
+      param.name === 'quantiles' ||
+      param.name === 'weights'
+    ) {
+      attrPaths.push(
+        `${renderParam.value[0].name}/${renderParam.value[0].default}/${param.name}`,
+      );
     } else {
       attrPaths.push(param.name);
     }
@@ -354,6 +377,25 @@ async function confirmClick() {
           is_na: false,
         });
         break;
+      case 'AT_FLOATS':
+        if (param.default == null) {
+          attrs.push({
+            fs: [],
+            is_na: false,
+          });
+        } else {
+          attrs.push({
+            fs: [Number(param.default)],
+            is_na: false,
+          });
+        }
+        break;
+      case 'AT_BOOLS':
+        attrs.push({
+          bs: [param.default, param.default],
+          is_na: false,
+        });
+        break;
       default:
         if (param.name === 'allow_duplicate_keys') {
           attrs.push({
@@ -404,6 +446,19 @@ async function confirmClick() {
 }
 
 async function changeParam(name, val, keyI18n) {
+  if (name === 'sample_algorithm' && val === 'system') {
+    renderParam.value = PZarithmetic.sample_system;
+    renderParam.value[0].default = val;
+    return;
+  } else if (name === 'sample_algorithm' && val === 'random') {
+    renderParam.value = PZarithmetic.sample_random;
+    renderParam.value[0].default = val;
+    return;
+  } else if (name === 'sample_algorithm' && val === 'stratify') {
+    renderParam.value = PZarithmetic.sample_stratify;
+    renderParam.value[0].default = val;
+    return;
+  }
   renderParam.value.forEach((item) => {
     if (keyI18n && item.keyI18n === keyI18n) {
       // 专门针对隐私求交做出的特殊处理
@@ -420,6 +475,11 @@ async function initParam() {
     if (!projectInfo.value)
       projectInfo.value = await getProject({ projectId: props.info.projectId });
     console.log(props.operator, 'props.operator');
+    //采样比较特殊，定制化参数
+    if (props.operator.name === 'sample') {
+      renderParam.value = PZarithmetic.sample_random;
+      return;
+    }
 
     // 处理inputs里面的attrs
     props.operator.inputs?.forEach((item, i) => {
@@ -603,13 +663,21 @@ async function initParam() {
         const psiNode = props.graphInfo.nodes.find((node) =>
           node.codeName.includes('psi'),
         );
-        if (psiNode)
-          psiNode.parties.forEach((participant) =>
-            options.push({
-              datatableName: participant.nodeName,
-              datatableId: participant.nodeId,
-            }),
+        if (psiNode) {
+          console.log(
+            props.PrivacyExchangeData['nodeList'],
+            'props.PrivacyExchangeData',
           );
+          if (props.PrivacyExchangeData['nodeList'].length > 0) {
+            props.PrivacyExchangeData['nodeList'].forEach((node) => {
+              options.push({
+                datatableName: node.nodeName,
+                datatableId: node.nodeId,
+              });
+            });
+          }
+        }
+
         return {
           name: item.name,
           renderType: 'selected',
@@ -627,7 +695,7 @@ async function initParam() {
         // })
         // if (!saveNode[0]) return { name: item.name, desc: item.desc, renderType: 'selected' }
         const options = [];
-        console.log(props.PrivacyExchangeData.nodeList,'props.PrivacyExchangeData.value["nodeList"]')
+        // console.log(props.PrivacyExchangeData.value["nodeList"],'props.PrivacyExchangeData.value["nodeList"]')
         if (props.PrivacyExchangeData['nodeList'].length > 0) {
           props.PrivacyExchangeData['nodeList'].forEach((node) =>
             options.push({
@@ -718,6 +786,18 @@ function backflowParam() {
   console.log(paramObj.value);
   console.log();
   console.log(paramObj.value[props.currentGraphNodeName], renderParam);
+  //根据采样的不同模式切换参数
+  if (
+    renderParam.value[0]?.name === 'sample_algorithm' &&
+    paramObj.value[props.currentGraphNodeName][0]?.s === 'system'
+  ) {
+    renderParam.value = PZarithmetic.sample_system;
+  } else if (
+    renderParam.value[0]?.name === 'sample_algorithm' &&
+    paramObj.value[props.currentGraphNodeName][0]?.s === 'stratify'
+  ) {
+    renderParam.value = PZarithmetic.sample_stratify;
+  }
 
   paramObj.value[props.currentGraphNodeName].forEach((item, i) => {
     if (renderParam.value[i] === false) return;
@@ -762,6 +842,15 @@ function saveFieldInfo(data) {
   );
   isVisible.value = false;
   specialParam.value = '';
+}
+
+/**
+ * 生成随机数并填写到数据里
+ */
+async function handleRandomNum(param) {
+  const randomNum = await getRandomNum();
+  console.log(randomNum, param, 'randomNum');
+  param.default = parseInt(randomNum.data, 16);
 }
 
 function handleClose() {

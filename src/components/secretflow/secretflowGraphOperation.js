@@ -4,9 +4,8 @@ import '@antv/x6-vue-shape';
 import GraphNode from '../graph-viewer/GraphNode.vue';
 import { listComponents } from '../../apis/secretflow/secretflow.api';
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
-import dictionary from '../../utils/dictionary';
 import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
-
+import { ElMessage } from 'element-plus';
 const secretflowStore = useSecretflowStore();
 
 const nodeWidth = 266;
@@ -29,15 +28,14 @@ const MAX_RETRY_COUNT = 3;
  */
 export let customNodeTypeList = [];
 export const yyCustomNodeTypeList = [];
+export let graphNodeList = [];
 
 export function getSecretflowGraphNodeShape(val) {
-  console.log(val, customNodeTypeList, 'VVAALL');
+  console.log(val, customNodeTypeList, yyCustomNodeTypeList, 'VVAALL');
 
-  const result =
-    customNodeTypeList.find((item) => item.name === val) ??
-    customNodeTypeList.find(
-      (item) => item.name === dictionary.yinyu_algorithm[val],
-    );
+  const result = customNodeTypeList.find(
+    (item) => item.name === val || item.module === val,
+  );
   // const result = customNodeTypeList.find((item) => item.name === val);
   console.log(result, 'VALVALVAL');
   if (result) {
@@ -48,35 +46,42 @@ export function getSecretflowGraphNodeShape(val) {
 }
 
 export function secretflowRegister() {
-  registerNode();
+  return registerSecretflowNode();
 }
 
-async function registerNode() {
+async function registerSecretflowNode() {
   try {
     // 设置超时（例如10秒）
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('数据加载超时')), 10000);
-    });
+    // const timeoutPromise = new Promise((_, reject) => {
+    //   setTimeout(() => reject(new Error('数据加载超时')), 10000);
+    // });
 
     // 并行执行数据请求
     const dataPromise = listComponents();
     const algorithmPromise = getInEffectLibAndAlgList();
 
+    const data = await dataPromise;
+    const algorithmData = await algorithmPromise;
+
     // 使用Promise.race实现超时控制
-    // const data = await dataPromise
-    // const algorithmData = await algorithmPromise
-    const [data, algorithmData] = await Promise.race([
-      Promise.all([dataPromise, algorithmPromise]),
-      timeoutPromise,
-    ]);
+    // const [data, algorithmData] = await Promise.race([
+    //   Promise.all([dataPromise, algorithmPromise]),
+    //   timeoutPromise,
+    // ]);
 
     // 处理数据
+    var yl_comp = {};
     data.secretflow.comps.forEach((item) => {
-      yyCustomNodeTypeList.push({
-        app: 'secretflow',
-        name: item.name,
-        domain: item.domain,
-      });
+      yl_comp[item.name] = item;
+    });
+    algorithmData.algorithmVersionList.forEach((item) => {
+      if (yl_comp[item.module]) {
+        yyCustomNodeTypeList.push({
+          app: 'secretflow',
+          name: yl_comp[item.module].name,
+          domain: yl_comp[item.module].domain,
+        });
+      }
     });
 
     customNodeTypeList = algorithmData.algorithmVersionList;
@@ -97,21 +102,22 @@ async function registerNode() {
     // customNodeTypeList = algorithmVersionList
     // await secretflowStore.getNodeDetail(yyCustomNodeTypeList)
     // console.log(secretflowStore.nodeDetail, 'secretflowStore.nodeDetail');
-    registerNode = []
-    secretflowStore.nodeDetail.forEach(async (item) => {
+
+    var ylNodeDetail = {};
+    secretflowStore.nodeDetail.forEach((item) => {
+      ylNodeDetail[item.name] = item;
+    });
+    customNodeTypeList.forEach((selfitem) => {
+      if (!ylNodeDetail[selfitem.module]) {
+        return;
+      }
+      const item = ylNodeDetail[selfitem.module];
       console.log(item, '看看好不好');
-      const outputPortObj = JSON.parse(JSON.stringify(item.outputs ?? []));
-      //筛选出不需要的输出节点
-      outputPortObj.forEach((output, i) => {
-        if (output.types.includes('sf.report')) {
-          console.log(output, '输出节点');
-          outputPortObj.splice(i, 1);
-        }
-      });
       const items = [];
       const nodePlace = {};
       let top = 0;
       let bottom = 0;
+      // 输入节点渲染
       if (item.inputs?.length === 2) {
         item.inputs.forEach((inputNode) => {
           nodePlace[inputNode.name] = {
@@ -166,7 +172,14 @@ async function registerNode() {
           desc: item.inputs[0].desc,
         });
       }
-
+      // 输出节点渲染
+      const outputPortObj = JSON.parse(JSON.stringify(item.outputs ?? []));
+      //筛选出不需要的输出节点
+      outputPortObj.forEach((output, i) => {
+        if (output.types.includes('sf.report')) {
+          outputPortObj.splice(i, 1);
+        }
+      });
       if (outputPortObj?.length === 2) {
         outputPortObj.forEach((outputNode) => {
           nodePlace[outputNode.name] = {
@@ -197,6 +210,9 @@ async function registerNode() {
           });
         });
       } else if (outputPortObj?.length === 1) {
+        if (item.name === 'datatable') {
+          console.log(item, selfitem.module, selfitem.name, 'JAAJAJAJJJJ宝吧');
+        }
         nodePlace[outputPortObj[0].name] = {
           position: {
             name: 'absolute',
@@ -224,40 +240,43 @@ async function registerNode() {
         });
       }
       console.log(nodePlace, 'nodePlace');
-      if (dictionary.yinyu_algorithm[item.name]) {
-        console.log(`graph-node-${dictionary.yinyu_algorithm[item.name]}`, 'nodePlace22');
-        registerNode.push(`graph-node-${dictionary.yinyu_algorithm[item.name]}`)
-        // 如果定义了，再注册到画布
-        Graph.registerNode(
-          // `graph-node-${item.name}`,
-          `graph-node-${dictionary.yinyu_algorithm[item.name]}`,
-          {
-            inherit: 'vue-shape',
-            width: nodeWidth,
-            height: nodeHeight,
-            component: {
-              render: () => {
-                return h(GraphNode);
-              },
-            },
-            ports: {
-              groups: nodePlace,
-              items: items,
+      graphNodeList.push(`graph-node-${selfitem.name}`);
+      Graph.registerNode(
+        // `graph-node-${item.name}`,
+        `graph-node-${selfitem.name}`,
+        {
+          inherit: 'vue-shape',
+          width: nodeWidth,
+          height: nodeHeight,
+          component: {
+            render: () => {
+              return h(GraphNode);
             },
           },
-          true,
-        );
-      }
+          ports: {
+            groups: nodePlace,
+            items: items,
+          },
+        },
+        true,
+      );
     });
-    console.log(registerNode, 'registerNode');
     secretflowStore.setSecretflowSuccess(true);
+    console.log(graphNodeList, 'graphNodeList');
+    //为了保证后执行secretflowRegister方法
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('secretflowRegister 执行完毕');
+        resolve();
+      }, 1000);
+    });
   } catch (error) {
     console.error('节点数据加载失败:', error);
 
     if (retryCount < MAX_RETRY_COUNT) {
       retryCount++;
       console.log(`正在重试 (${retryCount}/${MAX_RETRY_COUNT})...`);
-      setTimeout(registerNode, 2000 * retryCount); // 指数退避重试
+      // setTimeout(registerNode, 2000 * retryCount); // 指数退避重试
     } else {
       // 显示错误提示
       ElMessage.error('节点数据加载失败，请检查网络连接后刷新页面重试');
