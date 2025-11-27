@@ -276,7 +276,7 @@ async function registerSecretflowNode() {
     if (retryCount < MAX_RETRY_COUNT) {
       retryCount++;
       console.log(`正在重试 (${retryCount}/${MAX_RETRY_COUNT})...`);
-      setTimeout(registerNode, 2000 * retryCount); // 指数退避重试
+      setTimeout(registerSecretflowNode, 2000 * retryCount); // 指数退避重试
     } else {
       // 显示错误提示
       ElMessage.error('节点数据加载失败，请检查网络连接后刷新页面重试');
