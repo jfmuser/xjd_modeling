@@ -470,7 +470,9 @@ async function registerNode() {
   algorithmVersionList.forEach((item) => {
     // customNodeTypeList.push(item.name)
     // customNodeTypeList.push({ name: item.labelName, algName: item.name })
-    customNodeTypeList.push(item.name);
+    if (item.platform == 0) {
+      customNodeTypeList.push(item.name);
+    }
   });
   customNodeTypeList.forEach(async (item) => {
     const customNodeType = {};
