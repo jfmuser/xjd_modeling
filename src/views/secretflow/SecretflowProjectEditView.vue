@@ -17,8 +17,10 @@ import {
   getProject,
   getOutputData,
   getStatus,
+  startGraph,
 } from '../../apis/secretflow/secretflow.api';
 import { ArrowLeft } from '@element-plus/icons-vue';
+import { FormType } from '@/utils/const';
 import { useRouter } from 'vue-router';
 import { get, useFullscreen } from '@vueuse/core';
 import GraphViewer from '../../components/graph-viewer/GraphViewer.vue';
@@ -31,9 +33,11 @@ import useGraph from '../../hooks/useGraph';
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
 import { useRoute } from 'vue-router';
 import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
+import dictionary from '../../utils/dictionary';
 import ResultDrawer from './ResultDrawer.vue';
 import { ElMessage } from 'element-plus';
-import { createJob } from '../../apis/workspace/project.api';
+// import { createJob } from '../../apis/workspace/project.api';
+import { refreshDatas } from '../../apis/dp/api';
 import LogDrawer from './LogDrawer.vue';
 import { graphNodeList } from '../../components/secretflow/secretflowGraphOperation';
 
@@ -388,7 +392,15 @@ async function onClickNode(item) {
 
 function goProjectPage() {
   cleanLocalStorage();
-  router.push({ name: 'project' });
+  router.push({
+    name: 'project',
+    query: {
+      projectName: route.query.projectName,
+      id: route.query.projectId,
+      action: FormType.READ,
+      type: 1,
+    },
+  }); // http://localhost:5173/#/project?projectName=联合建模1107&id=1986611313994878976&action=%E6%9F%A5%E7%9C%8B&type=1&dpToken=7d1c7a2ce09d46388a03077b7be290ba
 }
 
 function onEdit() {
@@ -407,6 +419,15 @@ async function onSave() {
 
 function onCancelEdit() {
   state.editable = false;
+  router.push({
+    name: 'project',
+    query: {
+      projectName: route.query.projectName,
+      id: route.query.projectId,
+      action: FormType.READ,
+      type: 1,
+    },
+  });
 }
 
 onBeforeUnmount(() => {
@@ -667,12 +688,31 @@ const insertAnimationCSS = () => {
 
 async function onRun() {
   insertAnimationCSS(); // 确保样式注入
-
+  console.log(graphInfo.value.nodes, 'graphInfo.value.nodes11');
   try {
-    const response = await createJob(route.query.projectId);
-    ElMessage.success(response.retmsg || '操作成功');
+    const scretflowProject = await getProject({
+      projectId: graphInfo.value.projectId,
+    });
+    await refreshDatas(
+      scretflowProject.nodes
+        .filter((item) => item.datatables !== null)
+        .map((item) => {
+          return {
+            domainId: item.nodeId,
+            datalds: item.datatables.map((db) => db.datatableId),
+          };
+        }),
+    );
+
+    const response = await startGraph({
+      graphId: projectInfo.value.graphId,
+      projectId: projectInfo.value.projectId,
+      nodes: graphInfo.value.nodes.map((item) => item.graphNodeId),
+    });
+    ElMessage.success('操作成功');
     startPollingStatus();
   } catch (error) {
+    ElMessage.error(error);
     console.error('运行失败:', error);
   }
 }
@@ -848,9 +888,9 @@ const onCheckResult = async (node) => {
 <template>
   <div class="project-edit">
     <div class="header">
-      <el-button type="text" :icon="ArrowLeft" @click="goProjectPage"
+      <!-- <el-button type="text" :icon="ArrowLeft" @click="goProjectPage"
         >返回
-      </el-button>
+      </el-button> -->
       <div class="graph-operations">
         <el-icon type="primary" @click="onZoomIn">
           <zoom-in />
@@ -973,7 +1013,7 @@ const onCheckResult = async (node) => {
 $header-tool-height: 40px;
 $side-tool-height: 32px;
 $side-width: 300px;
-$project-info-height: 300px;
+$project-info-height: 100px;
 
 .project-edit {
   height: 100%;
