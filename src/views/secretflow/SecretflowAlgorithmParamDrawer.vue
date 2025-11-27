@@ -844,15 +844,6 @@ function saveFieldInfo(data) {
   specialParam.value = '';
 }
 
-/**
- * 生成随机数并填写到数据里
- */
-async function handleRandomNum(param) {
-  const randomNum = await getRandomNum();
-  console.log(randomNum, param, 'randomNum');
-  param.default = parseInt(randomNum.data, 16);
-}
-
 function handleClose() {
   emit('close');
 }
