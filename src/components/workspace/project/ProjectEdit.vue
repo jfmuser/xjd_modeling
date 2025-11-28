@@ -43,34 +43,58 @@ const arbiterSites = computed(() => {
       <template #catalog>
         <ListContainer v-loading="state.loading">
           <ListContainerItem title="项目信息">
-            <el-form ref="FormRef" :model="state.model" label-width="70px">
-              <el-form-item v-show="false" label="ID" style="width: 100%">
-                <el-input v-model="state.model.id" placeholder="" />
+            <el-form ref="FormRef"
+                     :model="state.model"
+                     label-width="70px">
+              <el-form-item v-show="false"
+                            label="ID"
+                            style="width: 100%">
+                <el-input v-model="state.model.id"
+                          placeholder="" />
               </el-form-item>
-              <el-form-item label="项目名称" prop="projectName" style="width: 100%">
-                <el-input v-model="state.model.projectName" placeholder="请输入项目名称" />
+              <el-form-item label="项目名称"
+                            prop="projectName"
+                            style="width: 100%">
+                <el-input v-model="state.model.projectName"
+                          placeholder="请输入项目名称" />
               </el-form-item>
-              <el-form-item label="业务方" prop="guest" style="width: 100%">
+              <el-form-item label="业务方"
+                            prop="guest"
+                            style="width: 100%">
                 <el-select v-model="state.model.guest">
-                  <el-option v-for="item in selfSites" :key="item.siteName" :label="item.siteName"
-                    :value="item.partyId" />
+                  <el-option v-for="item in selfSites"
+                             :key="item.siteName"
+                             :label="item.siteName"
+                             :value="item.partyId" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="数据方" prop="host" style="width: 100%">
+              <el-form-item label="数据方"
+                            prop="host"
+                            style="width: 100%">
                 <el-select v-model="state.model.host">
-                  <el-option v-for="item in otherSites" :key="item.siteName" :label="item.siteName"
-                    :value="item.partyId" />
+                  <el-option v-for="item in otherSites"
+                             :key="item.siteName"
+                             :label="item.siteName"
+                             :value="item.partyId" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="聚合方" prop="arbiter" style="width: 100%">
+              <el-form-item label="聚合方"
+                            prop="arbiter"
+                            style="width: 100%">
                 <el-select v-model="state.model.arbiter">
-                  <el-option v-for="item in arbiterSites" :key="item.siteName" :label="item.siteName"
-                    :value="item.partyId" />
+                  <el-option v-for="item in arbiterSites"
+                             :key="item.siteName"
+                             :label="item.siteName"
+                             :value="item.partyId" />
                 </el-select>
               </el-form-item>
 
-              <el-form-item label="备注" prop="remarks" style="width: 100%">
-                <el-input v-model="state.model.remarks" type="textarea" placeholder="" />
+              <el-form-item label="备注"
+                            prop="remarks"
+                            style="width: 100%">
+                <el-input v-model="state.model.remarks"
+                          type="textarea"
+                          placeholder="" />
               </el-form-item>
             </el-form>
 
@@ -90,7 +114,7 @@ const arbiterSites = computed(() => {
 <style scoped lang="scss">
 $catalogWidth: 267px;
 $headerHeight: 40px;
-$gap:0.1171875rem;
+$gap: 0.1171875rem;
 
 .header-area {
   height: $headerHeight;

@@ -10,6 +10,7 @@ import {
   inEffectAlgorithmList,
   inEffectAlgorithmParams,
 } from '../apis/workspace/algorithm.api';
+import { getSecretflowProject } from '@/apis/secretflow/secretflow.api';
 import {
   checkConstraints,
   formatParamList,
@@ -653,8 +654,19 @@ export default function useAlgorithmParam() {
     //   }
     // }
 
-    authProjectList.value = await getAuthData(projectId);
+   const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
+    console.log({authProjectList,info})
     const namespaceOptions = [];
+    const res =await getSecretflowProject({projectId:info.secretflowPrjId})
+    const data = res.data.node.map(item => {
+      return {
+        dataId:item.datatables,
+        dataFromId:item.nodeId
+      }
+    })
+    console.log({data})
+    authProjectList.value = await getAuthData(projectId);
+
     authProjectList.value.forEach((item) => {
       if (!namespaceOptions.some((data) => data.label === item.namespace)) {
         namespaceOptions.push({

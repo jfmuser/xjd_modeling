@@ -353,3 +353,13 @@ export function getJobDetail(data) {
         data
     })
 }
+
+/**
+ * 
+ * @param {*} data 
+ * @returns 
+ * @description 获取隐语项目数据
+ */
+export const getSecretflowProject = (data) => {
+    return request({url:'/v1alpha1/project/get',  method: 'post',data});
+};

@@ -89,10 +89,17 @@ async function fetchData () {
       const res = await dpProjectTasks05Form({ id: projectId.value });
       const { taskName, prjId, outterTaskId = '{}' } = res.dpProjectTasks05 || {}
       const prjRes = await dpProjectForm({ id: prjId.id })
-      const { projectJson } = JSON.parse(outterTaskId)
+      const { projectJson, projectId: sprj } = JSON.parse(outterTaskId)
       console.log({ prjRes, projectJson })
-      let participants = JSON.stringify(prjRes?.dpProject?.dpProjectPartysList?.map(item => item?.partyId?.id) || [])
-      const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson }
+      let participants = JSON.stringify(prjRes?.dpProject?.dpProjectPartysList?.map(item => {
+        const party = siteStore.otherSite.find(it => {
+          return it.nodeId == item?.partyId?.id
+        })
+        console.log({ party: siteStore.otherSite })
+        return party?.id
+      }) || [])
+      console.log({ participants })
+      const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson, platform: 0, secretflowPrjId: sprj }
       state.projectDetail = detail
     }
   } finally {
@@ -168,6 +175,7 @@ async function onSaveProjectBaseInfo () {
     party_id: parseInt(state.partyId),
     role: 'guest',
   });
+  _.set(projectInfo, 'secretflowPrjId', state.projectDetail.secretflowPrjId);
   localStorage.setItem('projectInfo', JSON.stringify(projectInfo));
   if (state.model.id) {
     // 查询项目的算法信息
@@ -313,6 +321,7 @@ async function onSaveProjectBaseInfo () {
       type: state.projectDetail.platform,
     },
   });
+
 }
 
 // 这个方法会根据当前传入的算子名称返回这个算子的参数数据

@@ -83,6 +83,13 @@ const useSiteStore = defineStore(storeId.site, {
                 nodeId: outterPartyId.nodeId,
                 partyId: item.id
               })
+            },{
+              domainId: item.id,
+              engine: 0,
+              engineInfo: JSON.stringify({ 
+                nodeId: outterPartyId.nodeId,
+                partyId: item.id
+              })
             }]
           };
 

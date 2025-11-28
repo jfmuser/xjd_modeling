@@ -51,9 +51,7 @@ watch(
     const subjectIdList = JSON.parse(state.model.participants)
     console.log(33, { otherSite: siteStore.otherSite })
     subjectList.value = siteStore.otherSite.filter((subject) => {
-      console.log(subjectIdList, 'subjectIdList');
-
-      return subjectIdList.some((id) => id === subject.nodeId)
+      return subjectIdList.some((id) => id === subject.id)
     })
     console.log({ subjectList })
     subjectList.value = subjectList.value.map((item) => {

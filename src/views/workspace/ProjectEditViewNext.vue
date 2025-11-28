@@ -31,7 +31,7 @@ import ResultDrawer from '../secretflow/ResultDrawer.vue';
 import useGraph from '../../hooks/useGraph';
 import formatDAGData from '../../utils/formatDAGData';
 import useAlgorithmParam from '../../hooks/useAlgorithmParam';
-
+import { FormType } from '@/utils/const';
 const { onSaveGraphInfo } = useAlgorithmParam();
 const {
   GraphViewerRef,
@@ -90,7 +90,7 @@ const projectInfo = computed(() =>
   JSON.parse(localStorage.getItem('projectInfo')),
 );
 
-async function getOperators() {
+async function getOperators () {
   try {
     state.loading = true;
     // const promises = [
@@ -131,7 +131,7 @@ async function getOperators() {
   }
 }
 
-async function getDependencyData() {
+async function getDependencyData () {
   try {
     state.dependencyData = await getProjectDependencyData(projectInfo.value.id);
   } catch (error) {
@@ -139,7 +139,7 @@ async function getDependencyData() {
   }
 }
 // 这个方法是回写画布的
-async function setCurrentAlgorithms() {
+async function setCurrentAlgorithms () {
   console.log(projectInfo.value, '我撒');
   if (!projectInfo.value.id || !projectInfo.value.dependencyData) {
     return;
@@ -175,7 +175,7 @@ onMounted(async () => {
   }, 0);
 });
 
-function onClickNode(item) {
+function onClickNode (item) {
   if (item.node.port.ports.length == 0) return;
   console.log('item>>>', item);
   if (state.editable) {
@@ -184,20 +184,30 @@ function onClickNode(item) {
   }
 }
 
-function onSwitchSide() {
+function onSwitchSide () {
   state.expanded = !state.expanded;
 }
 
-function goProjectPage() {
+function goProjectPage () {
   cleanLocalStorage();
-  router.push({ name: 'project' });
+  // router.push({ name: 'project' });
+  router.push({
+    name: 'project', query: {
+      projectName: route.query.projectName,
+      id: route.query.projectId,
+      action: FormType.READ,
+      type: 0
+    }
+  });
 }
 
-function onEdit() {
+function onEdit () {
   state.editable = true;
 }
 
-function cleanLocalStorage() {
+function cleanLocalStorage () {
+  console.log('fade清除缓存')
+  localStorage.setItem('graphInfo', null);
   localStorage.setItem('projectInfo', null);
   localStorage.setItem('projectParams', null);
   localStorage.setItem('ProjectConfigInfo', null);
@@ -211,7 +221,7 @@ function cleanLocalStorage() {
   sessionStorage.removeItem('projectParamsVersion');
 }
 
-async function onSave() {
+async function onSave () {
   console.log('onSave');
   const nodes = await getNodesData();
   const edges = await getEdgesData();
@@ -223,7 +233,7 @@ async function onSave() {
   goProjectPage();
 }
 
-function onCancelEdit() {
+function onCancelEdit () {
   state.editable = false;
 }
 
@@ -231,21 +241,22 @@ onBeforeUnmount(() => {
   cleanLocalStorage();
 });
 
-function onCloseParamDrawer() {
+function onCloseParamDrawer () {
   paramDrawer.visible = false;
   paramDrawer.operatorType = null;
 }
 
 //往画布添加算子时触发
-function onAddNode(node) {
+function onAddNode (node) {
   console.log(node, 'NODENODENODE');
   const projectNodeCoord = JSON.parse(
     localStorage.getItem('projectNodeCoord') ?? '{}',
   );
-  const graphInfo = JSON.parse(localStorage.getItem('graphInfo') ?? '[]');
+  let graphInfo = JSON.parse(localStorage.getItem('graphInfo') ?? '[]');
+  graphInfo = graphInfo == null ? [] : graphInfo;
   // localStorage.setItem('graphInfo')
   // console.log(node,'NODE节点');
-
+  console.log({ graphInfo })
   graphInfo.push({
     label: node.store.data.data.label,
     algorithm_id: node.store.data.data.algorithm_id,
@@ -276,7 +287,7 @@ const insertAnimationCSS = () => {
 
 const route = useRoute();
 
-async function onRun() {
+async function onRun () {
   try {
     insertAnimationCSS(); // 确保样式注入
 
@@ -426,86 +437,87 @@ const onCheckResult = async (args) => {
 <template>
   <div class="project-edit">
     <div class="header">
-      <el-button type="text" :icon="ArrowLeft" @click="goProjectPage"
-        >返回
+      <el-button type="text"
+                 :icon="ArrowLeft"
+                 @click="goProjectPage">返回
       </el-button>
       <div class="graph-operations">
-        <el-icon type="primary" @click="onZoomIn">
+        <el-icon type="primary"
+                 @click="onZoomIn">
           <zoom-in />
         </el-icon>
-        <el-icon type="primary" @click="onZoomOut">
+        <el-icon type="primary"
+                 @click="onZoomOut">
           <zoom-out />
         </el-icon>
-        <el-icon v-show="state.editable" type="primary" @click="onGraphClear">
+        <el-icon v-show="state.editable"
+                 type="primary"
+                 @click="onGraphClear">
           <delete />
         </el-icon>
-        <el-icon type="primary" @click="onAutoZoom">
+        <el-icon type="primary"
+                 @click="onAutoZoom">
           <location />
         </el-icon>
-        <el-icon
-          v-show="state.editable"
-          type="primary"
-          @click="onGraphRollback"
-        >
+        <el-icon v-show="state.editable"
+                 type="primary"
+                 @click="onGraphRollback">
           <refresh-left />
         </el-icon>
-        <el-icon type="primary" @click="toggleFullScreen">
+        <el-icon type="primary"
+                 @click="toggleFullScreen">
           <full-screen />
         </el-icon>
       </div>
       <C2Transition>
-        <div v-show="state.editable" class="action-button">
-          <el-button type="primary" @click="onSave"> 保存</el-button>
-          <el-button type="primary" @click="onRun"> 运行</el-button>
+        <div v-show="state.editable"
+             class="action-button">
+          <el-button type="primary"
+                     @click="onSave"> 保存</el-button>
+          <el-button type="primary"
+                     @click="onRun"> 运行</el-button>
           <el-button @click="onCancelEdit">取消</el-button>
         </div>
       </C2Transition>
     </div>
     <div class="content">
       <C2Transition>
-        <div v-show="state.expanded" class="side">
-          <ProjectInfoPanel
-            :info="projectInfo"
-            :editable="state.editable"
-            @edit="onEdit"
-          />
-          <GraphMenu
-            v-loading="state.loading"
-            :groups="operatorCategories"
-            :menus="categories"
-            :editable="state.editable"
-          />
+        <div v-show="state.expanded"
+             class="side">
+          <ProjectInfoPanel :info="projectInfo"
+                            :editable="state.editable"
+                            @edit="onEdit" />
+          <GraphMenu v-loading="state.loading"
+                     :groups="operatorCategories"
+                     :menus="categories"
+                     :editable="state.editable" />
         </div>
       </C2Transition>
-      <div class="side-tool" :class="{ fold: !state.expanded }">
+      <div class="side-tool"
+           :class="{ fold: !state.expanded }">
         <el-icon @click="onSwitchSide">
           <fold v-if="state.expanded" />
           <expand v-else />
         </el-icon>
       </div>
-      <div class="graph-area" :class="{ wide: !state.expanded }">
-        <GraphViewer
-          ref="GraphViewerRef"
-          :editable="state.editable"
-          @click-node="onClickNode"
-          @add-node="onAddNode"
-          @check-result="onCheckResult"
-        />
+      <div class="graph-area"
+           :class="{ wide: !state.expanded }">
+        <GraphViewer ref="GraphViewerRef"
+                     :editable="state.editable"
+                     @click-node="onClickNode"
+                     @add-node="onAddNode"
+                     @check-result="onCheckResult" />
       </div>
     </div>
   </div>
   <C2Transition>
-    <AlgorithmParamDrawer
-      v-if="paramDrawer.visible"
-      :operator="paramDrawer.operator"
-      @close="onCloseParamDrawer"
-    />
+    <AlgorithmParamDrawer v-if="paramDrawer.visible"
+                          :operator="paramDrawer.operator"
+                          @close="onCloseParamDrawer" />
   </C2Transition>
   <C2Transition>
-    <ResultDrawer
-      v-if="resultDrawer.visible"
-      @close="resultDrawer.visible = false"
-    />
+    <ResultDrawer v-if="resultDrawer.visible"
+                  @close="resultDrawer.visible = false" />
   </C2Transition>
 </template>
 <style scoped lang="scss">
@@ -560,13 +572,14 @@ $project-info-height: 100px;
     height: calc(100% - #{$side-tool-height});
     overflow: auto;
     box-shadow: 2px 4px 12px 0px rgba(67, 118, 255, 0.2);
-
+    display: flex;
+    flex-direction: column;
     .project-info {
-      height: $project-info-height;
+      height: auto; //$project-info-height;
     }
 
     .stencil {
-      height: calc(100% - #{$project-info-height});
+      height: 100%; //calc(100% - #{$project-info-height});
       width: 100%;
       position: relative;
     }
