@@ -18,15 +18,34 @@ const siteStore = useSiteStore();
 const secretflowStore = useSecretflowStore();
 // 在文件顶部定义标志变量
 let isButtonRemoveRegistered = false;
+// if (
+//   siteStore.mySite.tDomainEngineList.find(
+//     async (engine) => engine.engine == '0',
+//   )
+// ) {
+//   await register();
+// }
 
-if (siteStore?.mySite?.tDomainEngineList?.find((engine) => engine.engine == '1')) {
-  console.log('进入了运行了');
-  secretflowStore.getSecretflowI18n();
-  secretflowRegister();
-}
-if (siteStore?.mySite?.tDomainEngineList?.find((engine) => engine.engine == '0')) {
-  register();
-}
+// if (siteStore.mySite.tDomainEngineList.find((engine) => engine.engine == '1')) {
+//   secretflowStore.getSecretflowI18n();
+//   await secretflowRegister();
+// }
+(async () => {
+  const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
+    (engine) => engine.engine == '0',
+  );
+
+  if (hasEngine0) {
+    await register();
+  }
+  const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
+    (engine) => engine.engine == '1',
+  );
+  if (hasEngine1) {
+    secretflowStore.getSecretflowI18n();
+    await secretflowRegister();
+  }
+})();
 export default {
   name: 'GraphViewer',
   props: { editable: { type: Boolean, default: false } },
@@ -76,11 +95,14 @@ export default {
         const source = nodes.find(
           (item) => item.store.data.data.label === edgeItem.source,
         );
+        const edgeId = `${source.store.data.data.label}__${target.store.data.data.label}`;
+        console.log(target, source, '帮我看看a');
         addEdge({
           target,
           source,
           targetPort: edgeItem.targetPort,
           sourcePort: edgeItem.sourcePort,
+          edgeId: edgeId,
         });
       }
     }

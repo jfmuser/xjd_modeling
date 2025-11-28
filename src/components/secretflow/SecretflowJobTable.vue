@@ -22,10 +22,13 @@ import TableContainer from '@/layouts/TableContainer.vue';
 // import ModelCollect from './ModelCollect.vue';
 import { CollectType, Status, JobType } from '@/utils/const';
 import { formatDateTime, formatTimestamp, getTimeCost } from '@/utils';
-import { getProjectById, getProjectJobList } from '../../apis/workspace/project.api'
-import { downloadCsvData } from '../../apis/secretflowApi/secretflow.api'
+import {
+  getProjectById,
+  getProjectJobList,
+} from '../../apis/workspace/project.api';
+import { downloadCsvData } from '../../apis/secretflowApi/secretflow.api';
 import { downloadFile } from '../../utils';
-import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api'
+import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api';
 
 let jobStatusInterval;
 let needRun = false;
@@ -42,16 +45,16 @@ const state = reactive({
   loading: false,
   tableData: [],
   search: {},
-  info: {}
+  info: {},
 });
-const graphId = computed(() => route.query.graphId)
-const type = computed(() => route.query.type)
-const dialogVisible = ref(false)
-const nodesList = ref([])
+const graphId = computed(() => route.query.graphId);
+const type = computed(() => route.query.type);
+const dialogVisible = ref(false);
+const nodesList = ref([]);
 const param = reactive({
   jobId: '',
-  taskId: ''
-})
+  taskId: '',
+});
 
 defineExpose({ fetchTableData });
 
@@ -89,36 +92,22 @@ function syncJobStatus (page) {
 async function fetchTableData (page) {
   try {
     if (type.value == '1' || type.value == '3' || props.projectId) {
-
       const res = await dpProjectTasks05Form({ id: props.projectId });
       const outterTask = JSON.parse(res.dpProjectTasks05.outterTaskId);
 
       const scretflowProjectId = outterTask.projectId;
 
-
-      state.info.secretflowProjectId = scretflowProjectId
+      state.info.secretflowProjectId = scretflowProjectId;
       state.info.graphId = outterTask.graphId;
       state.loading = true;
       const pager = TableContainerRef.value?.pager;
-      console.log({ pager, page })
       const currentPage = page || pager?.page;
       const response = await listJob({
         pageNum: currentPage,
-        pageSize: pager.size || 10,
+        pageSize: pager.size,
         projectId: outterTask.projectId,
         graphId: outterTask.graphId,
-      }
-      );
-      // const response = await getProjectJobList({
-      //     "pageRequest": {
-      //         "pageNumber": currentPage,
-      //         "pageSize": pager.size
-      //     },
-      //     "requestData": {
-      //         projectId: props.projectId
-      //     }
-      // }
-      // );
+      }); // const response = await getProjectJobList({ //     "pageRequest": { //         "pageNumber": currentPage, //         "pageSize": pager.size //     }, //     "requestData": { //         projectId: props.projectId //     } // } // );
       const { data, size, total } = response;
       state.tableData = data;
       console.log(state.tableData, 'records');
@@ -127,7 +116,6 @@ async function fetchTableData (page) {
       needRun = state?.tableData.some((item) => {
         return Status.isRunning(item.status.toLowerCase());
       });
-
       if (needRun) {
         syncJobStatus();
       } else {
@@ -142,7 +130,6 @@ async function fetchTableData (page) {
 }
 
 async function onPageChange (page) {
-  console.log({ page })
   await fetchTableData(page);
 }
 
@@ -157,16 +144,27 @@ async function toDetail (row) {
   // const url = `/secretpad-ui/#/dag?projectId=${state.info.secretflowProjectId}&mode=MPC&dagId=${state.info.graphId}&jobId=${row.jobId}`;
   // const url = `/secretpad-ui/#/record?projectId=${state.info.secretflowProjectId}&mode=MPC&dagId=${row.jobId}`;
   // 判断是否有secretflow相关的凭证，没有的话就重新获取
-  if (!localStorage.getItem('User-Token') || !localStorage.getItem('secretflowUserInfo') || !localStorage.getItem('neverLogined')) {
-    const secretflowInfo = await getSecretflowInfo()
-    const data = await secretflowLogin({ name: secretflowInfo.username, passwordHash: secretflowInfo.password })
-    localStorage.setItem('User-Token', data.token)
-    localStorage.setItem('secretflowUserInfo', JSON.stringify(data))
-    localStorage.setItem('neverLogined', true)
+  if (
+    !localStorage.getItem('User-Token') ||
+    !localStorage.getItem('secretflowUserInfo') ||
+    !localStorage.getItem('neverLogined')
+  ) {
+    const secretflowInfo = await getSecretflowInfo();
+    const data = await secretflowLogin({
+      name: secretflowInfo.username,
+      passwordHash: secretflowInfo.password,
+    });
+    localStorage.setItem('User-Token', data.token);
+    localStorage.setItem('secretflowUserInfo', JSON.stringify(data));
+    localStorage.setItem('neverLogined', true);
   }
   console.log(state.info, 'STATE.INFO');
   // 判断是否有secretflow相关的凭证，有的话就登陆
-  if (localStorage.getItem('User-Token') && localStorage.getItem('secretflowUserInfo') && localStorage.getItem('neverLogined')) {
+  if (
+    localStorage.getItem('User-Token') &&
+    localStorage.getItem('secretflowUserInfo') &&
+    localStorage.getItem('neverLogined')
+  ) {
     const url = `/secretpad-ui/#/record?projectId=${state.info.secretflowProjectId}&mode=MPC&dagId=${state.info.graphId}&jobId=${row.jobId}`;
     // 给父组件传值
     emits('JobDetail', [url, false]);
@@ -216,24 +214,28 @@ function onCollected (row) {
 // }
 
 function downloadResult (jobId) {
-  window.open(`/manager-api/api/project-job/downloadJobOutputByIdAndOpt/${jobId}/xgb_predict`)
+  window.open(
+    `/manager-api/api/project-job/downloadJobOutputByIdAndOpt/${jobId}/xgb_predict`,
+  );
 }
 
 async function openDownloadDialog (row) {
-  const data = await getJobDetail({ projectId: state.info.secretflowProjectId, jobId: row.jobId })
-  nodesList.value = data.graph.nodes
-  param.jobId = row.jobId
-  param.projectId = state.info.secretflowProjectId
+  const data = await getJobDetail({
+    projectId: state.info.secretflowProjectId,
+    jobId: row.jobId,
+  });
+  nodesList.value = data.graph.nodes;
+  param.jobId = row.jobId;
+  param.projectId = state.info.secretflowProjectId;
 
   // console.log(state.info)
-  dialogVisible.value = true
-
+  dialogVisible.value = true;
 }
 
 async function downloadAlgCsvData () {
   // param.taskId = `${param.taskId}-output-0`
-  const data = await downloadCsvData(param)
-  let fileName = `${param.taskId}.csv`
+  const data = await downloadCsvData(param);
+  let fileName = `${param.taskId}.csv`;
 
   // 创建一个 Blob 对象
   const blob = new Blob([data], { type: 'application/octet-stream' });
@@ -254,8 +256,8 @@ async function downloadAlgCsvData () {
   ElMessage({
     message: '下载成功',
     type: 'success',
-  })
-  dialogVisible.value = false
+  });
+  dialogVisible.value = false;
 }
 </script>
 
@@ -270,13 +272,15 @@ async function downloadAlgCsvData () {
                        show-overflow-tooltip
                        min-width="200px">
         <template #default="{ row }">
-          <span>{{row.jobId }}</span>
-
+           <span>{{ row.jobId }}</span>
           <!-- <el-link type="primary" :disabled="!row.status || row.status === Status.WAITING" -->
-          <!-- {{ row.platform == 3 ? row.jobId : '' }} -->
-          <!-- <el-link type="primary" @click="toDetail(row)" v-show="!(row.platform == 3)">
-                        {{row.jobId }}
-                    </el-link> -->
+          <!-- {{ row.platform == 3 ? row.jobId : '' }}
+          <el-link
+            type="primary"
+            @click="toDetail(row)"
+            v-show="!(row.platform == 3)"
+            >{{ row.jobId }}
+          </el-link> -->
         </template>
       </el-table-column>
       <el-table-column label="开始时间"
@@ -294,7 +298,9 @@ async function downloadAlgCsvData () {
       <el-table-column prop="fEndTime"
                        label="耗时">
         <template #default="{ row }">
-          {{row.gmtFinished ? getTimeCost(row.gmtCreate, row.gmtFinished) : ''}}
+          {{
+            row.gmtFinished ? getTimeCost(row.gmtCreate, row.gmtFinished) : ''
+          }}
         </template>
       </el-table-column>
       <!-- <el-table-column prop="jobType" label="作业类型">
@@ -304,7 +310,7 @@ async function downloadAlgCsvData () {
       <el-table-column prop="fStatus"
                        fixed="right"
                        label="状态">
-        <template #default="{ row }">{{ Status.getLabel(row.status.toLowerCase())}}
+        <template #default="{ row }">{{ Status.getLabel(row.status.toLowerCase()) }}
         </template>
       </el-table-column>
       <el-table-column prop="fStatus"
@@ -351,9 +357,7 @@ async function downloadAlgCsvData () {
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary"
-                   @click="downloadAlgCsvData">
-          确定
-        </el-button>
+                   @click="downloadAlgCsvData"> 确定 </el-button>
       </div>
     </template>
   </el-dialog>

@@ -7,7 +7,7 @@ import {
   computed,
   inject,
   nextTick,
-  ref
+  ref,
 } from 'vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -155,6 +155,7 @@ async function setCurrentAlgorithms () {
     console.log(item, 'OITEMOITEM');
     item.x = item.data.x;
     item.y = item.data.y;
+    console.log(GraphViewerRef.value, 'GraphViewerRef.value');
     GraphViewerRef.value.addNode(item);
   });
   GraphViewerRef.value.addEdges(formattedData.edges);
@@ -168,11 +169,12 @@ onMounted(async () => {
     const dom = Array.from(
       document.querySelectorAll('.graph-area .graph-node-wrapper'),
     );
+    console.log(dom, '看看变色dom');
     dom.forEach((dom) => (dom.style.borderBottom = '6px solid #0068fa'));
     if (dom.length !== 0) {
       clearTimeout(timerId);
     }
-  }, 0);
+  }, 100);
 });
 
 function onClickNode (item) {
@@ -325,22 +327,21 @@ const stopPolling = () => {
   }
 };
 
+// 带调试日志的状态检查
 // 3. 带调试日志的状态检查
 const fetchStatus = async () => {
   try {
     const ws = new WebSocket(`/websocket/progress/${state.newJobId}/guest/1`);
     localStorage.setItem('nodeStatusInfo', JSON.stringify(response.nodes));
     const graph = GraphViewerRef.value?.getGraph();
-    const edges = graph.getEdges();
+    const edges = graph.getEdges(); // 1. 调试输出节点和边信息
 
-    // 1. 调试输出节点和边信息
     console.log(
       '当前节点状态:',
       response.nodes.map((n) => `${n.graphNodeId}:${n.status}`),
     );
-    console.log('边数量:', edges.length);
+    console.log('边数量:', edges.length); // 2. 先清除所有动画
 
-    // 2. 先清除所有动画
     edges.forEach((edge) => {
       edge.attr({
         line: {
@@ -351,9 +352,8 @@ const fetchStatus = async () => {
           },
         },
       });
-    });
+    }); // 3. 仅对RUNNING节点的连线添加动画
 
-    // 3. 仅对RUNNING节点的连线添加动画
     if (!response.finished) {
       const runningNodeIds = response.nodes
         .filter((node) => node.status === 'RUNNING')
@@ -364,25 +364,11 @@ const fetchStatus = async () => {
       edges.forEach((edge) => {
         const sourceId = edge.getSourceCell()?.store.changed.zIndex;
         const targetId = edge.getTargetCell()?.store.changed.zIndex;
-        const edgeId = edge?.store?.data?.data.edgeId;
-        // 只需要target的节点ID
+        const edgeId = edge?.store?.data?.data.edgeId; // 只需要target的节点ID
         const targetNodeId = edgeId.split('__')[1];
 
-        console.log(edge, edge.getTargetCell(), '>>>edge.getTargetCell()');
+        console.log(edge, edge.getTargetCell(), '>>>edge.getTargetCell()'); // const tempRunningNodeIds = runningNodeIds.map((i) => //   Number(i[i.length - 1]), // ); // console.log( //   'tempRUNNING节点ID:', //   sourceId, //   targetId, // ); // const isActive = //   (sourceId && tempRunningNodeIds.includes(sourceId)) || //   (targetId && tempRunningNodeIds.includes(targetId));
 
-        // const tempRunningNodeIds = runningNodeIds.map((i) =>
-        //   Number(i[i.length - 1]),
-        // );
-
-        // console.log(
-        //   'tempRUNNING节点ID:',
-        //   sourceId,
-        //   targetId,
-        // );
-
-        // const isActive =
-        //   (sourceId && tempRunningNodeIds.includes(sourceId)) ||
-        //   (targetId && tempRunningNodeIds.includes(targetId));
         const isActive = runningNodeIds.some((item) =>
           targetNodeId.includes(item),
         );
