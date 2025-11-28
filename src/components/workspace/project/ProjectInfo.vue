@@ -89,17 +89,20 @@ async function fetchData () {
       const res = await dpProjectTasks05Form({ id: projectId.value });
       const { taskName, prjId, outterTaskId = '{}' } = res.dpProjectTasks05 || {}
       const prjRes = await dpProjectForm({ id: prjId.id })
-      const { projectJson, projectId: sprj } = JSON.parse(outterTaskId)
+      const outter = JSON.parse(outterTaskId)
+      const { projectJson, projectId: sprj, graphId, status, voteId, dependencyData, configData, edgeData } = outter
       console.log({ prjRes, projectJson })
+      const dpOutterId = { graphId, status, voteId, projectId: sprj }
       let participants = JSON.stringify(prjRes?.dpProject?.dpProjectPartysList?.map(item => {
-        const party = siteStore.otherSite.find(it => {
-          return it.nodeId == item?.partyId?.id
-        })
-        console.log({ party: siteStore.otherSite })
-        return party?.id
+        // const party = siteStore.otherSite.find(it => {
+        //   return it.nodeId == item?.partyId?.id
+        // })
+        // console.log({ party: siteStore.otherSite })
+        return siteStore.getByNodeId(item?.partyId?.id).id
+        // return party?.id
       }) || [])
       console.log({ participants })
-      const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson, platform: 0, secretflowPrjId: sprj }
+      const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson, platform: 0, secretflowPrjId: sprj, outterTaskId: dpOutterId, tProjectAlgConfig: { dependencyData, configData, edgeData } }
       state.projectDetail = detail
     }
   } finally {
@@ -142,20 +145,22 @@ async function onSaveProjectBaseInfo () {
 
   if (projectJson.job_runtime_conf.role) {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role', {
-      guest: [parseInt(projectJson.job_runtime_conf.role.guest)],
+      guest: [String(projectJson.job_runtime_conf.role.guest)],
       host: projectJson.job_runtime_conf.role.host,
     });
+    console.log({ host: projectJson.job_runtime_conf.role.host })
     _.set(projectInfo, 'host', projectJson.job_runtime_conf.role.host);
 
     _.set(projectInfo, 'guest', [
-      parseInt(projectJson.job_runtime_conf.role.guest),
+      String(projectJson.job_runtime_conf.role.guest),
     ]);
+    console.log({ arbiter: projectJson.job_runtime_conf.role.arbiter })
     if (projectJson.job_runtime_conf.role.arbiter) {
       _.set(projectInfo, 'arbiter', [
-        parseInt(projectJson.job_runtime_conf.role.arbiter),
+        String(projectJson.job_runtime_conf.role.arbiter),
       ]);
       _.set(projectInfo, 'projectJson.job_runtime_conf.role.arbiter', [
-        parseInt(projectJson.job_runtime_conf.role.arbiter),
+        String(projectJson.job_runtime_conf.role.arbiter),
       ]);
     }
   }
@@ -172,10 +177,11 @@ async function onSaveProjectBaseInfo () {
   console.log(state, 'initiator');
 
   _.set(projectInfo, 'projectJson.job_runtime_conf.initiator', {
-    party_id: parseInt(state.partyId),
+    party_id: String(state.partyId),//parseInt(state.partyId),
     role: 'guest',
   });
   _.set(projectInfo, 'secretflowPrjId', state.projectDetail.secretflowPrjId);
+  _.set(projectInfo, 'outterTaskId', state.projectDetail.outterTaskId);
   localStorage.setItem('projectInfo', JSON.stringify(projectInfo));
   if (state.model.id) {
     // 查询项目的算法信息

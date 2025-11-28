@@ -37,7 +37,7 @@ const roleNameList = ref({})
 
 onMounted(() => {
   if (type.value == '1' || type.value == '3') return
-  console.log(props.info, 'OOIIOPOP', roleList, siteStore.otherSite);
+  console.log(props.info, 'OOIIOPOP', roleList, siteStore.otherSite, state.model.host);
   roleList.value = siteStore.otherSite.filter(item => {
     return props.info.nodeTag.includes(item.id)
   })
@@ -52,8 +52,10 @@ onMounted(() => {
   // state.model.guest = props.info.guest ? props.info.guest[0] :''
   state.model.guest = props.info.guest ? roleNameList.value[props.info.guest[0]] : ''
 
-  props.info.host && props.info.host.forEach(partyId => state.model.host.push(roleNameList.value[partyId]))
-  console.log({ host: state.model.host });
+  // props.info.host && props.info.host.forEach(partyId => state.model.host.push(roleNameList.value[partyId]))
+  state.model.host = props.info.host
+
+  console.log({ host: state.model.host, prhost: props.info.host });
 
   state.model.arbiter = props.info.arbiter ? roleNameList.value[props.info.arbiter[0]] : ''
   console.log({ guest: state.model.guest, arbiter: state.model.arbiter });
@@ -66,24 +68,26 @@ function selectChange (val, roleType) {
   const myPartyId = JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId
   if (roleType === 'guest') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.guest', [
-      parseInt(val)
+      String(val)
+      // parseInt(val)
     ]);
   } else if (roleType === 'host') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.host',
-      val.map(Number)
+      val.map(String)
     );
 
     _.set(projectInfo, 'host',
-      val.map(Number)
+      val.map(String)
     );
   } else if (roleType === 'arbiter') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.arbiter', [
-      parseInt(val)
+      // parseInt(val)
+      String(val)
     ]);
   }
   if (val === myPartyId || val.includes(myPartyId)) {
     _.set(projectInfo, 'projectJson.job_runtime_conf.initiator', {
-      party_id: parseInt(myPartyId),
+      party_id: String(val),//parseInt(myPartyId),
       role: 'guest',
     });
   }

@@ -26,7 +26,7 @@ import storeId from '../store.id';
 
 
 const useSiteStore = defineStore(storeId.site, {
-  state: () => ({ mySite: [], otherSite: [] }),
+  state: () => ({ mySite: [], otherSite: [] ,otherSiteObj:{}}),
   getters: {
     institutions() {
       return function (id) {
@@ -68,7 +68,7 @@ const useSiteStore = defineStore(storeId.site, {
         const res = await getAllParties();
         const list = [];
         let mySite = undefined;
-
+        let sitObj = {}
         res?.list?.forEach((item)=>{
           const outterPartyId = JSON.parse(item.outterPartyId);
           const row = {
@@ -76,6 +76,16 @@ const useSiteStore = defineStore(storeId.site, {
             isSelf: item.ptype === '1' ? 1 : 0,
             name: item.pname,
             nodeId:outterPartyId.nodeId,
+            tDomainEngineList1:item.nodeList.map(it => {
+              return {
+                domainId: item.id,
+                engine:it.nodeType=='2'?1:0,
+                engineInfo: JSON.stringify({ 
+                nodeId: it.nodeName,
+                partyId: item.id
+              })
+              }
+            }),
             tDomainEngineList: [{
               domainId: item.id,
               engine: 1,
@@ -98,16 +108,21 @@ const useSiteStore = defineStore(storeId.site, {
           } 
 
           list.push(row);
+          sitObj = {...sitObj,[row.nodeId]:row}
         });
 
         sessionStorage.setItem('selfParties', JSON.stringify(mySite));
         this.mySite = mySite;
 
         this.otherSite = list;
+        this.otherSiteObj = sitObj
         return list;
       } catch (error) {
         console.error(error);
       }
+    },
+    getByNodeId (nodeId)  {
+      return this.otherSiteObj[nodeId]
     },
     fetchData() {
       this.fetchMySite();
