@@ -210,9 +210,6 @@ async function registerSecretflowNode() {
           });
         });
       } else if (outputPortObj?.length === 1) {
-        if (item.name === 'datatable') {
-          console.log(item, selfitem.module, selfitem.name, 'JAAJAJAJJJJ宝吧');
-        }
         nodePlace[outputPortObj[0].name] = {
           position: {
             name: 'absolute',

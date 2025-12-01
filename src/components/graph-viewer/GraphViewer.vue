@@ -18,6 +18,7 @@ const siteStore = useSiteStore();
 const secretflowStore = useSecretflowStore();
 // 在文件顶部定义标志变量
 let isButtonRemoveRegistered = false;
+let isDisposing = false;
 // if (
 //   siteStore.mySite.tDomainEngineList.find(
 //     async (engine) => engine.engine == '0',
@@ -411,7 +412,10 @@ export default {
       });
 
       graph.on('cell:removed', ({ cell, index, options }) => {
-        emit('delete', cell);
+        // 如果正在 dispose，则不触发业务逻辑
+        if (!isDisposing) {
+          emit('delete', cell);
+        }
       });
 
       graph.on('node:added', ({ node, index, options }) => {
@@ -588,9 +592,11 @@ export default {
 
     function destroy() {
       if (graph) {
+        isDisposing = true; // 设置标志
         graph.dispose();
         localStorage.removeItem('nodeStatusInfo');
         localStorage.removeItem('currentNodeStatus');
+        isDisposing = false; // 重置标志
       }
     }
 
