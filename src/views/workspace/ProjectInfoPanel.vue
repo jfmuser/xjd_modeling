@@ -41,14 +41,16 @@ onMounted(() => {
   roleList.value = siteStore.otherSite.filter(item => {
     return props.info.nodeTag.includes(item.id)
   })
-  roleList.value.forEach(role => {
-    if (role.tDomainEngineList.length === 0) return
-    const engineInfo = role.tDomainEngineList.find(engine => engine.engine == '0')?.engineInfo
-    roleNameList.value[JSON.parse(engineInfo).partyId] = role.name
+  roleList.value = roleList.value.map(role => {
+    if (role.tDomainEngineList.length === 0) return {}
+    let engineInfo = role.tDomainEngineList.find(engine => engine.engine == '0')?.engineInfo
+    engineInfo = JSON.parse(engineInfo)
+    roleNameList.value[Number(engineInfo.partyId)] = role.name
+    return { name: role.name, id: role.id, value: Number(engineInfo.partyId) }
 
   })
 
-  console.log(33, roleList.value, roleNameList.value);
+  console.log(33, state.model, roleList.value, roleNameList.value);
   // state.model.guest = props.info.guest ? props.info.guest[0] :''
   state.model.guest = props.info.guest ? roleNameList.value[props.info.guest[0]] : ''
 
@@ -65,29 +67,27 @@ onMounted(() => {
 
 function selectChange (val, roleType) {
   const projectInfo = JSON.parse(localStorage.getItem('projectInfo'))
-  const myPartyId = JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId
+  const myPartyId = Number(JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId)
   if (roleType === 'guest') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.guest', [
-      String(val)
-      // parseInt(val)
+      parseInt(val)
     ]);
   } else if (roleType === 'host') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.host',
-      val.map(String)
+      val.map(Number)
     );
 
     _.set(projectInfo, 'host',
-      val.map(String)
+      val.map(Number)
     );
   } else if (roleType === 'arbiter') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.arbiter', [
-      // parseInt(val)
-      String(val)
+      parseInt(val)
     ]);
   }
-  if (val === myPartyId || val.includes(myPartyId)) {
+  if (val === myPartyId || val?.includes?.(myPartyId)) {
     _.set(projectInfo, 'projectJson.job_runtime_conf.initiator', {
-      party_id: String(val),//parseInt(myPartyId),
+      party_id: parseInt(myPartyId),
       role: 'guest',
     });
   }
@@ -133,7 +133,7 @@ function onEdit () {
             <el-option v-for="item in roleList"
                        :key="item.id"
                        :label="item.name"
-                       :value="item.tDomainEngineList.length === 0 ? null :JSON.parse(item.tDomainEngineList.find(engine => engine.engine == '0').engineInfo)?.partyId" />
+                       :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="数据方"
@@ -145,7 +145,7 @@ function onEdit () {
             <el-option v-for="item in roleList"
                        :key="item.id"
                        :label="item.name"
-                       :value="item.tDomainEngineList.length === 0 ? null :JSON.parse(item.tDomainEngineList.find(engine => engine.engine == '0').engineInfo)?.partyId" />
+                       :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="聚合方"
@@ -156,7 +156,7 @@ function onEdit () {
             <el-option v-for="item in roleList"
                        :key="item.id"
                        :label="item.name"
-                       :value="item.tDomainEngineList.length === 0 ? null : JSON.parse(item.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId" />
+                       :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>

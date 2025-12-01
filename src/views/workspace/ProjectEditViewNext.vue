@@ -25,6 +25,7 @@ import {
   getProjectDependencyData,
   createJob,
 } from '../../apis/workspace/project.api';
+import { runFateProject } from '../../apis/innovate/innovate.api';
 import C2Transition from '../../components/C2Transition.vue';
 import AlgorithmParamDrawer from './AlgorithmParamDrawer.vue';
 import ResultDrawer from '../secretflow/ResultDrawer.vue';
@@ -32,6 +33,7 @@ import useGraph from '../../hooks/useGraph';
 import formatDAGData from '../../utils/formatDAGData';
 import useAlgorithmParam from '../../hooks/useAlgorithmParam';
 import { FormType } from '@/utils/const';
+import * as Base64 from 'js-base64';
 const { onSaveGraphInfo } = useAlgorithmParam();
 const {
   GraphViewerRef,
@@ -196,9 +198,9 @@ function goProjectPage () {
   router.push({
     name: 'project', query: {
       projectName: route.query.projectName,
-      id: route.query.projectId,
+      id: route.query.id,
       action: FormType.READ,
-      type: 0
+      type: route.query.type
     }
   });
 }
@@ -300,10 +302,16 @@ async function onRun () {
       throw new Error('画布为空');
     }
     await onSaveGraphInfo(nodes, edges);
-    const response = await createJob(route.query.id);
-    state.newJobId = response.data;
-    startPollingStatus();
-    ElMessage.success(response.retmsg || '操作成功');
+    console.log(449)
+    // const response = await createJob(route.query.id);
+    let projectJson = JSON.parse(localStorage.getItem('projectInfo')).projectJson;
+    console.log(448, { projectJson })
+    projectJson = Base64.encode(JSON.stringify(projectJson));
+    const res = await runFateProject({ data: projectJson });
+    console.log(447, { res })
+    // state.newJobId = response.data;
+    // startPollingStatus();
+    // ElMessage.success(response.retmsg || '操作成功');
   } catch (error) {
     ElMessage.error(error);
   }

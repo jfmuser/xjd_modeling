@@ -101,7 +101,7 @@ async function fetchData () {
         return siteStore.getByNodeId(item?.partyId?.id).id
         // return party?.id
       }) || [])
-      console.log({ participants })
+      console.log({ participants, dependencyData, configData, edgeData, projectJson: JSON.parse(projectJson) })
       const detail = { ...(res.dpProjectTasks05 || {}), projectName: taskName, participants, projectJson, platform: 0, secretflowPrjId: sprj, outterTaskId: dpOutterId, tProjectAlgConfig: { dependencyData, configData, edgeData } }
       state.projectDetail = detail
     }
@@ -145,22 +145,22 @@ async function onSaveProjectBaseInfo () {
 
   if (projectJson.job_runtime_conf.role) {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role', {
-      guest: [String(projectJson.job_runtime_conf.role.guest)],
+      guest: [parseInt(projectJson.job_runtime_conf.role.guest)],
       host: projectJson.job_runtime_conf.role.host,
     });
     console.log({ host: projectJson.job_runtime_conf.role.host })
     _.set(projectInfo, 'host', projectJson.job_runtime_conf.role.host);
 
     _.set(projectInfo, 'guest', [
-      String(projectJson.job_runtime_conf.role.guest),
+      parseInt(projectJson.job_runtime_conf.role.guest),
     ]);
     console.log({ arbiter: projectJson.job_runtime_conf.role.arbiter })
     if (projectJson.job_runtime_conf.role.arbiter) {
       _.set(projectInfo, 'arbiter', [
-        String(projectJson.job_runtime_conf.role.arbiter),
+        parseInt(projectJson.job_runtime_conf.role.arbiter),
       ]);
       _.set(projectInfo, 'projectJson.job_runtime_conf.role.arbiter', [
-        String(projectJson.job_runtime_conf.role.arbiter),
+        parseInt(projectJson.job_runtime_conf.role.arbiter),
       ]);
     }
   }
@@ -177,7 +177,7 @@ async function onSaveProjectBaseInfo () {
   console.log(state, 'initiator');
 
   _.set(projectInfo, 'projectJson.job_runtime_conf.initiator', {
-    party_id: String(state.partyId),//parseInt(state.partyId),
+    party_id: parseInt(state.partyId),//parseInt(state.partyId),
     role: 'guest',
   });
   _.set(projectInfo, 'secretflowPrjId', state.projectDetail.secretflowPrjId);
@@ -185,7 +185,9 @@ async function onSaveProjectBaseInfo () {
   localStorage.setItem('projectInfo', JSON.stringify(projectInfo));
   if (state.model.id) {
     // 查询项目的算法信息
-    const projectAlgorithms = await getOperator(state.model.id);
+    // const projectAlgorithms = await getOperator(state.model.id); 
+    const projectAlgorithms = Object.keys(JSON.parse(state?.projectDetail?.tProjectAlgConfig?.dependencyData || '{}').component_module) || []
+    console.log({ projectAlgorithms, projectDetail: state.projectDetail, route: route.name })
     // 判断画布上有没有东西，没有就不做数据处理
     if (projectAlgorithms.length === 0) {
       await router.push({

@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-// import { getMySite, getOtherSite } from '../../apis/dept/site.api';
 import { getAllParties } from '../../apis/dp/api'
 import storeId from '../store.id';
 
@@ -76,31 +75,32 @@ const useSiteStore = defineStore(storeId.site, {
             isSelf: item.ptype === '1' ? 1 : 0,
             name: item.pname,
             nodeId:outterPartyId.nodeId,
-            tDomainEngineList1:item.nodeList.map(it => {
+            tDomainEngineList:item.nodeList.map(it => {
               return {
                 domainId: item.id,
                 engine:it.nodeType=='2'?1:0,
                 engineInfo: JSON.stringify({ 
                 nodeId: it.nodeName,
-                partyId: item.id
+                // partyId: item.id
+                partyId:it.nodeName
               })
               }
             }),
-            tDomainEngineList: [{
-              domainId: item.id,
-              engine: 1,
-              engineInfo: JSON.stringify({ 
-                nodeId: outterPartyId.nodeId,
-                partyId: item.id
-              })
-            },{
-              domainId: item.id,
-              engine: 0,
-              engineInfo: JSON.stringify({ 
-                nodeId: outterPartyId.nodeId,
-                partyId: item.id
-              })
-            }]
+            // tDomainEngineList: [{
+            //   domainId: item.id,
+            //   engine: 1,
+            //   engineInfo: JSON.stringify({ 
+            //     nodeId: outterPartyId.nodeId,
+            //     partyId: item.id
+            //   })
+            // },{
+            //   domainId: item.id,
+            //   engine: 0,
+            //   engineInfo: JSON.stringify({ 
+            //     nodeId: outterPartyId.nodeId,
+            //     partyId: item.id
+            //   })
+            // }]
           };
 
           if(item.ptype === '1'){

@@ -304,6 +304,10 @@ export default ({ mode }) => {
           // target: 'http://1.org.manager-api.dev.pcp.convcloud.cn:18082',
           changeOrigin: true,
         },
+        '/innovate-api': {
+            target: 'http://119.23.69.219:3071/',
+            changeOrigin: true,
+          },
         '/secretflow-api/api': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
           target: 'http://119.23.69.219:3071/',

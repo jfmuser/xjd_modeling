@@ -1832,6 +1832,7 @@ console.log({tableNameOptions})
       // });
       let outterTaskId = {...info.outterTaskId,configData,dependencyData,projectJson,edgeData,host:info.host}
       console.log({outterTaskId})
+      localStorage.setItem('projectInfo',JSON.stringify(info))
       await dpProjectTasks05Save({id:projectId,isNewRecord:false,outterTaskId:JSON.stringify(outterTaskId)})
       ElMessage.success('应用修改成功');
     } catch (error) {
