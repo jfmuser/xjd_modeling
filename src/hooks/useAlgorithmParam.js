@@ -666,7 +666,7 @@ const allTableList = ref([])
     const res =await getSecretflowProject({projectId:info.secretflowPrjId})
     console.log({res})
     res?.nodes?.forEach(item => {
-      item.datatables.forEach(it => {
+      item?.datatables?.forEach(it => {
         namespaceOptions.push({
           label:`namespace_${it.datatableId}`,
           value:`namespace_${it.datatableId}`

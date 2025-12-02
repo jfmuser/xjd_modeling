@@ -45,7 +45,6 @@ watch(
   () => props.defaultModel,
   () => {
     state.model = { ...props.defaultModel };
-    console.log({ otherSite: siteStore.otherSite })
     if (!state.model.participants) return
     //把参与主体的ID映射成名称，需要拿到所有主体筛选
     const subjectIdList = JSON.parse(state.model.participants)

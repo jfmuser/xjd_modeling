@@ -8,6 +8,7 @@ import {
   inject,
   nextTick,
   ref,
+  getCurrentInstance
 } from 'vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
@@ -34,6 +35,7 @@ import formatDAGData from '../../utils/formatDAGData';
 import useAlgorithmParam from '../../hooks/useAlgorithmParam';
 import { FormType } from '@/utils/const';
 import * as Base64 from 'js-base64';
+import WebSocketClient from '@/utils/WebSocketClient.js';
 const { onSaveGraphInfo } = useAlgorithmParam();
 const {
   GraphViewerRef,
@@ -47,6 +49,9 @@ const {
   onGraphRollback,
 } = useGraph();
 provide(GET_GRAPH, getGraph);
+const { appContext } = getCurrentInstance();
+const indexedDB = appContext.config.globalProperties.$indexedDB;
+
 const router = useRouter();
 const i18n = inject(I18N);
 const state = reactive({
@@ -239,6 +244,7 @@ async function onSave () {
 
 function onCancelEdit () {
   state.editable = false;
+
 }
 
 onBeforeUnmount(() => {
@@ -305,98 +311,144 @@ async function onRun () {
     console.log(449)
     // const response = await createJob(route.query.id);
     let projectJson = JSON.parse(localStorage.getItem('projectInfo')).projectJson;
-    console.log(448, { projectJson })
     projectJson = Base64.encode(JSON.stringify(projectJson));
-    const res = await runFateProject({ data: projectJson });
-    console.log(447, { res })
-    // state.newJobId = response.data;
-    // startPollingStatus();
-    // ElMessage.success(response.retmsg || '操作成功');
+    const response = await runFateProject({ data: projectJson });
+    state.newJobId = response.data;
+    let project = await indexedDB.get(route.query.id)
+    console.log({ project, indexedDB })
+    let jobIds = project?.jobIds || []
+    jobIds.push(response.data)
+    console.log(33, { project })
+    indexedDB.set({ ...project, id: route.query.id, jobIds });
+    startPollingStatus();
+    ElMessage.success(response.retmsg || '操作成功');
   } catch (error) {
     ElMessage.error(error);
   }
 }
 
 const isRunning = ref(false);
-
+let ws
+let pollingInterval;
 // 2. 增强版的轮询控制
 const startPollingStatus = () => {
   stopPolling(); // 先停止已有轮询
   fetchStatus(); // 立即执行一次
   isRunning.value = true;
-  pollingInterval = setInterval(fetchStatus, 2000);
+
+  // pollingInterval = setInterval(fetchStatus, 2000);
 };
 
 const stopPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-    pollingInterval = null;
+  if (ws) {
+    // clearInterval(pollingInterval);
+    ws = null;
     isRunning.value = false;
   }
 };
 
+const onMessage = (data, event) => {
+  if (data.status === 'running') {
+    console.log('正在运行', data);
+    isRunning.value = true;
+  } else if (data.status === 'waiting') {
+    console.log('正在等待', data);
+    isRunning.value = true;
+  } else if (data.status === 'success') {
+    isRunning.value = false;
+    console.log('运行成功', data);
+    ElMessage.success('运行成功');
+    ws.close()
+  } else if (data.status == 'failed') {
+    console.log('运行失败', data);
+    isRunning.value = false;
+    ElMessage.success('运行失败');
+    ws.close()
+  } else {
+    console.log('其他消息', data);
+  }
+}
 // 带调试日志的状态检查
 // 3. 带调试日志的状态检查
 const fetchStatus = async () => {
   try {
-    const ws = new WebSocket(`/websocket/progress/${state.newJobId}/guest/1`);
-    localStorage.setItem('nodeStatusInfo', JSON.stringify(response.nodes));
-    const graph = GraphViewerRef.value?.getGraph();
-    const edges = graph.getEdges(); // 1. 调试输出节点和边信息
+    ws = new WebSocketClient(`/fate/websocket/progress/${state.newJobId}/guest/9999`, {
+      autoReconnect: true,        // 自动重连
+      reconnectInterval: 3000,     // 重连间隔 3 秒
+      maxReconnectAttempts: 5,     // 最多重连 5 次
+      timeout: 30000,              // 消息超时 30 秒
 
-    console.log(
-      '当前节点状态:',
-      response.nodes.map((n) => `${n.graphNodeId}:${n.status}`),
-    );
-    console.log('边数量:', edges.length); // 2. 先清除所有动画
+      onClose: (event) => {
+        console.log('连接关闭', event);
+      },
+      onError: (event) => {
+        console.error('连接错误', event);
+      },
+      onMessage
+    });
 
-    edges.forEach((edge) => {
-      edge.attr({
-        line: {
-          strokeDasharray: '',
-          style: {
-            animation: 'none',
-            stroke: edge.attr('line/stroke'), // 强制触发重绘
-          },
-        },
-      });
-    }); // 3. 仅对RUNNING节点的连线添加动画
 
-    if (!response.finished) {
-      const runningNodeIds = response.nodes
-        .filter((node) => node.status === 'RUNNING')
-        .map((node) => node.graphNodeId);
+    await ws.connect();
+    console.log('连接成功');
+    // const response = new WebSocket(`/fate/websocket/progress/202512021139156190580/guest/1`);
+    console.log({ ws: ws })
+    // localStorage.setItem('nodeStatusInfo', JSON.stringify(response.nodes));
+    // const graph = GraphViewerRef.value?.getGraph();
+    // const edges = graph.getEdges(); // 1. 调试输出节点和边信息
 
-      console.log('RUNNING节点ID:', runningNodeIds);
+    // console.log(
+    //   '当前节点状态:',
+    //   response.nodes.map((n) => `${n.graphNodeId}:${n.status}`),
+    // );
+    // console.log('边数量:', edges.length); // 2. 先清除所有动画
 
-      edges.forEach((edge) => {
-        const sourceId = edge.getSourceCell()?.store.changed.zIndex;
-        const targetId = edge.getTargetCell()?.store.changed.zIndex;
-        const edgeId = edge?.store?.data?.data.edgeId; // 只需要target的节点ID
-        const targetNodeId = edgeId.split('__')[1];
+    // edges.forEach((edge) => {
+    //   edge.attr({
+    //     line: {
+    //       strokeDasharray: '',
+    //       style: {
+    //         animation: 'none',
+    //         stroke: edge.attr('line/stroke'), // 强制触发重绘
+    //       },
+    //     },
+    //   });
+    // }); // 3. 仅对RUNNING节点的连线添加动画
 
-        console.log(edge, edge.getTargetCell(), '>>>edge.getTargetCell()'); // const tempRunningNodeIds = runningNodeIds.map((i) => //   Number(i[i.length - 1]), // ); // console.log( //   'tempRUNNING节点ID:', //   sourceId, //   targetId, // ); // const isActive = //   (sourceId && tempRunningNodeIds.includes(sourceId)) || //   (targetId && tempRunningNodeIds.includes(targetId));
+    // if (!response.finished) {
+    //   const runningNodeIds = response.nodes
+    //     .filter((node) => node.status === 'RUNNING')
+    //     .map((node) => node.graphNodeId);
 
-        const isActive = runningNodeIds.some((item) =>
-          targetNodeId.includes(item),
-        );
+    //   console.log('RUNNING节点ID:', runningNodeIds);
 
-        if (isActive) {
-          console.log(`激活边: ${edge.id} (${sourceId} -> ${targetId})`);
-          edge.attr({
-            line: {
-              strokeDasharray: 5,
-              style: {
-                animation: 'running-line 30s linear infinite',
-                stroke: edge.attr('line/stroke'), // 强制重绘
-              },
-            },
-          });
-        }
-      });
-    } else {
-      stopPolling();
-    }
+    //   edges.forEach((edge) => {
+    //     const sourceId = edge.getSourceCell()?.store.changed.zIndex;
+    //     const targetId = edge.getTargetCell()?.store.changed.zIndex;
+    //     const edgeId = edge?.store?.data?.data.edgeId; // 只需要target的节点ID
+    //     const targetNodeId = edgeId.split('__')[1];
+
+    //     console.log(edge, edge.getTargetCell(), '>>>edge.getTargetCell()'); // const tempRunningNodeIds = runningNodeIds.map((i) => //   Number(i[i.length - 1]), // ); // console.log( //   'tempRUNNING节点ID:', //   sourceId, //   targetId, // ); // const isActive = //   (sourceId && tempRunningNodeIds.includes(sourceId)) || //   (targetId && tempRunningNodeIds.includes(targetId));
+
+    //     const isActive = runningNodeIds.some((item) =>
+    //       targetNodeId.includes(item),
+    //     );
+
+    //     if (isActive) {
+    //       console.log(`激活边: ${edge.id} (${sourceId} -> ${targetId})`);
+    //       edge.attr({
+    //         line: {
+    //           strokeDasharray: 5,
+    //           style: {
+    //             animation: 'running-line 30s linear infinite',
+    //             stroke: edge.attr('line/stroke'), // 强制重绘
+    //           },
+    //         },
+    //       });
+    //     }
+    //   });
+    // } else {
+    //   stopPolling();
+    // }
   } catch (error) {
     console.error('轮询出错:', error);
   }
@@ -427,6 +479,9 @@ const onCheckResult = async (args) => {
   //               projectId: props.projectInfo.projectId
   //           })
 };
+onBeforeUnmount(() => {
+  stopPolling()
+})
 </script>
 <template>
   <div class="project-edit">
@@ -464,12 +519,15 @@ const onCheckResult = async (args) => {
         </el-icon>
       </div>
       <C2Transition>
-        <div v-show="state.editable"
+        <div v-show="state.editable&&!isRunning"
              class="action-button">
           <el-button type="primary"
                      @click="onSave"> 保存</el-button>
           <el-button type="primary"
-                     @click="onRun"> 运行</el-button>
+                     @click="onRun"
+                     :disabled="isRunning">
+            {{ isRunning ? '运行中' : '运行' }}
+          </el-button>
           <el-button @click="onCancelEdit">取消</el-button>
         </div>
       </C2Transition>
