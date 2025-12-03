@@ -1,4 +1,5 @@
 import request from './innovateRequest'
+import sysRequest from './innovateSysRequest'
 
 /**
  * @description 自研上传csv数据
@@ -12,4 +13,19 @@ export const uploadScretflowCSVData = (data) => {
 */
 export const getBoardInfo = (data) => {
     return request.post('/user/getBoardInfo', data);
+};
+
+/**
+ * @description 运行fate项目
+ */
+
+export const runFateProject = (data) => {
+    return sysRequest.post('/sys/job/startJobByJson', data);
+};
+/**
+ * 
+ * @description 获取fate项目运行记录
+ */
+export const getFateJobList = (data) => {
+    return sysRequest.post('/sys/job/getStatusByJobIds', data);
 };

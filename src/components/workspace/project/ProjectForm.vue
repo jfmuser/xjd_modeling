@@ -48,11 +48,11 @@ watch(
     if (!state.model.participants) return
     //把参与主体的ID映射成名称，需要拿到所有主体筛选
     const subjectIdList = JSON.parse(state.model.participants)
+    console.log(33, { otherSite: siteStore.otherSite })
     subjectList.value = siteStore.otherSite.filter((subject) => {
-      console.log(subjectIdList,'subjectIdList');
-      
-      return  subjectIdList.some((id) => id === subject.id)
+      return subjectIdList.some((id) => id === subject.id)
     })
+    console.log({ subjectList })
     subjectList.value = subjectList.value.map((item) => {
       return item.name
     })
@@ -69,7 +69,7 @@ onMounted(() => {
   console.log(props.defaultModel, '看这里');
 });
 
-function cancel() {
+function cancel () {
   router.push({
     name: route.name,
     query: {
@@ -81,32 +81,44 @@ function cancel() {
   state.model = { ...props.defaultModel };
 }
 
-function validate() {
+function validate () {
   return FormRef.value.validate().catch(() => { });
 }
 
-function getModel() {
+function getModel () {
   return state.model;
 }
 
-async function save() { }
+async function save () { }
 
 defineExpose({ cancel, validate, getModel, save, FormRef, state });
 </script>
 
 <template>
-  <el-form ref="FormRef" :model="state.model" :label-width="props.labelWidth" :inline="props.inline">
-    <el-form-item v-show="false" label="ID">
-      <el-input v-model="state.model.id" placeholder="" :disabled="props.formType === FormType.READ" />
+  <el-form ref="FormRef"
+           :model="state.model"
+           :label-width="props.labelWidth"
+           :inline="props.inline">
+    <el-form-item v-show="false"
+                  label="ID">
+      <el-input v-model="state.model.id"
+                placeholder=""
+                :disabled="props.formType === FormType.READ" />
     </el-form-item>
-    <el-form-item label="项目名称" prop="projectName">
-      <el-input v-model="state.model.projectName" placeholder="请输入项目名称" :disabled="props.formType === FormType.READ" />
+    <el-form-item label="项目名称"
+                  prop="projectName">
+      <el-input v-model="state.model.projectName"
+                placeholder="请输入项目名称"
+                :disabled="props.formType === FormType.READ" />
     </el-form-item>
     <!-- <el-form-item label="内置引擎" prop="">
       <el-input v-model="platform[state.model.platform]" placeholder="" disabled />
     </el-form-item> -->
-    <el-form-item label="参与主体" prop="">
-      <el-input v-model="subjectList" placeholder="" disabled />
+    <el-form-item label="参与主体"
+                  prop="">
+      <el-input v-model="subjectList"
+                placeholder=""
+                disabled />
     </el-form-item>
     <!-- <el-form-item label="业务方" prop="guest">
       <el-select v-model="state.model.guest" :disabled="props.formType === FormType.READ">
@@ -127,9 +139,13 @@ defineExpose({ cancel, validate, getModel, save, FormRef, state });
       </el-select>
     </el-form-item> -->
 
-    <el-form-item label="备注" prop="remarks" class="entire-line">
-      <el-input v-model="state.model.remarks" type="textarea" placeholder=""
-        :disabled="props.formType === FormType.READ" />
+    <el-form-item label="备注"
+                  prop="remarks"
+                  class="entire-line">
+      <el-input v-model="state.model.remarks"
+                type="textarea"
+                placeholder=""
+                :disabled="props.formType === FormType.READ" />
     </el-form-item>
   </el-form>
 </template>

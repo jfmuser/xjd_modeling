@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-// import { getMySite, getOtherSite } from '../../apis/dept/site.api';
 import { getAllParties } from '../../apis/dp/api'
 import storeId from '../store.id';
 
@@ -26,7 +25,7 @@ import storeId from '../store.id';
 
 
 const useSiteStore = defineStore(storeId.site, {
-  state: () => ({ mySite: [], otherSite: [] }),
+  state: () => ({ mySite: [], otherSite: [] ,otherSiteObj:{}}),
   getters: {
     institutions() {
       return function (id) {
@@ -68,21 +67,40 @@ const useSiteStore = defineStore(storeId.site, {
         const res = await getAllParties();
         const list = [];
         let mySite = undefined;
-
-        res.list.forEach((item)=>{
+        let sitObj = {}
+        res?.list?.forEach((item)=>{
           const outterPartyId = JSON.parse(item.outterPartyId);
           const row = {
             id: item.id,
             isSelf: item.ptype === '1' ? 1 : 0,
             name: item.pname,
-            tDomainEngineList: [{
-              domainId: item.id,
-              engine: 1,
-              engineInfo: JSON.stringify({ 
-                nodeId: outterPartyId.nodeId,
-                partyId: item.id
+            nodeId:outterPartyId.nodeId,
+            tDomainEngineList:item.nodeList.map(it => {
+              return {
+                domainId: item.id,
+                engine:it.nodeType=='2'?1:0,
+                engineInfo: JSON.stringify({ 
+                nodeId: it.nodeName,
+                // partyId: item.id
+                partyId:it.nodeName
               })
-            }]
+              }
+            }),
+            // tDomainEngineList: [{
+            //   domainId: item.id,
+            //   engine: 1,
+            //   engineInfo: JSON.stringify({ 
+            //     nodeId: outterPartyId.nodeId,
+            //     partyId: item.id
+            //   })
+            // },{
+            //   domainId: item.id,
+            //   engine: 0,
+            //   engineInfo: JSON.stringify({ 
+            //     nodeId: outterPartyId.nodeId,
+            //     partyId: item.id
+            //   })
+            // }]
           };
 
           if(item.ptype === '1'){
@@ -90,16 +108,21 @@ const useSiteStore = defineStore(storeId.site, {
           } 
 
           list.push(row);
+          sitObj = {...sitObj,[row.nodeId]:row}
         });
 
         sessionStorage.setItem('selfParties', JSON.stringify(mySite));
         this.mySite = mySite;
 
         this.otherSite = list;
+        this.otherSiteObj = sitObj
         return list;
       } catch (error) {
         console.error(error);
       }
+    },
+    getByNodeId (nodeId)  {
+      return this.otherSiteObj[nodeId]
     },
     fetchData() {
       this.fetchMySite();

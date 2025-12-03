@@ -1,7 +1,7 @@
 // 查看所有页面
 <script setup>
 import { ElMessage } from 'element-plus';
-import { reactive, onMounted, ref, computed } from 'vue';
+import { reactive, onMounted, ref, computed, watch } from 'vue';
 import { ElNotification } from 'element-plus';
 import useEnv from '@/hooks/useEnv.js';
 import {
@@ -77,18 +77,18 @@ const pager = reactive({
 
 const emits = defineEmits(['page-change', 'search', 'add', 'import']);
 
-function onPageChange(page) {
+function onPageChange (page) {
   emits('page-change', page);
 }
-function onSearch() {
+function onSearch () {
   emits('search');
 }
 
-function onResetSearch() {
+function onResetSearch () {
   emits('search', true);
 }
 
-function onAdd() {
+function onAdd () {
   if (props.title === '联邦项目') {
     emits('edit');
     return;
@@ -96,7 +96,7 @@ function onAdd() {
   emits('add');
 }
 // 导入按钮
-function onImport() {
+function onImport () {
   init();
   // 判断当前页面是否为算法库列表
   if (props.title !== '算法库列表') {
@@ -106,14 +106,14 @@ function onImport() {
   emits('import');
 }
 // 同步按钮
-async function onSync() {
+async function onSync () {
   await authStore.asyncAuthority();
   ElMessage({
     message: '同步路由成功',
     type: 'success',
   });
 }
-async function onDerive() {
+async function onDerive () {
   let token = localStorage.getItem('token');
   window.open(`/audit/select/export?token=${token}`);
   // window.location.href = `/audit/select/export?token=${token}`
@@ -211,30 +211,33 @@ const stateFormat = (row, column) => {
 };
 
 defineExpose({ pager });
+watch(() => pager, () => { console.log(33, { pager }) }, { flush: 'post', immediate: true })
 </script>
 
 <template>
   <div class="table-container">
-    <div v-if="props.title" class="table-container__header">
+    <div v-if="props.title"
+         class="table-container__header">
       <div class="title--primary">
         {{ props.title }}
         <slot name="title--primary"></slot>
       </div>
       <div class="tool">
         <slot name="header-tool"></slot>
-        <el-button
-          v-if="showAdd"
-          type="text"
-          @click="onAdd"
-          v-permission="'add'"
-        >
+        <el-button v-if="showAdd"
+                   type="text"
+                   @click="onAdd"
+                   v-permission="'add'">
           <el-icon>
             <Plus></Plus>
           </el-icon>
           添加
         </el-button>
-        <el-button v-if="showImport" type="text" @click="onImport">
-          <el-icon><img src="../assets/workspace/import.svg" alt="" /></el-icon>
+        <el-button v-if="showImport"
+                   type="text"
+                   @click="onImport">
+          <el-icon><img src="../assets/workspace/import.svg"
+                 alt="" /></el-icon>
           导入
         </el-button>
         <!-- <el-button v-if="showSync" type="text" @click="onSync">
@@ -243,8 +246,11 @@ defineExpose({ pager });
           </el-icon>
           同步所有路由
         </el-button> -->
-        <el-button v-if="showDerive" type="text" @click="onDerive">
-          <el-icon><img src="../assets/workspace/export.svg" alt="" /></el-icon>
+        <el-button v-if="showDerive"
+                   type="text"
+                   @click="onDerive">
+          <el-icon><img src="../assets/workspace/export.svg"
+                 alt="" /></el-icon>
           导出
         </el-button>
         <!-- <el-button  type="text" @click="onImport">
@@ -253,7 +259,8 @@ defineExpose({ pager });
                                                                                                                                 </el-button> -->
       </div>
     </div>
-    <div v-if="props.subTitle" class="table-container__subheader">
+    <div v-if="props.subTitle"
+         class="table-container__subheader">
       <div class="title--secondary">{{ props.subTitle }}</div>
       <div class="tool">
         <slot name="subheaderTool"></slot>
@@ -262,88 +269,81 @@ defineExpose({ pager });
     <div>
       <slot name="header-extra"></slot>
     </div>
-    <div v-if="props.showFilter" class="table-container__filter">
+    <div v-if="props.showFilter"
+         class="table-container__filter">
       <slot name="filter"></slot>
       <div class="buttons">
-        <el-button type="primary" @click="onSearch">查询</el-button>
-        <el-button type="default" @click="onResetSearch">重置</el-button>
+        <el-button type="primary"
+                   @click="onSearch">查询</el-button>
+        <el-button type="default"
+                   @click="onResetSearch">重置</el-button>
       </div>
     </div>
     <div class="table-container__table">
       <slot name="default"></slot>
     </div>
-    <div v-if="showPagination" class="table-container__pagination">
-      <el-pagination
-        v-model:current-page="pager.page"
-        :page-size="pager.size"
-        :total="pager.total"
-        layout="total, prev, pager, next"
-        @current-change="onPageChange"
-      ></el-pagination>
+    <div v-if="showPagination"
+         class="table-container__pagination">
+      <el-pagination v-model:current-page="pager.page"
+                     :page-size="pager.size"
+                     :total="pager.total"
+                     layout="total, prev, pager, next"
+                     @current-change="onPageChange"></el-pagination>
     </div>
     <!-- 导入的弹框 -->
     <div>
       <!-- 显示 -->
-      <el-dialog title="导入文件" v-model="data.dialogTableVisible">
+      <el-dialog title="导入文件"
+                 v-model="data.dialogTableVisible">
         <el-table :data="data.gridData">
-          <el-table-column property="dataName" label="数据名"></el-table-column>
-          <el-table-column
-            property="dataType"
-            label="数据类型"
-          ></el-table-column>
-          <el-table-column property="creator" label="创建人"></el-table-column>
-          <el-table-column
-            property="createdTime"
-            label="创建时间"
-          ></el-table-column>
-          <el-table-column label="导入" align="center">
+          <el-table-column property="dataName"
+                           label="数据名"></el-table-column>
+          <el-table-column property="dataType"
+                           label="数据类型"></el-table-column>
+          <el-table-column property="creator"
+                           label="创建人"></el-table-column>
+          <el-table-column property="createdTime"
+                           label="创建时间"></el-table-column>
+          <el-table-column label="导入"
+                           align="center">
             <template #default="scope">
-              <el-button
-                size="small"
-                @click="handleImort(scope.$index, scope.row)"
-                ><el-icon
-                  ><img src="../assets/workspace/import.svg" alt="" /></el-icon
-                >导入文件</el-button
-              >
-              <el-button
-                size="small"
-                @click="ImortHistory(scope.$index, scope.row)"
-                >历史记录</el-button
-              >
+              <el-button size="small"
+                         @click="handleImort(scope.$index, scope.row)"><el-icon><img src="../assets/workspace/import.svg"
+                       alt="" /></el-icon>导入文件</el-button>
+              <el-button size="small"
+                         @click="ImortHistory(scope.$index, scope.row)">历史记录</el-button>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="操作"
+                           align="center">
             <template #default="scope">
-              <el-button
-                size="small"
-                @click="DeletData(scope.$index, scope.row)"
-                type="danger"
-                >删除</el-button
-              >
-              <el-button
-                size="small"
-                @click="EditData(scope.$index, scope.row)"
-                type="primary"
-                >编辑</el-button
-              >
+              <el-button size="small"
+                         @click="DeletData(scope.$index, scope.row)"
+                         type="danger">删除</el-button>
+              <el-button size="small"
+                         @click="EditData(scope.$index, scope.row)"
+                         type="primary">编辑</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-dialog>
       <!-- 编辑 -->
-      <el-dialog title="编辑" v-model="data.EditdialogTableVisible">
-        <el-form ref="DataFormRef" :model="state.model" label-width="100px">
-          <el-form-item label="数据名称" prop="dataName">
+      <el-dialog title="编辑"
+                 v-model="data.EditdialogTableVisible">
+        <el-form ref="DataFormRef"
+                 :model="state.model"
+                 label-width="100px">
+          <el-form-item label="数据名称"
+                        prop="dataName">
             <el-input v-model="state.model.dataName" />
           </el-form-item>
           <!-- 需要修改的地方 -->
-          <el-form-item label="数据类型" prop="dataType">
+          <el-form-item label="数据类型"
+                        prop="dataType">
             <!-- 默认选择下拉框数据 -->
-            <el-select
-              v-model="state.model.dataType"
-              style="width: 100%"
-              disabled
-            >
+            <el-select v-model="state.model.dataType"
+                       style="width: 100%"
+                       disabled>
               <!-- <el-option
                                                                                                                                         v-for="item in state.dataTypes"
                                                                                                                                         :key="item.code"
@@ -353,73 +353,93 @@ defineExpose({ pager });
                                                                                                                                       </el-option> -->
             </el-select>
           </el-form-item>
-          <el-form-item label="是否有表头" prop="head">
-            <el-switch
-              v-model="state.model.head"
-              :active-value="1"
-              :inactive-value="0"
-            />
+          <el-form-item label="是否有表头"
+                        prop="head">
+            <el-switch v-model="state.model.head"
+                       :active-value="1"
+                       :inactive-value="0" />
           </el-form-item>
-          <el-form-item label="分区数" prop="dataPartitions">
+          <el-form-item label="分区数"
+                        prop="dataPartitions">
             <el-input v-model.number="state.model.dataPartitions" />
           </el-form-item>
-          <el-form-item label="命名空间" prop="namespace">
+          <el-form-item label="命名空间"
+                        prop="namespace">
             <el-input v-model="state.model.namespace" />
           </el-form-item>
 
           <template v-if="!importantValue">
-            <el-form-item label="数据库地址" prop="dbUrl">
+            <el-form-item label="数据库地址"
+                          prop="dbUrl">
               <el-input v-model="state.model.dbUrl" />
             </el-form-item>
-            <el-form-item label="数据库名称" prop="dbName">
+            <el-form-item label="数据库名称"
+                          prop="dbName">
               <el-input v-model="state.model.dbName" />
             </el-form-item>
-            <el-form-item label="数据库端口" prop="dbPort">
+            <el-form-item label="数据库端口"
+                          prop="dbPort">
               <el-input v-model="state.model.dbPort" />
             </el-form-item>
-            <el-form-item label="数据库密码" prop="dbPassword">
-              <el-input v-model="state.model.dbPassword" type="password" />
+            <el-form-item label="数据库密码"
+                          prop="dbPassword">
+              <el-input v-model="state.model.dbPassword"
+                        type="password" />
             </el-form-item>
-            <el-form-item label="数据库用户名" prop="dbUsername">
+            <el-form-item label="数据库用户名"
+                          prop="dbUsername">
               <el-input v-model="state.model.dbUsername" />
             </el-form-item>
-            <el-form-item label="查询语句" prop="dbSql">
+            <el-form-item label="查询语句"
+                          prop="dbSql">
               <el-input v-model="state.model.dbSql" />
             </el-form-item>
           </template>
           <!-- kafka数据库 -->
           <template v-if="importantValue">
-            <el-form-item label="行数" prop="numberOfReadBars">
+            <el-form-item label="行数"
+                          prop="numberOfReadBars">
               <el-input v-model="state.model.numberOfReadBars" />
             </el-form-item>
-            <el-form-item label="队列名" prop="queueName">
+            <el-form-item label="队列名"
+                          prop="queueName">
               <el-input v-model="state.model.queueName" />
             </el-form-item>
-            <el-form-item label="kafka地址" prop="kafkaUrl">
+            <el-form-item label="kafka地址"
+                          prop="kafkaUrl">
               <el-input v-model="state.model.kafkaUrl" />
             </el-form-item>
-            <el-form-item label="kafka端口" prop="kafkaPort">
+            <el-form-item label="kafka端口"
+                          prop="kafkaPort">
               <el-input v-model="state.model.kafkaPort" />
             </el-form-item>
           </template>
-          <el-form-item label="备注" prop="remarks">
+          <el-form-item label="备注"
+                        prop="remarks">
             <el-input v-model="state.model.remarks" />
           </el-form-item>
         </el-form>
         <template #footer>
-          <el-button type="primary" @click="onConfirm">确定</el-button>
+          <el-button type="primary"
+                     @click="onConfirm">确定</el-button>
           <el-button @click="onClose">取消</el-button>
         </template>
       </el-dialog>
       <!-- 历史记录 -->
-      <el-dialog title="导入历史记录" v-model="data.dialogTableHistoryVisible">
+      <el-dialog title="导入历史记录"
+                 v-model="data.dialogTableHistoryVisible">
         <el-table :data="data.historyData">
-          <el-table-column prop="configId" label="id"> </el-table-column>
-          <el-table-column prop="createdTime" label="最新上传时间">
+          <el-table-column prop="configId"
+                           label="id"> </el-table-column>
+          <el-table-column prop="createdTime"
+                           label="最新上传时间">
           </el-table-column>
-          <el-table-column prop="creator" label="创建人"> </el-table-column>
+          <el-table-column prop="creator"
+                           label="创建人"> </el-table-column>
 
-          <el-table-column prop="status" label="状态" :formatter="stateFormat">
+          <el-table-column prop="status"
+                           label="状态"
+                           :formatter="stateFormat">
           </el-table-column>
           <!-- 万一有操作 -->
           <!-- <el-table-column label="操作" align="center">

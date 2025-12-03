@@ -21,6 +21,9 @@ export const dpProjectTasks05Form = (params) => {
     });
 };
 
+export const dpProjectTasks05Save = (params) => {
+    return request.post('/task05/dpProjectTasks05/save', params);
+};
 /**
  * @description 查询本参与方
 */

@@ -1,17 +1,24 @@
 <template>
   <div>
-    <el-form-item v-show="data.subParams?.length === 0 ? data.isVitalParam : true" :error="errorMessage"
-      :rules="rules" ref="ruleForm">
+    <el-form-item v-show="data.subParams?.length === 0 ? data.isVitalParam : true"
+                  :error="errorMessage"
+                  :rules="rules"
+                  ref="ruleForm">
       <template #label>
-        <el-tooltip effect="dark" v-if="data.roleType?.includes(roleType) && data.isVitalParam" placement="top-start"
-          :content="data.description + data.placeholder">
+        <el-tooltip effect="dark"
+                    v-if="data.roleType?.includes(roleType) && data.isVitalParam"
+                    placement="top-start"
+                    :content="data.description + data.placeholder">
           {{ data.label_zh }}({{ data.label_en }})
         </el-tooltip>
       </template>
       <!-- 1 -->
       <el-input v-if="data.inputStyle === 'input' && !isJSON(data.defaultValue) && data.roleType.includes(roleType) && data.isVitalParam"
-        v-model="data.defaultValue" style="width: 60%" :placeholder="data.placeholder" @input="onValidate(data)"
-        @blur="changeParam(data.key, data.defaultValue, operatorName)" />
+                v-model="data.defaultValue"
+                style="width: 60%"
+                :placeholder="data.placeholder"
+                @input="onValidate(data)"
+                @blur="changeParam(data.key, data.defaultValue, operatorName)" />
       <!-- <el-input
         v-if="data.inputStyle === 'list' || data.inputStyle === 'json'"
         v-model="data.defaultValue"
@@ -23,12 +30,22 @@
       /> -->
       <!-- 2 -->
       <el-input v-if="data.inputStyle === 'input' && isJSON(data.defaultValue) && data.roleType.includes(roleType)&& data.isVitalParam"
-        v-model="data.defaultValue" autosize style="width: 60%" type="textarea" :placeholder="data.placeholder"
-        @input="onValidateJSON(data)" @blur="changeParam(data.key, data.defaultValue, operatorName)" />
+                v-model="data.defaultValue"
+                autosize
+                style="width: 60%"
+                type="textarea"
+                :placeholder="data.placeholder"
+                @input="onValidateJSON(data)"
+                @blur="changeParam(data.key, data.defaultValue, operatorName)" />
       <!-- 3 -->
-      <el-select v-else-if="data.inputStyle === 'select' && data.roleType.includes(roleType)&& data.isVitalParam" v-model="data.defaultValue"
-        @change="changeParam(data.key, data.defaultValue, operatorName)" style="width: 100%">
-        <el-option v-for="option in data.options" :key="option.value" :value="option.value" :label="option.label" />
+      <el-select v-else-if="data.inputStyle === 'select' && data.roleType.includes(roleType)&& data.isVitalParam"
+                 v-model="data.defaultValue"
+                 @change="changeParam(data.key, data.defaultValue, operatorName)"
+                 style="width: 100%">
+        <el-option v-for="option in data.options"
+                   :key="option.value"
+                   :value="option.value"
+                   :label="option.label" />
       </el-select>
       <!-- <el-select v-else-if="data.inputStyle === 'mult-select'" v-model="data.defaultValue" multiple
         @change="changeParam(data.keyPath, data.defaultValue, operatorName)">
@@ -38,13 +55,21 @@
       </el-select> -->
       <!-- 4 -->
       <el-checkbox-group v-else-if="data.inputStyle === 'checkbox' && data.roleType.includes(roleType)&& data.isVitalParam"
-        v-model="data.defaultValue" @change="changeParam(data.key, data.defaultValue, operatorName, data)">
-        <el-checkbox v-for="option in data.options" :label="option.value" :key="option.value"></el-checkbox>
+                         v-model="data.defaultValue"
+                         @change="changeParam(data.key, data.defaultValue, operatorName, data)">
+        <el-checkbox v-for="option in data.options"
+                     :label="option.value"
+                     :key="option.value"></el-checkbox>
       </el-checkbox-group>
       <template v-if="data.subParams && data.subParams.length > 0">
         <!-- 9999{{data.subParams[1].subParams}} -->
-        <AlgorithmParamTree v-for="item in data.subParams" :key="item.key" :data="item" :operatorName="operatorName"
-          :constraints="constraints" :roleType="roleType" @paramsChange="changeParams($event)">
+        <AlgorithmParamTree v-for="item in data.subParams"
+                            :key="item.key"
+                            :data="item"
+                            :operatorName="operatorName"
+                            :constraints="constraints"
+                            :roleType="roleType"
+                            @paramsChange="changeParams($event)">
         </AlgorithmParamTree>
       </template>
       <!-- <template v-if="data.subParams && data.subParams.length > 0">
@@ -85,19 +110,19 @@ export default {
       required: true
     }
   },
-  setup(props) {
+  setup (props) {
     onBeforeMount(() => {
+      console.log({ data: props.data })
       if (props.roleType === 'host') {
         console.log(props.data, props.data.isVitalParam, '这是host');
       }
       if (props.data.inputStyle === 'checkbox' && !Array.isArray(props.data.defaultValue)) {
         props.data.defaultValue = JSON.parse(props.data.defaultValue)
       }
-      console
     })
   },
   emits: ['paramsChange'],
-  data() {
+  data () {
     return {
       errorMessage: '',
       isJSON: isJSON,
@@ -111,11 +136,11 @@ export default {
         operatorName: operatorName,
       });
     },
-    async changeParams(vars) {
+    async changeParams (vars) {
       console.log('valrs', vars);
       this.$emit('paramsChange', vars);
     },
-    onValidate(data) {
+    onValidate (data) {
       if (data && data.regx) {
         const regex = new RegExp(data.regx);
         if (!regex.test(data.defaultValue)) {
@@ -128,7 +153,7 @@ export default {
         this.errorMessage = '';
       }
     },
-    onValidateJSON(data) {
+    onValidateJSON (data) {
       if (!isJSON(data.defaultValue)) {
         this.errorMessage = '请输入正确的JSON格式';
       } else {

@@ -190,13 +190,13 @@ export default ({ mode }) => {
           // 'http://192.168.50.122:7060',
           changeOrigin: true,
         },
-        '/fate': {
-          target:
-            VITE_FATE_URL ||
-            'http://1.hz.fateboard.test.pcp.convcloud.cn:18082',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/fate/, ''),
-        },
+        // '/fate': {
+        //   target:
+        //     VITE_FATE_URL ||
+        //     'http://1.hz.fateboard.test.pcp.convcloud.cn:18082',
+        //   changeOrigin: true,
+        //   rewrite: (path) => path.replace(/^\/fate/, ''),
+        // },
         '/auth': {
           target:
             // VITE_AUTH_URL ||
@@ -211,17 +211,44 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         // 9999/10000
-        '/websocket': {
+        '/fate/websocket': {
           target:
-            VITE_WEBSOCKET_URL ||
+            // VITE_WEBSOCKET_URL ||
             // 'ws://dev.10000.fateboard.prod.convcloud.cn:8082',
-            'ws://1.yl.innovate-api.dev.pcp.convcloud.cn:18082',
+            // 'ws://1.yl.innovate-api.dev.pcp.convcloud.cn:18082',
+            'ws://119.23.69.219:3071',
           // 'ws://192.168.50.202:8053',
           changeOrigin: true,
-          pathRewrite: {
-            '^/websocket': 'websocket',
-          },
+          // pathRewrite: {
+          //   '^/websocket': 'websocket',
+          // },
           ws: true,
+           // 代理事件监听 - 在控制台显示详细日志
+        // configure: (proxy, options) => {
+        //   // 监听代理连接建立
+        //   proxy.on('proxyReqWs', (proxyReq, req, socket, options, head) => {
+        //     console.log('🔗 WebSocket代理请求建立:', {
+        //       target: options.target,
+        //       url: req.url,
+        //       headers: req.headers
+        //     });
+        //   });
+          
+        //   // 监听代理连接成功
+        //   proxy.on('open', (socket) => {
+        //     console.log('✅ WebSocket代理连接已建立',{socket});
+        //   });
+          
+        //   // 监听代理错误
+        //   proxy.on('error', (err, req, socket) => {
+        //     console.error('❌ WebSocket代理错误:', err.message);
+        //   });
+          
+        //   // 监听代理关闭
+        //   proxy.on('close', (req, socket, head) => {
+        //     console.log('🔌 WebSocket代理连接已关闭');
+        //   });
+        // },
         },
         // 9999/10000
         '/log/new': {
@@ -255,8 +282,8 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         '/fateboard': {
-          target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
-          // 'http://192.168.50.202:8053',
+          // target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
+          target:'http://119.23.69.219:3071',
           changeOrigin: true,
         },
         '/fateboard-ui': {
@@ -304,6 +331,10 @@ export default ({ mode }) => {
           // target: 'http://1.org.manager-api.dev.pcp.convcloud.cn:18082',
           changeOrigin: true,
         },
+        '/innovate-api': {
+            target: 'http://119.23.69.219:3071/',
+            changeOrigin: true,
+          },
         '/secretflow-api/api': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
           target: 'http://119.23.69.219:3071/',

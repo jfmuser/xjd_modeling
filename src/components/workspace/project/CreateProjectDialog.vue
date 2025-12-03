@@ -42,7 +42,7 @@ const state = reactive({
     guest: [{ required: true, message: '请选择业务方', trigger: 'change' }],
     host: [{ required: true, message: '请选择数据方', trigger: 'change' }],
     nodeTag: [{ validator: checkNodeTagList, message: '最少选择两个主体', trigger: 'blur' }],
-    remarks:[ { max: 16, message: '最多只能输入16个字符', trigger: 'change' }]
+    remarks: [{ max: 16, message: '最多只能输入16个字符', trigger: 'change' }]
   },
 });
 
@@ -116,7 +116,7 @@ const onConfirm = async () => {
       secretPadProjectId: data.projectId,
       secretPadGraphId: data.graphId
     }
-    
+
     await createCanvasProject(param)
     await ElMessage({
       message: '添加成功',
@@ -126,7 +126,7 @@ const onConfirm = async () => {
   } else if (state.model.core == '4') {
     const projectInfo = {
       algorithmParams: {
-        
+
       },
       algorithmParams: {},
       selectedAlgorithm: {},
@@ -140,7 +140,7 @@ const onConfirm = async () => {
     createCanvasProject(projectInfo)
     onClose()
   } else {
-    
+
     let projectInfo = _.pick(state.model, [
       'id',
       'projectName',
@@ -157,8 +157,8 @@ const onConfirm = async () => {
       },
     });
     // }
-
-   projectInfo = Base64.encode(JSON.stringify(projectInfo))
+    console.log({ projectInfo })
+    projectInfo = Base64.encode(JSON.stringify(projectInfo))
     // _.set(projectInfo, 'nodeTag', [...state.model.nodeTag]);
     createCanvasProject({ projectName: state.model.projectName, participants: state.model.nodeTag, platform: state.model.core, projectJson: projectInfo })
     localStorage.setItem('projectInfo', JSON.stringify(projectInfo));
@@ -183,7 +183,7 @@ const onConfirm = async () => {
   onClose();
 };
 
-function addRole() {
+function addRole () {
   roleList.value = siteStore.otherSite.filter((item) => {
     return state.model.nodeTag.some(id => item.id === id)
   })
@@ -207,33 +207,69 @@ defineExpose({ show });
 </script>
 
 <template>
-  <el-dialog v-if="state.visible" :model-value="true" :before-close="onClose" :title="title" width="500px">
-    <el-form ref="FormRef" v-loading="state.loading" :model="state.model" label-width="100px" :rules="state.rules">
-      <el-form-item label="项目名称" prop="projectName">
-        <el-input v-model="state.model.projectName" placeholder="请输入项目名称" />
+  <el-dialog v-if="state.visible"
+             :model-value="true"
+             :before-close="onClose"
+             :title="title"
+             width="500px">
+    <el-form ref="FormRef"
+             v-loading="state.loading"
+             :model="state.model"
+             label-width="100px"
+             :rules="state.rules">
+      <el-form-item label="项目名称"
+                    prop="projectName">
+        <el-input v-model="state.model.projectName"
+                  placeholder="请输入项目名称" />
       </el-form-item>
-      <el-form-item label="内置引擎" prop="core">
+      <el-form-item label="内置引擎"
+                    prop="core">
         <el-select v-model="state.model.core">
-          <el-option :label="engine.name" :value="engine.engine" v-for="engine in configInfo.tDomainEngineList"
-            :key="engine.id" />
+          <el-option :label="engine.name"
+                     :value="engine.engine"
+                     v-for="engine in configInfo.tDomainEngineList"
+                     :key="engine.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="参与主体" prop="nodeTag" v-if="state.model.core == '1' && state.model.core != '4'">
-        <el-select v-model="state.model.nodeTag" multiple :multiple-limit="10" @change="addRole">
-          <el-option v-for="item in nodeIdList" :key="item.id" :label="item.name" :value="item.id" />
+      <el-form-item label="参与主体"
+                    prop="nodeTag"
+                    v-if="state.model.core == '1' && state.model.core != '4'">
+        <el-select v-model="state.model.nodeTag"
+                   multiple
+                   :multiple-limit="10"
+                   @change="addRole">
+          <el-option v-for="item in nodeIdList"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="参与主体" prop="nodeTag" v-if="state.model.alg == 'one-shot' || state.model.core != '1' && state.model.core != '4'">
-        <el-select v-model="state.model.nodeTag" multiple :multiple-limit="10" @change="addRole">
-          <el-option v-for="item in nodeTagList" :key="item.id" :label="item.name" :value="item.id" />
+      <el-form-item label="参与主体"
+                    prop="nodeTag"
+                    v-if="state.model.alg == 'one-shot' || state.model.core != '1' && state.model.core != '4'">
+        <el-select v-model="state.model.nodeTag"
+                   multiple
+                   :multiple-limit="10"
+                   @change="addRole">
+          <el-option v-for="item in nodeTagList"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="选择要使用的算法" prop="alg" v-show="state.model.core == '4'">
-        <el-select v-model="state.model.alg" :multiple-limit="10" @change="addRole">
+      <el-form-item label="选择要使用的算法"
+                    prop="alg"
+                    v-show="state.model.core == '4'">
+        <el-select v-model="state.model.alg"
+                   :multiple-limit="10"
+                   @change="addRole">
           <!-- <el-option v-for="item in nodeTagList" :key="item.id" :label="item.name" :value="item.id" /> -->
-          <el-option  label="一次联邦提升树算法" value="one-shot" />
-          <el-option  label="隐私数据泄露审查算法" value="grna" />
-          <el-option  label="差分隐私算法（DP）" value="fake" />
+          <el-option label="一次联邦提升树算法"
+                     value="one-shot" />
+          <el-option label="隐私数据泄露审查算法"
+                     value="grna" />
+          <el-option label="差分隐私算法（DP）"
+                     value="fake" />
         </el-select>
       </el-form-item>
       <!-- <el-form-item label="业务方" prop="guest" v-if="state.model.core === 'FATE' || state.model.core === 'INNOVATE'">
@@ -255,12 +291,16 @@ defineExpose({ show });
         </el-select>
       </el-form-item> -->
 
-      <el-form-item label="备注" prop="remarks">
-        <el-input v-model="state.model.remarks" type="textarea" placeholder="" />
+      <el-form-item label="备注"
+                    prop="remarks">
+        <el-input v-model="state.model.remarks"
+                  type="textarea"
+                  placeholder="" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" @click="onConfirm">确认</el-button>
+      <el-button type="primary"
+                 @click="onConfirm">确认</el-button>
       <el-button @click="onClose"> 取消</el-button>
     </template>
   </el-dialog>

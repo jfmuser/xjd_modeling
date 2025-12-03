@@ -10,6 +10,9 @@ import {
   inEffectAlgorithmList,
   inEffectAlgorithmParams,
 } from '../apis/workspace/algorithm.api';
+import useSiteStore from '@/stores/dept/site.store';
+import { getSecretflowProject } from '@/apis/secretflow/secretflow.api';
+import {dpProjectTasks05Save} from '@/apis/dp/api'
 import {
   checkConstraints,
   formatParamList,
@@ -72,7 +75,7 @@ export default function useAlgorithmParam() {
 
   // 项目已有的授权数据
   const authProjectList = ref([]);
-
+const allTableList = ref([])
   // 定义el-tree Props
   const optionParam = {
     label: 'label_en',
@@ -293,6 +296,7 @@ export default function useAlgorithmParam() {
     //   currentVersionParams = await setOptions(currentVersionParams);
     // }
     if (!exist) {
+      console.log({hostList})
       // 这块是在根据添加项目时有几个host方来克隆几个host数据
       hostList.forEach((item, i) => {
         hostCurrentVersionParamsObj[`hostVitalParamList${i}`] = _.cloneDeep([
@@ -608,6 +612,8 @@ export default function useAlgorithmParam() {
 
   // 设置reader的namespace和name下拉选项，后端接口获取
   async function setOptions(currentVersionParams, projectId) {
+    console.log({currentVersionParams,projectId})
+   const siteStore = useSiteStore()
     // if (type === 'guest') {
     // const selfNamespaceOptions = await getSelfDataNamespaceList();
     //   currentVersionParams = setReaderOptions(
@@ -653,16 +659,39 @@ export default function useAlgorithmParam() {
     //   }
     // }
 
-    authProjectList.value = await getAuthData(projectId);
-    const namespaceOptions = [];
-    authProjectList.value.forEach((item) => {
-      if (!namespaceOptions.some((data) => data.label === item.namespace)) {
+   const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
+    console.log({authProjectList,info})
+    let namespaceOptions = [];
+    allTableList.value = []
+    const res =await getSecretflowProject({projectId:info.secretflowPrjId})
+    console.log({res})
+    res?.nodes?.forEach(item => {
+      item?.datatables?.forEach(it => {
         namespaceOptions.push({
-          label: item.namespace,
-          value: item.namespace,
-        });
-      }
-    });
+          label:`namespace_${it.datatableId}`,
+          value:`namespace_${it.datatableId}`
+        })
+        allTableList.value.push({
+          label:it.datatableName,
+          value:it.datatableName,
+          dataFromId: siteStore.getByNodeId(item.nodeId).id,
+          namespace:`namespace_${it.datatableId}`
+        })
+      })
+     
+    })
+    console.log({namespaceOptions})
+    authProjectList.value  = res.nodes
+    // authProjectList.value = await getAuthData(projectId);
+
+    // authProjectList.value.forEach((item) => {
+    //   if (!namespaceOptions.some((data) => data.label === item.namespace)) {
+    //     namespaceOptions.push({
+    //       label: item.namespace,
+    //       value: item.namespace,
+    //     });
+    //   }
+    // });
 
     currentVersionParams = setReaderOptions(
       currentVersionParams,
@@ -687,7 +716,7 @@ export default function useAlgorithmParam() {
   }
 
   async function changeParams(vars, type, hostVitalParamListObj, i) {
-    console.log(vars, 'vars');
+    console.log(vars, 'vars',{ type, hostVitalParamListObj});
     console.log(constraintList.value, 'constraintList');
     const keyPath = vars.keyPath;
     const operatorName = vars.operatorName;
@@ -712,7 +741,7 @@ export default function useAlgorithmParam() {
     }
     if (keyPath.endsWith('namespace') && operatorName.includes('reader')) {
       let roleType = '';
-      const tableNameOptions = [];
+      let tableNameOptions = [];
       // if (type === 'host') {
       //   roleType = 'host';
       //   tableNameOptions = await getTableNames(value, 'other');
@@ -722,16 +751,20 @@ export default function useAlgorithmParam() {
       // }
       // await getAuthData()
       // console.log(value, '这是render');
-      authProjectList.value.forEach((data) => {
-        if (data.namespace === value) {
-          tableNameOptions.push({
-            label: data.name,
-            value: data.name,
-            dataFromId: data.dataFromId,
-          });
-        }
-      });
+      // authProjectList.value.forEach((data) => {
+      //   if (data.namespace === value) {
+      //     tableNameOptions.push({
+      //       label: data.name,
+      //       value: data.name,
+      //       dataFromId: data.dataFromId,
+      //     });
+      //   }
+      // });
 
+tableNameOptions = allTableList.value.filter(item => {
+ return item.namespace == value
+})
+console.log({tableNameOptions})
       if (type.includes('host')) {
         const hostTableNameOptions = tableNameOptions.filter(
           (tableName) =>
@@ -744,6 +777,8 @@ export default function useAlgorithmParam() {
           'name',
           roleType,
         );
+        console.log({hostTableNameOptions,hostVitalParamListObj})
+
         // hostVitalParamList.value = setReaderOptions(
         //   hostVitalParamList.value,
         //   tableNameOptions,
@@ -1776,21 +1811,29 @@ export default function useAlgorithmParam() {
         'projectParamsVersion',
       );
     console.log(ProjectParams, 'JKJKJK');
-    let algorithmParams = Base64.encode(JSON.stringify(ProjectParams));
-    info.projectJson = Base64.encode(JSON.stringify(info.projectJson));
-    dependencyData = Base64.encode(JSON.stringify(dependencyData));
-    let selectedAlgorithm = Base64.encode(JSON.stringify(selectedOperators));
+    // let algorithmParams = Base64.encode(JSON.stringify(ProjectParams));
+    // info.projectJson = Base64.encode(JSON.stringify(info.projectJson));
+    // dependencyData = Base64.encode(JSON.stringify(dependencyData));
+    // let selectedAlgorithm = Base64.encode(JSON.stringify(selectedOperators));
     // console.log('algorithmParams>>', JSON.parse(algorithmParams));
+        let configData = JSON.stringify(ProjectParams);
+    let projectJson = JSON.stringify(info.projectJson)
+    dependencyData = JSON.stringify(dependencyData)
+    let edgeData = JSON.stringify(selectedOperators)
     try {
       projectId = projectInfo.value.id;
 
-      await updateProject({
-        id: projectId,
-        ...info,
-        selectedAlgorithm,
-        algorithmParams,
-        dependencyData,
-      });
+      // await updateProject({
+      //   id: projectId,
+      //   ...info,
+      //   selectedAlgorithm,
+      //   algorithmParams,
+      //   dependencyData,
+      // });
+      let outterTaskId = {...info.outterTaskId,configData,dependencyData,projectJson,edgeData,host:info.host}
+      console.log({outterTaskId})
+      localStorage.setItem('projectInfo',JSON.stringify(info))
+      await dpProjectTasks05Save({id:projectId,isNewRecord:false,outterTaskId:JSON.stringify(outterTaskId)})
       ElMessage.success('应用修改成功');
     } catch (error) {
       ElMessage.error('error');

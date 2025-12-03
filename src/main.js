@@ -14,6 +14,7 @@ import { createPinia } from 'pinia';
 import createDirective from './directives';
 import i18nPlugin from './plugins/i18n';
 import JSEncrypt from './plugins/jsencrypt';
+import globalStorage from './plugins/indexedDBStorage';
 // 适配
 import 'amfe-flexible';
 import 'amfe-flexible/index.js';
@@ -43,6 +44,7 @@ createDirective(app);
 // iconPark(app)
 app.use(i18nPlugin);
 app.use(JSEncrypt);
+app.config.globalProperties.$indexedDB = globalStorage;
 // app.use(C2Icon);
 app.use(C2Upload);
 app.use(C2Copy);

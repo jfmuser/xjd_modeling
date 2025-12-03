@@ -511,6 +511,9 @@ export function setReaderOptions(
   key,
   roleType,
 ) {
+  console.log({currentVersionParams,
+  options,
+  key})
   for (let i = 0; i < currentVersionParams.length; i++) {
     const param = currentVersionParams[i];
     const subParams = param.subParams;

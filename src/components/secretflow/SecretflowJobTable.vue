@@ -73,14 +73,14 @@ onMounted(async () => {
   fetchTableData(1);
 });
 
-function clearJobStatusInterval() {
+function clearJobStatusInterval () {
   if (jobStatusInterval) {
     clearInterval(jobStatusInterval);
   }
   jobStatusInterval = null;
 }
 
-function syncJobStatus(page) {
+function syncJobStatus (page) {
   if (jobStatusInterval) {
     return;
   }
@@ -89,7 +89,7 @@ function syncJobStatus(page) {
   }, 3000);
 }
 
-async function fetchTableData(page) {
+async function fetchTableData (page) {
   try {
     if (type.value == '1' || type.value == '3' || props.projectId) {
       const res = await dpProjectTasks05Form({ id: props.projectId });
@@ -129,15 +129,15 @@ async function fetchTableData(page) {
   }
 }
 
-async function onPageChange(page) {
+async function onPageChange (page) {
   await fetchTableData(page);
 }
 
-function onUpdateDataTable() {
+function onUpdateDataTable () {
   fetchTableData(1);
 }
 const emits = defineEmits(['JobDetail']);
-async function toDetail(row) {
+async function toDetail (row) {
   console.log(row);
   // 跳转到 算子详情页面
   // const url = `/secretpad-ui/#/record?projectId=${state.info.secretflowProjectId}&mode=MPC&dagId=${state.info.graphId}&jobId=${row.jobId}`;
@@ -190,7 +190,7 @@ async function toDetail(row) {
 //     }
 // }
 
-function onCollected(row) {
+function onCollected (row) {
   ModelCollectRef.value.show(row.fJobId, props.projectName);
 }
 
@@ -213,13 +213,13 @@ function onCollected(row) {
 //   }
 // }
 
-function downloadResult(jobId) {
+function downloadResult (jobId) {
   window.open(
     `/manager-api/api/project-job/downloadJobOutputByIdAndOpt/${jobId}/xgb_predict`,
   );
 }
 
-async function openDownloadDialog(row) {
+async function openDownloadDialog (row) {
   const data = await getJobDetail({
     projectId: state.info.secretflowProjectId,
     jobId: row.jobId,
@@ -232,7 +232,7 @@ async function openDownloadDialog(row) {
   dialogVisible.value = true;
 }
 
-async function downloadAlgCsvData() {
+async function downloadAlgCsvData () {
   // param.taskId = `${param.taskId}-output-0`
   const data = await downloadCsvData(param);
   let fileName = `${param.taskId}.csv`;
@@ -262,18 +262,15 @@ async function downloadAlgCsvData() {
 </script>
 
 <template>
-  <TableContainer
-    ref="TableContainerRef"
-    :showFilter="false"
-    @page-change="onPageChange"
-  >
-    <el-table v-loading="state.loading" :data="state.tableData">
-      <el-table-column
-        label="作业ID"
-        fixed
-        show-overflow-tooltip
-        min-width="200px"
-      >
+  <TableContainer ref="TableContainerRef"
+                  :showFilter="false"
+                  @page-change="onPageChange">
+    <el-table v-loading="state.loading"
+              :data="state.tableData">
+      <el-table-column label="作业ID"
+                       fixed
+                       show-overflow-tooltip
+                       min-width="200px">
         <template #default="{ row }">
            <span>{{ row.jobId }}</span>
           <!-- <el-link type="primary" :disabled="!row.status || row.status === Status.WAITING" -->
@@ -286,17 +283,20 @@ async function downloadAlgCsvData() {
           </el-link> -->
         </template>
       </el-table-column>
-      <el-table-column label="开始时间" min-width="170px">
+      <el-table-column label="开始时间"
+                       min-width="170px">
         <template #default="{ row }">
           {{ formatDateTime(row.gmtCreate) }}
         </template>
       </el-table-column>
-      <el-table-column label="结束时间" min-width="170px">
+      <el-table-column label="结束时间"
+                       min-width="170px">
         <template #default="{ row }">
           {{ formatDateTime(row.gmtFinished) }}
         </template>
       </el-table-column>
-      <el-table-column prop="fEndTime" label="耗时">
+      <el-table-column prop="fEndTime"
+                       label="耗时">
         <template #default="{ row }">
           {{
             row.gmtFinished ? getTimeCost(row.gmtCreate, row.gmtFinished) : ''
@@ -307,33 +307,26 @@ async function downloadAlgCsvData() {
                 <template #default="{ row }">{{ JobType.getLabel(row.jobType) }}
                 </template>
             </el-table-column> -->
-      <el-table-column prop="fStatus" fixed="right" label="状态">
-        <template #default="{ row }"
-          >{{ Status.getLabel(row.status.toLowerCase()) }}
+      <el-table-column prop="fStatus"
+                       fixed="right"
+                       label="状态">
+        <template #default="{ row }">{{ Status.getLabel(row.status.toLowerCase()) }}
         </template>
       </el-table-column>
-      <el-table-column
-        prop="fStatus"
-        fixed="right"
-        label="操作"
-        v-if="route.query.type == '3'"
-      >
-        <template #default="{ row }"
-          ><el-button type="text" @click="downloadResult(row.jobId)"
-            >下载结果</el-button
-          >
+      <el-table-column prop="fStatus"
+                       fixed="right"
+                       label="操作"
+                       v-if="route.query.type == '3'">
+        <template #default="{ row }"><el-button type="text"
+                     @click="downloadResult(row.jobId)">下载结果</el-button>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="fStatus"
-        fixed="right"
-        label="操作"
-        v-if="route.query.type == '1'"
-      >
-        <template #default="{ row }"
-          ><el-button type="text" @click="openDownloadDialog(row)"
-            >下载结果</el-button
-          >
+      <el-table-column prop="fStatus"
+                       fixed="right"
+                       label="操作"
+                       v-if="route.query.type == '1'">
+        <template #default="{ row }"><el-button type="text"
+                     @click="openDownloadDialog(row)">下载结果</el-button>
         </template>
       </el-table-column>
       <!-- <el-table-column header-align="center" align="center" label="操作" fixed="right" min-width="130px">
@@ -349,23 +342,22 @@ async function downloadAlgCsvData() {
             </el-table-column> -->
     </el-table>
   </TableContainer>
-  <el-dialog v-model="dialogVisible" title="结果下载" width="500px">
-    <el-select
-      v-model="param.taskId"
-      placeholder="选择要下载的算子"
-      style="width: 240px"
-    >
-      <el-option
-        v-for="item in nodesList"
-        :key="item.id"
-        :label="item.label"
-        :value="item.graphNodeId"
-      />
+  <el-dialog v-model="dialogVisible"
+             title="结果下载"
+             width="500px">
+    <el-select v-model="param.taskId"
+               placeholder="选择要下载的算子"
+               style="width: 240px">
+      <el-option v-for="item in nodesList"
+                 :key="item.id"
+                 :label="item.label"
+                 :value="item.graphNodeId" />
     </el-select>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="downloadAlgCsvData"> 确定 </el-button>
+        <el-button type="primary"
+                   @click="downloadAlgCsvData"> 确定 </el-button>
       </div>
     </template>
   </el-dialog>
