@@ -190,13 +190,13 @@ export default ({ mode }) => {
           // 'http://192.168.50.122:7060',
           changeOrigin: true,
         },
-        '/fate': {
-          target:
-            VITE_FATE_URL ||
-            'http://1.hz.fateboard.test.pcp.convcloud.cn:18082',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/fate/, ''),
-        },
+        // '/fate': {
+        //   target:
+        //     VITE_FATE_URL ||
+        //     'http://1.hz.fateboard.test.pcp.convcloud.cn:18082',
+        //   changeOrigin: true,
+        //   rewrite: (path) => path.replace(/^\/fate/, ''),
+        // },
         '/auth': {
           target:
             // VITE_AUTH_URL ||
@@ -282,8 +282,8 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         '/fateboard': {
-          target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
-          // 'http://192.168.50.202:8053',
+          // target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
+          target:'http://119.23.69.219:3071',
           changeOrigin: true,
         },
         '/fateboard-ui': {

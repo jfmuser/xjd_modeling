@@ -22,3 +22,10 @@ export const getBoardInfo = (data) => {
 export const runFateProject = (data) => {
     return sysRequest.post('/sys/job/startJobByJson', data);
 };
+/**
+ * 
+ * @description 获取fate项目运行记录
+ */
+export const getFateJobList = (data) => {
+    return sysRequest.post('/sys/job/getStatusByJobIds', data);
+};
