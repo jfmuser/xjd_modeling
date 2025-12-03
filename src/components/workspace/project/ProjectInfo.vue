@@ -6,7 +6,7 @@
 <script setup>
 import _ from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, reactive, ref, watch, defineEmits } from 'vue';
+import { computed, onMounted, reactive, ref, watch, defineEmits, getCurrentInstance } from 'vue';
 import ListContainer from '../../../layouts/ListContainer.vue';
 import ListContainerItem from '../../../layouts/ListContainerItem.vue';
 import { FormType, LOG_DEAL_STATUS, SourceType } from '../../../utils/const';
@@ -19,14 +19,16 @@ import {
   createJob,
   updateProject,
 } from '../../../apis/workspace/project.api';
-
+import { runFateProject } from '@/apis/innovate/innovate.api';
 
 import { formattedFormResult } from '../../../views/workspace/project/algorithmUtil';
 import { getOperator } from '../../../apis/manager/managerApi';
 import useSiteStore from '../../../stores/dept/site.store';
 import { getAuthData } from '../../../apis/manager/managerApi';
 import { dpProjectTasks05Form, refreshDatas, dpProjectForm } from '../../../apis/dp/api'
-
+import * as Base64 from 'js-base64';
+const { appContext } = getCurrentInstance();
+const indexedDB = appContext.config.globalProperties.$indexedDB;
 const router = useRouter();
 const route = useRoute();
 const ProjectFormRef = ref(null);
@@ -185,8 +187,11 @@ async function onSaveProjectBaseInfo () {
   localStorage.setItem('projectInfo', JSON.stringify(projectInfo));
   if (state.model.id) {
     // 查询项目的算法信息
+    let tempDependencyData = JSON.parse(state?.projectDetail?.tProjectAlgConfig?.dependencyData || '{}')
+    console.log({ projectDetail: state?.projectDetail, tempDependencyData })
+
     // const projectAlgorithms = await getOperator(state.model.id); 
-    const projectAlgorithms = Object.keys(JSON.parse(state?.projectDetail?.tProjectAlgConfig?.dependencyData || '{}').component_module) || []
+    const projectAlgorithms = Object.keys(JSON.parse(state?.projectDetail?.tProjectAlgConfig?.dependencyData || '{}')?.component_module || {}) || []
     console.log({ projectAlgorithms, projectDetail: state.projectDetail, route: route.name })
     // 判断画布上有没有东西，没有就不做数据处理
     if (projectAlgorithms.length === 0) {
@@ -443,12 +448,25 @@ function setSubParam (params, componentName, num) {
     subParam.isVitalParam = defaultValue.isVitalParam;
   });
 }
-
+const delay = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 async function onRun () {
   try {
     state.loading = true;
-    const response = await createJob(route.query.id);
-    ElMessage.success(response.retmsg || '操作成功');
+
+    let projectJson = Base64.encode(state.projectDetail.projectJson);
+    console.log({ projectJson })
+    const response = await runFateProject({ data: projectJson });
+    console.log(33, { response })
+    // const response = await createJob(route.query.id);
+    let project = await indexedDB.get(route.query.id)
+    console.log({ project, indexedDB })
+    let jobIds = project?.jobIds || []
+    jobIds.unshift(response.data)
+    await indexedDB.set({ ...project, id: route.query.id, jobIds });
+    ElMessage.success(response?.retmsg || '操作成功');
+    await delay(3000)
     JobTableRef.value.fetchTableData();
   } catch (error) {
     ElMessage.error(error);

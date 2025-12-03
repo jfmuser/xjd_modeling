@@ -317,9 +317,9 @@ async function onRun () {
     let project = await indexedDB.get(route.query.id)
     console.log({ project, indexedDB })
     let jobIds = project?.jobIds || []
-    jobIds.push(response.data)
+    jobIds.unshift(response.data)
     console.log(33, { project })
-    indexedDB.set({ ...project, id: route.query.id, jobIds });
+    await indexedDB.set({ ...project, id: route.query.id, jobIds });
     startPollingStatus();
     ElMessage.success(response.retmsg || '操作成功');
   } catch (error) {
@@ -342,8 +342,9 @@ const startPollingStatus = () => {
 const stopPolling = () => {
   if (ws) {
     // clearInterval(pollingInterval);
-    ws = null;
     isRunning.value = false;
+    ws.close()
+    ws = null;
   }
 };
 
@@ -377,7 +378,6 @@ const fetchStatus = async () => {
       reconnectInterval: 3000,     // 重连间隔 3 秒
       maxReconnectAttempts: 5,     // 最多重连 5 次
       timeout: 30000,              // 消息超时 30 秒
-
       onClose: (event) => {
         console.log('连接关闭', event);
       },

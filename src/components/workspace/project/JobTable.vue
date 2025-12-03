@@ -109,7 +109,7 @@ async function fetchTableData (page) {
     pager.size = 10;//size;
     pager.page = 1;//current;
     pager.total = project?.jobIds?.length || 0 //total;
-    needRun = state.tableData.some((item) => {
+    needRun = state?.tableData?.some?.((item) => {
       return Status.isRunning(item.status);
     });
 
