@@ -305,3 +305,16 @@ export const engineType = {
   0: '联邦学习',
   1: '多方计算',
 };
+
+
+export const exportCsv = (data, fieldName) => {
+  let csv = Papa.unparse(data);
+  let content = new Blob([csv]);
+  let urlObject = window.URL || window.webkitURL || window;
+  let url = urlObject.createObjectURL(content);
+  let el = document.createElement('a');
+  el.href = url;
+  el.download = `${fieldName}.csv`;
+  el.click();
+  urlObject.revokeObjectURL(url);
+};

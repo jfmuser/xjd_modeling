@@ -21,15 +21,18 @@ import { listJob, getJobDetail } from '@/apis/secretflow/secretflow.api.js';
 import TableContainer from '@/layouts/TableContainer.vue';
 // import ModelCollect from './ModelCollect.vue';
 import { CollectType, Status, JobType } from '@/utils/const';
-import { formatDateTime, formatTimestamp, getTimeCost } from '@/utils';
+import { modifyDataStructure, convertDownDataSource, getFullCsvDataForSample, getFullCsvDataForStatsPSI } from '@/utils/secretflowUtils.js'
+import { formatDateTime, formatTimestamp, getTimeCost, exportCsv } from '@/utils';
 import {
   getProjectById,
   getProjectJobList,
 } from '../../apis/workspace/project.api';
 import { downloadCsvData } from '../../apis/secretflowApi/secretflow.api';
+import { downloadResultData, getResultTableData } from '@/apis/secretflow/secretflow.api'
 import { downloadFile } from '../../utils';
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api';
-
+const STATS_PSI = 'stats/stats_psi';
+const SAMPLE = 'data_filter/sample';
 let jobStatusInterval;
 let needRun = false;
 const TableContainerRef = ref(null);
@@ -224,21 +227,154 @@ async function openDownloadDialog (row) {
     projectId: state.info.secretflowProjectId,
     jobId: row.jobId,
   });
-  nodesList.value = data.graph.nodes;
+  let resultList = []
+  data.graph.nodes.forEach(item => {
+    if (item.results && item.status == 'SUCCEED') {
+      item.results.forEach(it => {
+        resultList.push({
+          value: it.refId,
+          key: it.refId,
+          label: `${item.label}_${it.kind == 'Report' ? '报告' : '数据'}`,
+          codeName: item.codeName,
+          graphNodeId: item.graphNodeId,
+          taskId: item.taskId,
+          type: it.kind == 'Report' ? 1 : 2
+        })
+      })
+    }
+  })
+  nodesList.value = resultList;
   param.jobId = row.jobId;
   param.projectId = state.info.secretflowProjectId;
-
+  console.log({ nodesList })
   // console.log(state.info)
   dialogVisible.value = true;
 }
+const csvHandler = async (codeName, graphNodeId) => {
+  let outputId = param.taskId.replace(`${param.jobId}-`, '')
+  const res = await getResultTableData({ jobId: param.jobId, projectId: param.projectId, taskId: `${param.jobId}-${graphNodeId}`, outputId })
+  console.log({ res })
+  let allTableInfo = res.tabs
+  let tableInfo = modifyDataStructure(res.tabs[0], codeName)
+  console.log({ tableInfo })
+  let columnsList = [];
+  tableInfo.schema.forEach(({ name, type }) => {
+    if (name !== 'name') {
+      columnsList.push({
+        key: name,
+        title: name,
+        dataIndex: name,
 
+        showSorterTooltip: false,
+
+      });
+    } else {
+      columnsList.push({
+        key: name,
+        title: name,
+        dataIndex: name,
+        showSorterTooltip: false,
+
+      });
+    }
+  });
+  let datasource = ((tableInfo?.records) || []).map(
+    (record, index) => {
+      const res = {
+        key: index,
+      };
+      columnsList.forEach((col, i) => {
+        if (typeof record[i] === 'string') {
+          // 防止导出时候值也会进行逗号分割
+          res[col.dataIndex] = (record[i]).replace(/"/g, '');
+        } else {
+          res[col.dataIndex] = record[i];
+        }
+      });
+      return res;
+    },
+  );
+  console.log({ datasource })
+  let csvData;
+  if (tableInfo.type === "descriptions") {
+    console.log({ codeName })
+    let fullCavData
+    if (codeName && codeName === SAMPLE) {
+      fullCavData = getFullCsvDataForSample(tableInfo.records);
+    }
+    csvData = tableInfo.records || fullCavData
+  } else if (codeName && codeName === STATS_PSI && allTableInfo) {
+    console.log('进来', { codeName });
+    csvData = getFullCsvDataForStatsPSI(allTableInfo);
+  } else {
+    console.log('这边', { codeName });
+    csvData = convertDownDataSource(datasource);
+  }
+  console.log({ csvData })
+  exportCsv(csvData, `${param.taskId}`)
+}
+const apiDownLoad = async () => {
+  fetch(`/secretflow-api/proxy/secretPad/api/v1alpha1/data/download`, {
+    method: 'POST',
+    headers: { "Content-Type": "application/json", "Authorization": localStorage.getItem('token') },
+    body: JSON.stringify({
+      nodeId: 'test1',
+      domainDataId: param.taskId,
+    }),
+  }).then((res) => {
+    res.blob().then((blob) => {
+      const data = new Blob(['\ufeff', blob], { type: 'text/plain;charset=utf-8' });
+
+      const disposition = res.headers.get('Content-Disposition');
+      console.log({ disposition, blob })
+      let filename = ``;
+      const filenameRegex = /filename[^;=\n]*=[^'"]*['"]*((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(disposition || '');
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '');
+      }
+      const a = document.createElement('a');
+      document.body.appendChild(a); //兼容火狐，将a标签添加到body当中
+      const url = window.URL.createObjectURL(data); // 获取 blob 本地文件连接 (blob 为纯二进制对象，不能够直接保存到磁盘上)
+      a.href = url;
+      a.download = filename;
+      a.click();
+      a.remove(); //移除a标签
+      window.URL.revokeObjectURL(url);
+      ElMessage({
+        message: '下载成功',
+        type: 'success',
+      });
+      dialogVisible.value = false;
+    })
+  })
+}
 async function downloadAlgCsvData () {
-  // param.taskId = `${param.taskId}-output-0`
-  const data = await downloadCsvData(param);
-  let fileName = `${param.taskId}.csv`;
+  let { codeName, graphNodeId, type } = nodesList.value.find(item => item.value == param.taskId) || {}
+  if (type == 1) {
+    await csvHandler(codeName, graphNodeId)
+  } else {
+    await apiDownLoad()
+  }
 
+
+}
+async function downloadAlgCsvData1 () {
+  console.log(4444, { param })
+  let domainDataId = `${param.jobId}-${param.taskId}-output-0`
+  const data = await downloadResultData({ domainDataId, nodeId: 'test1' })
+  console.log(333, { data, param })
+  // const data = await downloadCsvData(param);
+  let fileName = `${param.taskId}.csv`;
+  let filename = '';
+  const filenameRegex = /filename[^;=\n]*=[^'"]*['"]*((['"]).*?\2|[^;\n]*)/;
+  // const matches = filenameRegex.exec(disposition || '');
+  // if (matches != null && matches[1]) {
+  //   filename = matches[1].replace(/['"]/g, '');
+  // }
   // 创建一个 Blob 对象
-  const blob = new Blob([data], { type: 'application/octet-stream' });
+  const blob = new Blob(['\ufeff', data], { type: 'text/plain;charset=utf-8' });
+  // const blob = new Blob([data], { type: 'application/octet-stream' });
   // 创建一个 URL 对象
   const url = URL.createObjectURL(blob);
   // 创建一个临时的链接元素
@@ -349,9 +485,9 @@ async function downloadAlgCsvData () {
                placeholder="选择要下载的算子"
                style="width: 240px">
       <el-option v-for="item in nodesList"
-                 :key="item.id"
+                 :key="item.key"
                  :label="item.label"
-                 :value="item.graphNodeId" />
+                 :value="item.value" />
     </el-select>
     <template #footer>
       <div class="dialog-footer">

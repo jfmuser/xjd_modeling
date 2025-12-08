@@ -36,7 +36,9 @@ import useAlgorithmParam from '../../hooks/useAlgorithmParam';
 import { FormType } from '@/utils/const';
 import * as Base64 from 'js-base64';
 import WebSocketClient from '@/utils/WebSocketClient.js';
+import useSiteStore from '../../stores/dept/site.store';
 const { onSaveGraphInfo } = useAlgorithmParam();
+const siteStore = useSiteStore()
 const {
   GraphViewerRef,
   getGraph,
@@ -296,7 +298,6 @@ const insertAnimationCSS = () => {
 };
 
 const route = useRoute();
-
 async function onRun () {
   try {
     insertAnimationCSS(); // 确保样式注入
@@ -372,8 +373,10 @@ const onMessage = (data, event) => {
 // 带调试日志的状态检查
 // 3. 带调试日志的状态检查
 const fetchStatus = async () => {
+  const partyId = siteStore?.mySite?.tDomainEngineList?.find(item => item.engine == 0)?.partyId;
+  console.log({ partyId })
   try {
-    ws = new WebSocketClient(`/fate/websocket/progress/${state.newJobId}/guest/9999`, {
+    ws = new WebSocketClient(`/fate/websocket/progress/${state.newJobId}/guest/${partyId}`, {
       autoReconnect: true,        // 自动重连
       reconnectInterval: 3000,     // 重连间隔 3 秒
       maxReconnectAttempts: 5,     // 最多重连 5 次
@@ -480,6 +483,7 @@ const onCheckResult = async (args) => {
   //           })
 };
 onBeforeUnmount(() => {
+  console.log('销毁')
   stopPolling()
 })
 </script>

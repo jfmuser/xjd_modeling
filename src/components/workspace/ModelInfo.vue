@@ -5,7 +5,7 @@ import {
   findModelInfo,
   getDeployModels,
 } from '../../apis/workspace/model.api';
-import { deployModel,getAuthData } from '../../apis/manager/managerApi'
+import { deployModel, getAuthData } from '../../apis/manager/managerApi'
 import { Status } from '../../utils/const';
 import ListContainer from '../../layouts/ListContainer.vue';
 import ListContainerItem from '../../layouts/ListContainerItem.vue';
@@ -38,7 +38,7 @@ watch(
     findModel(modelId.value);
     await nextTick();
     fetchTableData(1);
-     getProjectAuthData();
+    getProjectAuthData();
   },
   { immediate: true },
 );
@@ -49,7 +49,7 @@ onMounted(() => {
   getProjectAuthData();
 });
 
-async function findModel(modelId) {
+async function findModel (modelId) {
   try {
     state.loading = true;
     if (modelId) {
@@ -59,12 +59,12 @@ async function findModel(modelId) {
     state.loading = false;
   }
 }
-function afterDeployModelDialog() {
+function afterDeployModelDialog () {
   findModel(modelId.value);
   fetchTableData(1);
 }
 
-async function onDeploy() {
+async function onDeploy () {
   try {
     state.loading = true;
     await deployModel({ ...state.model, serviceId: state.model.modelName });
@@ -78,15 +78,15 @@ async function onDeploy() {
   }
 }
 
-function onRun(val) {
+function onRun (val) {
   OnlineReasoningDialogRef.value.show(val);
 }
 
-function onStart(val) {
+function onStart (val) {
   OfflineReasoningDialogRef.value.show(val);
 }
 
-async function fetchTableData(page) {
+async function fetchTableData (page) {
   try {
     state.loading = true;
     if (modelVersion.value) {
@@ -110,7 +110,7 @@ async function fetchTableData(page) {
   }
 }
 const emits = defineEmits(['JobDetail']);
-function toDetail({ jobId, fRole, fPartyId,projectId }) {
+function toDetail ({ jobId, fRole, fPartyId, projectId }) {
   // router.push({
   //   name: 'jobDetail',
   //   query: {
@@ -124,13 +124,13 @@ function toDetail({ jobId, fRole, fPartyId,projectId }) {
   // });
   const selfParties = JSON.parse(sessionStorage.getItem('selfParties'))
   const partyId = JSON.parse(selfParties.tDomainEngineList.find(engine => engine.engine == '0')?.engineInfo ?? "{}").partyId
-  
-  const url = `/fateboard-ui/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${route.query.projectId}`;
+
+  const url = `/fateboard-ui/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${route.query.projectId}&projectName=${route.query.projectName}`;
   // 给父组件传值
   emits('JobDetail', [url, false]);
 }
 
-function onPageChange(page) {
+function onPageChange (page) {
   fetchTableData(page);
 }
 
@@ -138,7 +138,7 @@ function onPageChange(page) {
 /**
  * @description 获取项目授权的数据
 */
-async function getProjectAuthData() {
+async function getProjectAuthData () {
   state.authDataList = await getAuthData(route.query.projectId)
 
 }
@@ -146,62 +146,93 @@ async function getProjectAuthData() {
 </script>
 
 <template>
-  <ListContainer v-loading="state.loading" title="模型推理记录">
+  <ListContainer v-loading="state.loading"
+                 title="模型推理记录">
     <div class="div-right">
-      <el-button style="width: 90px; height: 30px" @click="onDeploy(state.model)" v-permission="'inference'">
+      <el-button style="width: 90px; height: 30px"
+                 @click="onDeploy(state.model)"
+                 v-permission="'inference'">
         模型部署
       </el-button>
-      <el-button style="width: 90px; height: 30px" @click="onRun(state.model)">
+      <el-button style="width: 90px; height: 30px"
+                 @click="onRun(state.model)">
         在线推理
       </el-button>
-      <el-button style="width: 90px; height: 30px" @click="onStart(state.model)" v-permission="'deploy'">
+      <el-button style="width: 90px; height: 30px"
+                 @click="onStart(state.model)"
+                 v-permission="'deploy'">
         离线推理
       </el-button>
     </div>
-    <ListContainerItem title="基本信息" style="margin-top: 25px">
-      <el-form ref="ModelInfoRef" :inline="true" label-width="80px">
+    <ListContainerItem title="基本信息"
+                       style="margin-top: 25px">
+      <el-form ref="ModelInfoRef"
+               :inline="true"
+               label-width="80px">
         <el-form-item label="模型名称">
-          <el-input v-model="state.model.modelName" disabled />
+          <el-input v-model="state.model.modelName"
+                    disabled />
         </el-form-item>
         <el-form-item label="模型版本">
-          <el-input v-model="state.model.modelVersion" disabled />
+          <el-input v-model="state.model.modelVersion"
+                    disabled />
         </el-form-item>
         <el-form-item label="作业ID">
-          <el-input v-model="state.model.jobId" disabled />
+          <el-input v-model="state.model.jobId"
+                    disabled />
         </el-form-item>
         <el-form-item label="收藏时间">
-          <el-input v-model="state.model.createdTime" disabled />
+          <el-input v-model="state.model.createdTime"
+                    disabled />
         </el-form-item>
         <el-form-item label="更新时间">
-          <el-input v-model="state.model.updatedTime" disabled />
+          <el-input v-model="state.model.updatedTime"
+                    disabled />
         </el-form-item>
         <el-form-item label="收藏人">
-          <el-input v-model="state.model.creator" disabled />
+          <el-input v-model="state.model.creator"
+                    disabled />
         </el-form-item>
         <el-form-item label="服务标识">
-          <el-input v-model="state.model.serviceId" disabled />
+          <el-input v-model="state.model.serviceId"
+                    disabled />
         </el-form-item>
         <el-form-item label="部署后模型版本">
-          <el-input v-model="state.model.deployedModelVersion" disabled />
+          <el-input v-model="state.model.deployedModelVersion"
+                    disabled />
         </el-form-item>
-        <el-form-item label="备注" class="entire-line">
-          <el-input v-model="state.model.remarks" type="textarea" disabled />
+        <el-form-item label="备注"
+                      class="entire-line">
+          <el-input v-model="state.model.remarks"
+                    type="textarea"
+                    disabled />
         </el-form-item>
       </el-form>
     </ListContainerItem>
     <ListContainerItem title="离线推理记录">
-      <TableContainer ref="TableContainerRef" :show-filter="false" @page-change="onPageChange">
+      <TableContainer ref="TableContainerRef"
+                      :show-filter="false"
+                      @page-change="onPageChange">
         <el-table :data="state.tableData">
-          <el-table-column label="作业ID" min-width="200px" fixed>
+          <el-table-column label="作业ID"
+                           min-width="200px"
+                           fixed>
             <template #default="{ row }">
-              <el-link type="primary" @click="toDetail(row)">{{ row.jobId }}
+              <el-link type="primary"
+                       @click="toDetail(row)">{{ row.jobId }}
               </el-link>
             </template>
           </el-table-column>
           <!-- <el-table-column prop="modelVersion" label="部署后模型版本" min-width="200px"></el-table-column> -->
-          <el-table-column prop="startTime" label="开始时间" min-width="180px"></el-table-column>
-          <el-table-column prop="endTime" label="结束时间" min-width="180px"></el-table-column>
-          <el-table-column prop="fStatus" label="运行状态" min-width="100px">
+          <el-table-column prop="startTime"
+                           label="开始时间"
+                           min-width="180px"></el-table-column>
+          <el-table-column prop="endTime"
+                           label="结束时间"
+                           min-width="180px"></el-table-column>
+          <el-table-column prop="fStatus"
+                           label="运行状态"
+                           min-width="100px">
             <template #default="{ row }">{{
               Status.getLabel(row.status)
             }}</template>
@@ -209,9 +240,11 @@ async function getProjectAuthData() {
         </el-table>
       </TableContainer>
     </ListContainerItem>
-    <OnlineReasoningDialog :authDataList="state.authDataList" ref="OnlineReasoningDialogRef"></OnlineReasoningDialog>
-    <OfflineReasoningDialog :hostNamespace="state.authDataList" ref="OfflineReasoningDialogRef"
-      @doAfter="afterDeployModelDialog"></OfflineReasoningDialog>
+    <OnlineReasoningDialog :authDataList="state.authDataList"
+                           ref="OnlineReasoningDialogRef"></OnlineReasoningDialog>
+    <OfflineReasoningDialog :hostNamespace="state.authDataList"
+                            ref="OfflineReasoningDialogRef"
+                            @doAfter="afterDeployModelDialog"></OfflineReasoningDialog>
   </ListContainer>
 </template>
 <style scoped>

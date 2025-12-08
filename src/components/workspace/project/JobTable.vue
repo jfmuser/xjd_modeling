@@ -29,9 +29,11 @@ import { security, fblogin } from '../../../apis/workspace/job.api';
 import { getBoardInfo } from '../../../apis/innovate/innovate.api.js';
 import AES from '../../../utils/aesCrypto';
 import rsa from '../../../utils/encrypt';
+import useEnv from '@/hooks/useEnv.js';
 
 let jobStatusInterval;
 let needRun = false;
+const { VITE_GLOB_XJ_PASSWORD, VITE_GLOB_FATEBOARD_UI_URL } = useEnv()
 const siteStore = useSiteStore()
 const TableContainerRef = ref(null);
 const ModelCollectRef = ref(null);
@@ -169,8 +171,9 @@ async function toDetail ({ jobId, fRole, fPartyId }) {
   }
   //判断有没有登录凭证，有的话就跳转
   if (localStorage.getItem('CurrentUser')) {
+    const prefix = import.meta.env.DEV ? VITE_GLOB_FATEBOARD_UI_URL : ''
     // 跳转到fateBoard 算子详情页面
-    const url = `http://119.23.69.219:3084/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${props.projectId}`;
+    const url = `${prefix}/fateboard-ui/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${props.projectId}&projectName=${props.projectName}`;
     emits('JobDetail', [url, false]);
   }
   // const url = `http://localhost:8082/#/details?job_id=${fJobId}&role=${fRole}&party_id=${fPartyId}&from=Job%20overview&projectId=${props.projectId}`;

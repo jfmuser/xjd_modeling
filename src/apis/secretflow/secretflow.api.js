@@ -363,3 +363,23 @@ export function getJobDetail(data) {
 export const getSecretflowProject = (data) => {
     return request({url:'/v1alpha1/project/get',  method: 'post',data});
 };
+
+/**
+ * 
+ * @param {*} data 
+ * @returns 
+ *  @description 下载结果
+ */
+export const downloadResultData = (data) => {
+  return request({url:'/v1alpha1/data/download',  method: 'post',data});
+};
+
+/**
+ * 
+ * @param {*} data 
+ * @returns 
+ *  @description 获取表格数据
+ */
+export const getResultTableData = (data) => {
+  return request({url:'/v1alpha1/project/job/task/output',  method: 'post',data});
+};

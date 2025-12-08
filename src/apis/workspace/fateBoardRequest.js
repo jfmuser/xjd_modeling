@@ -5,7 +5,8 @@ const instance = axios.create({
   // 开发环境
   // baseURL: import.meta.env.DEV ? '/fb' : '/fateboard',
   // 本地测试
-  baseURL: import.meta.env.DEV ? '/fateboard' : '/fb',
+  // baseURL: import.meta.env.DEV ? '/fateboard' : '/fb',
+  baseURL: '/fateboard',
   withCredentials: false,
   timeout: 20000,
 });

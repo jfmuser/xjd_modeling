@@ -22,9 +22,8 @@ instance.interceptors.response.use(
     function (response) {
         const { data, headers } = response;
         console.log(response, 'RESPONSESE');
-
-        if (data.code ?? data.status.code !== 0) {
-            return Promise.reject(data.status.msg);
+        if (data?.code ?? (data?.status?.code !== 0)) {
+            return Promise.reject(data?.status?.msg);
         }
         return data.data;
     },

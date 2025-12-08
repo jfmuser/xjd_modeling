@@ -11,14 +11,15 @@ import AES from '../utils/aesCrypto';
 import useSiteStore from '../stores/dept/site.store.js';
 import UpdataPasswordDialog from '../components/workspace/UpdataPasswordDialog.vue';
 
-const { VITE_APP, VITE_APP_TITLE } = useEnv();
+const { VITE_APP, VITE_APP_TITLE, VITE_GLOB_XJ_PASSWORD } = useEnv();
+console.log({ VITE_GLOB_XJ_PASSWORD })
 const router = useRouter();
 const route = useRoute();
 const siteStore = useSiteStore();
 //  /
 const form = reactive({
   username: 'admin',
-  password: 'admin',
+  password: VITE_GLOB_XJ_PASSWORD,
   verificationCode: '',
 });
 const formRef = ref(null);
@@ -50,8 +51,8 @@ const WorkinitGetHouCode = async () => {
   state.batch = data.batch;
 };
 
-async function onLogin() {
-  const valid = await formRef.value.validate().catch(() => {});
+async function onLogin () {
+  const valid = await formRef.value.validate().catch(() => { });
   if (!valid) {
     return;
   }
@@ -146,7 +147,7 @@ onBeforeMount(() => {
   router.push(redirect);
 });
 
-async function updataPasswordSucceed() {
+async function updataPasswordSucceed () {
   visible.value = false;
   form.password = '';
   form.username = '';
@@ -155,19 +156,20 @@ async function updataPasswordSucceed() {
 }
 </script>
 <template>
-  <div v-loading="loading" class="login-area">
+  <div v-loading="loading"
+       class="login-area">
     <div class="title">{{ VITE_APP_TITLE }}</div>
     <div class="title-bottom"></div>
-    <el-form ref="formRef" :model="form" :rules="rules">
+    <el-form ref="formRef"
+             :model="form"
+             :rules="rules">
       <el-form-item prop="username">
-        <el-input
-          v-model.trim="form.username"
-          placeholder="请输入账号"
-          autocomplete="off"
-          :input-style="inputStyle"
-          clearable
-          disabled
-        >
+        <el-input v-model.trim="form.username"
+                  placeholder="请输入账号"
+                  autocomplete="off"
+                  :input-style="inputStyle"
+                  clearable
+                  disabled>
           <template #prefix>
             <el-icon>
               <User />
@@ -177,14 +179,12 @@ async function updataPasswordSucceed() {
       </el-form-item>
       <el-form-item prop="password">
         <!-- <el-input v-model.trim="form.password" show-password placeholder="请输入密码" autocomplete="new-password" -->
-        <el-input
-          v-model.trim="form.password"
-          show-password
-          placeholder="请输入密码"
-          autocomplete="off"
-          :input-style="inputStyle"
-          @keydown.enter="onLogin"
-        >
+        <el-input v-model.trim="form.password"
+                  show-password
+                  placeholder="请输入密码"
+                  autocomplete="off"
+                  :input-style="inputStyle"
+                  @keydown.enter="onLogin">
           <template #prefix>
             <el-icon>
               <Lock />
@@ -218,20 +218,21 @@ async function updataPasswordSucceed() {
                                                                                                                                     label="自动登录"
                                                                                                                                     @change="onAutoLoginChange"
                                                                                                                                   ></el-checkbox> -->
-          <el-button v-if="false" type="text">忘记密码</el-button>
+          <el-button v-if="false"
+                     type="text">忘记密码</el-button>
         </div>
       </el-form-item>
       <el-form-item class="active-account">
         主体尚未注册?
-        <el-link
-          type="success"
-          :underline="false"
-          @click="() => activeAccountRef.show()"
-          >点此注册
+        <el-link type="success"
+                 :underline="false"
+                 @click="() => activeAccountRef.show()">点此注册
         </el-link>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" class="login-button" @click="onLogin">
+        <el-button type="primary"
+                   class="login-button"
+                   @click="onLogin">
           下一步
         </el-button>
       </el-form-item>
@@ -240,10 +241,8 @@ async function updataPasswordSucceed() {
   </div>
 
   <ActiveAccount ref="activeAccountRef" />
-  <UpdataPasswordDialog
-    @updataPasswordSucceed="updataPasswordSucceed"
-    :visible="visible"
-  />
+  <UpdataPasswordDialog @updataPasswordSucceed="updataPasswordSucceed"
+                        :visible="visible" />
 </template>
 <style scoped lang="scss">
 $width: 370px;
