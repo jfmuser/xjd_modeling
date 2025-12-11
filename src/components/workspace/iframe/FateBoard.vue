@@ -6,15 +6,22 @@
 <template>
   <div class="outside">
     <div class="iframe">
-      <div class="close" @click="close"></div>
-      <div class="close-btn" @click="close">
-        <el-icon style="color: #4376ff;line-height: 35px;">
+      <!-- <div class="close"
+           @click="close"></div> -->
+      <div class="close-btn"
+           @click="close">
+        <el-icon style="color: #4376ff;line-height: 30px;">
           <Back />
         </el-icon>
         <el-button type="text">返回</el-button>
       </div>
 
-      <iframe :src="props.FateBoardUrl" name="myFrame" frameborder="0" width="100%" height="100%" ref="iframe"></iframe>
+      <iframe :src="props.FateBoardUrl"
+              name="myFrame"
+              frameborder="0"
+              width="100%"
+              height="100%"
+              ref="iframe"></iframe>
     </div>
   </div>
 </template>
@@ -79,8 +86,8 @@ $height: 100%;
   background-color: #4159d1;
   cursor: pointer;
   right: 20px;
-  width: 10px;
-  height: 35px;
+  width: 5px;
+  height: 25px;
 }
 
 .close::before {

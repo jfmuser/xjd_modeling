@@ -249,9 +249,6 @@ function onCancelEdit () {
 
 }
 
-onBeforeUnmount(() => {
-  cleanLocalStorage();
-});
 
 function onCloseParamDrawer () {
   paramDrawer.visible = false;
@@ -484,6 +481,7 @@ const onCheckResult = async (args) => {
 };
 onBeforeUnmount(() => {
   console.log('销毁')
+  cleanLocalStorage();
   stopPolling()
 })
 </script>
