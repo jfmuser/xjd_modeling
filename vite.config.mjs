@@ -12,7 +12,8 @@ import { fileURLToPath } from 'url';
 // import obfuscator from 'rollup-plugin-obfuscator';
 
 const gitRevisionPlugin = new GitRevisionPlugin();
-
+const pzPath = 'http://112.74.40.78:5606'
+// const pzPath = 'http://119.23.69.219:3071'
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   const {
@@ -203,7 +204,7 @@ export default ({ mode }) => {
             // '192.168.50.150:8083',
             // 'http://1.hz-test.auth-api.test.pcp.convcloud.cn:18082',
             // 'http://1.yl.auth-api.dev.pcp.convcloud.cn:18082',
-            'http://119.23.69.219:3071/',
+            `${pzPath}`,
           // 'http://100.112.107.112:8051',
           // 'http://192.168.50.202:8051',
           // 'http://1.org.auth-api.dev.pcp.convcloud.cn:18082',
@@ -216,7 +217,7 @@ export default ({ mode }) => {
             // VITE_WEBSOCKET_URL ||
             // 'ws://dev.10000.fateboard.prod.convcloud.cn:8082',
             // 'ws://1.yl.innovate-api.dev.pcp.convcloud.cn:18082',
-            'ws://119.23.69.219:3071',
+            `ws://${pzPath}`,
           // 'ws://192.168.50.202:8053',
           changeOrigin: true,
           // pathRewrite: {
@@ -283,7 +284,7 @@ export default ({ mode }) => {
         },
         '/fateboard': {
           // target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
-          target:'http://119.23.69.219:3071',
+          target: `${pzPath}`,
           changeOrigin: true,
         },
         '/fateboard-ui': {
@@ -314,30 +315,30 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         '/js/a': {
-          target: 'http://119.23.69.219:3071/',
+          target:  `${pzPath}`,
           changeOrigin: true,
         },
         '/algorithm': {
-          target: 'http://119.23.69.219:3071/',
+          target:  `${pzPath}`,
           changeOrigin: true,
         },
         '/manager-api': {
           // target: 'http://192.168.50.122:7072',
           // target: 'http://1.hz-test.manager-api.test.pcp.convcloud.cn:18082',
           // target: 'http://1.yl.manager-api.dev.pcp.convcloud.cn:18082',
-          target: 'http://119.23.69.219:3071/',
+          target:  `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://1.org.manager-api.dev.pcp.convcloud.cn:18082',
           changeOrigin: true,
         },
         '/innovate-api': {
-            target: 'http://119.23.69.219:3071/',
+            target:  `${pzPath}`,
             changeOrigin: true,
           },
         '/secretflow-api/api': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
-          target: 'http://119.23.69.219:3071/',
+          target:  `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://1.org.secretflow.dev.pcp.convcloud.cn:18082',
@@ -348,7 +349,7 @@ export default ({ mode }) => {
         },
         '/secretflow-api/proxy': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
-          target: 'http://119.23.69.219:3071/',
+          target:  `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://192.168.50.122:7061',

@@ -296,7 +296,7 @@ onBeforeUnmount(() => {
                        label="操作"
                        fixed="right"
                        min-width="130px">
-        <template #default="{ row }">
+        <!-- <template #default="{ row }">
           <el-link v-if="CollectType.canCollect(row.collect)"
                    type="primary"
                    :underline="false"
@@ -309,7 +309,7 @@ onBeforeUnmount(() => {
                    @click="onCancelCollect(row)">
             取消收藏
           </el-link>
-        </template>
+        </template> -->
       </el-table-column>
     </el-table>
   </TableContainer>

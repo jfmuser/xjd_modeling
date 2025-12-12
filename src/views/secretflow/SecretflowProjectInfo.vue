@@ -70,7 +70,7 @@ watch(
   },
 );
 
-async function fetchData() {
+async function fetchData () {
   try {
     state.loading = true;
     if (projectId.value && type.value == '1') {
@@ -134,9 +134,12 @@ async function fetchData() {
   }
 }
 
-async function onSaveProjectBaseInfo() {
+async function onSaveProjectBaseInfo () {
   if (projectId.value && type.value == '1') {
-    if (!secretflowStore.secretflowSuccess) return;
+    if (!secretflowStore.secretflowSuccess) {
+      ElMessage.error('请检查是否没有配置算法库')
+      return
+    };
     const paramObj = {};
     graphInfo.value.nodes.forEach((node) => {
       if (node.nodeDef.attrs) {
@@ -174,7 +177,7 @@ async function onSaveProjectBaseInfo() {
   });
 }
 
-async function onRun() {
+async function onRun () {
   try {
     state.loading = true;
     // const nodes = graphInfo.value.nodes.map(node => node.graphNodeId)
@@ -205,11 +208,11 @@ async function onRun() {
   }
 }
 
-function onCancel() {
+function onCancel () {
   ProjectFormRef.value.cancel();
 }
 
-function onEdit() {
+function onEdit () {
   router.push({
     name: route.name,
     query: {
@@ -230,23 +233,30 @@ const handelJobDetail = (val) => {
 </script>
 
 <template>
-  <ListContainer v-loading="state.loading" title="项目详情">
+  <ListContainer v-loading="state.loading"
+                 title="项目详情">
     <template #header-tool>
-      <el-button type="text" @click="onRun" v-permission="'start'">
-        <el-icon><img src="../../assets/workspace/play.svg" alt="" /></el-icon>
+      <el-button type="text"
+                 @click="onRun"
+                 v-permission="'start'">
+        <el-icon><img src="../../assets/workspace/play.svg"
+               alt="" /></el-icon>
         运行
       </el-button>
     </template>
     <ListContainerItem title="基本信息">
       <template #header-tool>
         <template v-if="FormType.EDIT === action">
-          <el-button type="text" @click="onSaveProjectBaseInfo"
-            >下一步
+          <el-button type="text"
+                     @click="onSaveProjectBaseInfo">下一步
           </el-button>
-          <el-button type="text" @click="onCancel">取消</el-button>
+          <el-button type="text"
+                     @click="onCancel">取消</el-button>
         </template>
         <template v-else-if="FormType.READ === action">
-          <el-button type="text" @click="onEdit" v-permission="'edit'">
+          <el-button type="text"
+                     @click="onEdit"
+                     v-permission="'edit'">
             <el-icon>
               <Edit />
             </el-icon>
@@ -254,19 +264,15 @@ const handelJobDetail = (val) => {
           </el-button>
         </template>
       </template>
-      <SecretflowProjectForm
-        ref="ProjectFormRef"
-        :defaultModel="state.model"
-        :formType="action"
-      />
+      <SecretflowProjectForm ref="ProjectFormRef"
+                             :defaultModel="state.model"
+                             :formType="action" />
     </ListContainerItem>
     <ListContainerItem title="作业概览">
-      <SecretflowJobTable
-        ref="ScretflowJobTableRef"
-        :projectId="projectId"
-        :projectName="projectName"
-        @JobDetail="handelJobDetail"
-      />
+      <SecretflowJobTable ref="ScretflowJobTableRef"
+                          :projectId="projectId"
+                          :projectName="projectName"
+                          @JobDetail="handelJobDetail" />
     </ListContainerItem>
   </ListContainer>
 </template>
