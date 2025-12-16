@@ -247,7 +247,26 @@ async function confirmClick() {
     // } else if (param.name === 'key' && !attrPaths.includes('input/input_table_2/key')) {
     //     attrPaths.push('input/input_table_2/key')
     // }
-    if (param.name === 'key' && !attrPaths.includes('input/input_ds1/keys')) {
+    if (param?.keyI18n?.includes('表')) {
+      const tableNumber = param.keyI18n[param.keyI18n.length - 1];
+
+      // 检查是否存在 input_ds3，以确定是哪种类型的算子
+      const hasInputDs3 =
+        props.PrivacyExchangeData &&
+        (props.PrivacyExchangeData['input_ds3'] ||
+          props.operator.inputs?.some((input) => input.name === 'input_ds3'));
+
+      if (hasInputDs3) {
+        // 对于 input_ds1-input_ds3 的算子
+        attrPaths.push(`input/input_ds${tableNumber}/keys${tableNumber}`);
+      } else {
+        // 对于 input_ds1-input_ds2 的算子
+        attrPaths.push(`input/input_ds${tableNumber}/keys`);
+      }
+    } else if (
+      param.name === 'key' &&
+      !attrPaths.includes('input/input_ds1/keys')
+    ) {
       attrPaths.push('input/input_ds1/keys');
     } else if (
       param.name === 'key' &&
@@ -568,7 +587,11 @@ async function initParam() {
           });
         }
         return;
-      } else if (item.name === 'input_ds1' || item.name === 'input_ds2') {
+      } else if (
+        item.name === 'input_ds1' ||
+        item.name === 'input_ds2' ||
+        item.name === 'input_ds3'
+      ) {
         console.log(
           props.PrivacyExchangeData,
           'props.PrivacyExchangeDataprops.PrivacyExchangeData',
@@ -580,14 +603,30 @@ async function initParam() {
         const senderInputData = props.PrivacyExchangeData['input_ds2']?.map(
           (item) => item.colName,
         );
+        const thirdPartyInputData = props.PrivacyExchangeData['input_ds3']?.map(
+          (item) => item.colName,
+        );
+
+        let optionsData = [];
+        let keyI18nText = '';
+
+        if (item.name === 'input_ds1') {
+          optionsData = receiverInputData;
+          keyI18nText = '表1';
+        } else if (item.name === 'input_ds2') {
+          optionsData = senderInputData;
+          keyI18nText = '表2';
+        } else if (item.name === 'input_ds3') {
+          optionsData = thirdPartyInputData;
+          keyI18nText = '表3';
+        }
+
         renderParam.value.push({
           name: `key`,
           desc: item.attrs[0].desc,
-          options:
-            item.name === 'input_ds1' ? receiverInputData : senderInputData,
+          options: optionsData,
           default: '',
-          keyI18n:
-            item.name === 'input_ds1' ? '接收方的输入:' : '发送方的输入:',
+          keyI18n: keyI18nText,
           renderType: 'select',
           type: 'Exchange',
         });

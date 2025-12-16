@@ -118,7 +118,35 @@ async function registerSecretflowNode() {
       let top = 0;
       let bottom = 0;
       // 输入节点渲染
-      if (item.inputs?.length === 2) {
+      if (item.inputs?.length === 3) {
+        item.inputs.forEach((inputNode) => {
+          nodePlace[inputNode.name] = {
+            position: {
+              name: 'absolute',
+              args: {
+                x: x + 50 * top,
+              },
+            },
+            zIndex: 2,
+            attrs: {
+              magnet: true,
+              circle: {
+                r: 6,
+                magnet: true,
+                stroke: color.data,
+                strokeWidth: 1,
+                fill: '#fff',
+              },
+            },
+          };
+          top += 1;
+          items.push({
+            group: inputNode.name,
+            id: inputNode.name,
+            desc: inputNode.desc,
+          });
+        });
+      } else if (item.inputs?.length === 2) {
         item.inputs.forEach((inputNode) => {
           nodePlace[inputNode.name] = {
             position: {

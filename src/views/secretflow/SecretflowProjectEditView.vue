@@ -496,7 +496,10 @@ async function onEdgeConnected(view, edge) {
       targetNode.label.includes('train_test_split'))
   ) {
     targetAnchor = `${graphId}-node-${targetIndex}-input-0`;
-  } else if (view.targetView.cell.port.ports.length === 3) {
+  } else if (
+    view.targetView.cell.port.ports.length === 3 ||
+    view.targetView.cell.port.ports.length === 4
+  ) {
     const targetPortNameList = view.targetView.cell.port.ports.map(
       (item) => item.group,
     );
@@ -525,8 +528,9 @@ async function onEdgeConnected(view, edge) {
   await fullUpdateGraph(graphInfo.value);
   localStorage.setItem('graphInfo', JSON.stringify(graphInfo.value));
   if (
-    !sourceName.includes('数据读入_1') &&
-    !targetName.includes('隐私集合求交_1')
+    (!sourceName.includes('数据读入_1') &&
+      !targetName.includes('隐私集合求交_1')) ||
+    (!sourceName.includes('数据读入_1') && !targetName.includes('三方隐私求交'))
   )
     return;
   getPrivacyExchangeData(
