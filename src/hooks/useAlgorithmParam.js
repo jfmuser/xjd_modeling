@@ -1256,8 +1256,7 @@ console.log({tableNameOptions})
     const projectNodeCoord = JSON.parse(
       localStorage.getItem('projectNodeCoord'),
     );
-    console.log(nodes);
-    const hostParamsKey = Object.keys(hostProjectParams[nodes[0].label]);
+    const hostParamsKey = Object.keys(hostProjectParams?.[nodes[0].label]||{});
     // const hostParamsKey = Object.keys(hostProjectParams[nodes[3].label]);
     const guestProjectParams = JSON.parse(
       localStorage.getItem('guestProjectParams'),
@@ -1289,9 +1288,9 @@ console.log({tableNameOptions})
       );
       // const operatorParams = projectParams[labelName];
 
-      const guestOperatorParams = guestProjectParams[labelName];
+      const guestOperatorParams = guestProjectParams?.[labelName];
       // const operatorConfigInfo = projectConfigInfo[labelName];
-      const OperatorConfigInfo = ProjectConfigInfo[labelName];
+      const OperatorConfigInfo = ProjectConfigInfo?.[labelName];
       console.log(operator, labelName, 'operator.name');
 
       componentArray.push({
@@ -1336,7 +1335,7 @@ console.log({tableNameOptions})
       if (['reader', 'federated_training'].includes(operator.category)) {
         const guestDefaultParam = {};
         // operatorParamsName.forEach((operatorParams, i) => {
-        guestOperatorParams.forEach((operatorParam) => {
+        guestOperatorParams?.forEach((operatorParam) => {
           console.log(operatorParam, 'zzzx');
           // 如果是level类型就看他的子参数有没有guest
           if (
