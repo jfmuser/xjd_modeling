@@ -470,21 +470,34 @@ async function onEdgeConnected(view, edge) {
     }
   });
 
-  if (leftCellTargetName === targetPort) {
-    targetNode.inputs[0] =
-      sourcePort === 'test_ds' ? sourceNode.outputs[1] : sourceNode.outputs[0];
-  } else if (
-    leftCellTargetName !== targetPort &&
-    targetNode.inputs.length === 0
-  ) {
-    targetNode.inputs =
-      sourcePort === 'test_ds'
-        ? [null, sourceNode.outputs[1]]
-        : [null, sourceNode.outputs[0]];
-  } else {
-    targetNode.inputs[1] =
-      sourcePort === 'test_ds' ? sourceNode.outputs[1] : sourceNode.outputs[0];
+  // if (leftCellTargetName === targetPort) {
+  //   targetNode.inputs[0] =
+  //     sourcePort === 'test_ds' ? sourceNode.outputs[1] : sourceNode.outputs[0];
+  // } else if (
+  //   leftCellTargetName !== targetPort &&
+  //   targetNode.inputs.length === 0
+  // ) {
+  //   targetNode.inputs =
+  //     sourcePort === 'test_ds'
+  //       ? [null, sourceNode.outputs[1]]
+  //       : [null, sourceNode.outputs[0]];
+  // } else {
+  //   targetNode.inputs[1] =
+  //     sourcePort === 'test_ds' ? sourceNode.outputs[1] : sourceNode.outputs[0];
+  // }
+  const targetPorts = view.targetView.cell.port.ports;
+  const targetPortNameList = targetPorts.map((item) => item.group);
+  const inputIndex = targetPortNameList.indexOf(targetPort);
+  console.log(inputIndex, targetPort, targetPortNameList, '最后一次');
+  // 确保 inputs 数组长度足够
+  while (targetNode.inputs.length <= inputIndex) {
+    targetNode.inputs.push(null);
   }
+
+  // 在正确的位置设置输入值
+  targetNode.inputs[inputIndex] =
+    sourcePort === 'test_ds' ? sourceNode.outputs[1] : sourceNode.outputs[0];
+
   console.log(view);
   console.log(targetNode, view.targetView.cell.port.ports, 'ZHELI');
   // const targetAnchor = targetNode.inputs[0] === null ? `${graphId}-node-${targetIndex + 1}-input-${targetNode.inputs.length - 2}` : `${graphId}-node-${targetIndex + 1}-input-${targetNode.inputs.length - 1}`
