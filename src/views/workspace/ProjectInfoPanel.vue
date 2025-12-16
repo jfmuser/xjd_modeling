@@ -182,16 +182,16 @@ function onEdit () {
     .title {
       position: relative;
 
-      &::before {
-        position: absolute;
-        content: ' ';
-        width: 13px;
-        height: 13px;
-        background-image: url('../../assets/title_1.svg');
-        background-repeat: no-repeat;
-        top: 5px;
-        left: -10px;
-      }
+      // &::before {
+      //   position: absolute;
+      //   content: ' ';
+      //   width: 13px;
+      //   height: 13px;
+      //   background-image: url('../../assets/title_1.svg');
+      //   background-repeat: no-repeat;
+      //   top: 5px;
+      //   left: -10px;
+      // }
     }
 
     .edit-button {
