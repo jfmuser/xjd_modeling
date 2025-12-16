@@ -21,7 +21,7 @@ export default {
       default: false,
     },
   },
-  setup(props) {
+  setup (props) {
     let stencil;
     const StencilRef = ref();
     const getGraph = inject(GET_GRAPH);
@@ -34,17 +34,17 @@ export default {
       },
     );
 
-    function destroy() {
+    function destroy () {
       if (stencil) {
         StencilRef.value.removeChild(stencil.container);
         stencil.dispose();
       }
     }
 
-    async function render() {
+    async function render () {
       const graph = getGraph();
       stencil = new Addon.Stencil({
-        title: '联邦算子',
+        title: '联邦算子1',
         // 目标画布
         target: graph,
         // 模板画布宽度
@@ -60,8 +60,8 @@ export default {
         getDropNode: (draggingNode) => {
           const nodes = graph.getNodes();
           const result = draggingNode.clone();
-          console.log(result,'RESULT在这');
-          
+          console.log(result, 'RESULT在这');
+
           const sameTypeNodes = nodes.filter(
             (item) => {
               console.log(item.data.component_module, result.data.component_module, 'OOOOOAAAAAOOO123');
@@ -82,7 +82,7 @@ export default {
       StencilRef.value.appendChild(stencil.container);
       props.menus.forEach((item) => {
         const nodes = item.operators.map((item) => {
-          console.log(item,'初始化');
+          console.log(item, '初始化');
           return graph.createNode({
             // shape: getGraphNodeShape(item.module),
             shape: getGraphNodeShape(item.name),
@@ -132,16 +132,16 @@ $header-height: 50px;
     position: relative;
     padding-left: 30px;
 
-    &::before {
-      position: absolute;
-      content: ' ';
-      width: 13px;
-      height: 13px;
-      background-image: url('../../assets/title_1.svg');
-      background-repeat: no-repeat;
-      top: 18px;
-      left: 10px;
-    }
+    // &::before {
+    //   position: absolute;
+    //   content: ' ';
+    //   width: 13px;
+    //   height: 13px;
+    //   background-image: url('../../assets/title_1.svg');
+    //   background-repeat: no-repeat;
+    //   top: 18px;
+    //   left: 10px;
+    // }
   }
 
   .x6-widget-stencil-content {
