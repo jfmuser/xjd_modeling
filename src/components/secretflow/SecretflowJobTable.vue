@@ -33,6 +33,16 @@ import { downloadFile } from '../../utils';
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api';
 const STATS_PSI = 'stats/stats_psi';
 const SAMPLE = 'data_filter/sample';
+const DownLoad_Type = {
+  Report: 'Report',
+  Model: 'Model',
+  FedTable: "FedTable"
+}
+const DownLoad_Label = {
+  [DownLoad_Type.Report]: '报告',
+  [DownLoad_Type.Model]: '模型',
+  [DownLoad_Type.FedTable]: '数据'
+}
 let jobStatusInterval;
 let needRun = false;
 const TableContainerRef = ref(null);
@@ -231,14 +241,15 @@ async function openDownloadDialog (row) {
   data.graph.nodes.forEach(item => {
     if (item.results && item.status == 'SUCCEED') {
       item.results.forEach(it => {
+        console.log({ it })
         resultList.push({
           value: it.refId,
           key: it.refId,
-          label: `${item.label}_${it.kind == 'Report' ? '报告' : '数据'}`,
+          label: `${item.label}_${DownLoad_Label[it.kind || DownLoad_Type.FedTable]}`,
           codeName: item.codeName,
           graphNodeId: item.graphNodeId,
           taskId: item.taskId,
-          type: it.kind == 'Report' ? 1 : 2
+          type: it.kind == DownLoad_Type.Report ? 1 : 2
         })
       })
     }
@@ -255,6 +266,12 @@ const csvHandler = async (codeName, graphNodeId) => {
   const res = await getResultTableData({ jobId: param.jobId, projectId: param.projectId, taskId: `${param.jobId}-${graphNodeId}`, outputId })
   console.log({ res })
   let allTableInfo = res.tabs
+  console.log({ allTableInfo })
+  if (!allTableInfo || allTableInfo.length == 0) {
+    ElMessage.info('暂无数据可下载')
+    return
+  }
+
   let tableInfo = modifyDataStructure(res.tabs[0], codeName)
   console.log({ tableInfo })
   let columnsList = [];
