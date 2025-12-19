@@ -22,7 +22,7 @@ export default {
       default: false,
     },
   },
-  setup(props) {
+  setup (props) {
     let stencil;
     const StencilRef = ref();
     const getGraph = inject(GET_GRAPH);
@@ -34,14 +34,14 @@ export default {
       },
     );
 
-    function destroy() {
+    function destroy () {
       if (stencil) {
         StencilRef.value.removeChild(stencil.container);
         stencil.dispose();
       }
     }
 
-    async function render() {
+    async function render () {
       const { algorithmVersionList } = await getInEffectLibAndAlgList();
 
       const graph = getGraph();
@@ -57,9 +57,11 @@ export default {
           // 网格布局的列数，默认为 2。行数根据节点数自动计算。
           columns: 1,
           // 行高。auto: 所有节点中最高节点的高度作为行高，compact: 该行中最高节点的高度作为行高。
-          rowHeight: 55,
+          columnWidth: 'auto',
+          rowHeight: 'auto',
         },
         getDropNode: (draggingNode) => {
+          console.log(123456)
           const nodes = graph.getNodes();
           const result = draggingNode.clone();
           let max = 0;
@@ -201,7 +203,7 @@ $header-height: 50px;
   }
 }
 
-:deep .graph-node-wrapper {
-  margin-left: 60px;
-}
+// :deep .graph-node-wrapper {
+//   margin-left: 60px;
+// }
 </style>

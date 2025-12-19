@@ -127,7 +127,7 @@ const projectInfo = computed(() =>
   JSON.parse(localStorage.getItem('projectInfo')),
 );
 
-async function getOperators() {
+async function getOperators () {
   try {
     const temporary = [];
     state.loading = true;
@@ -166,7 +166,7 @@ async function getOperators() {
 /**
  * 回写项目的时候判断是否有datatable和psi相连
  */
-function estimatePrivacyExchangeData() {
+function estimatePrivacyExchangeData () {
   graphInfo.value.edges.forEach((edge) => {
     const sourceNode = graphInfo.value.nodes.find(
       (node) => node.graphNodeId === edge.source,
@@ -181,16 +181,17 @@ function estimatePrivacyExchangeData() {
       return;
     const arr = edge.edgeId.split('__');
     console.log(arr, 'AAAAAAAAAAAAAAARRRRRRRRRRRRRRR');
-
+    const index = Number(arr[1][arr[1].length - 1]) + 1
     getPrivacyExchangeData(
       sourceNode.graphNodeId,
-      arr[1][arr[1].length - 1] === '1' ? 'input_ds2' : 'input_ds1',
+      `input_ds${index}`
+      // arr[1][arr[1].length - 1] === '1' ? 'input_ds2' : 'input_ds1',
     );
   });
 }
 
 // 这个方法是回写画布的
-async function setCurrentAlgorithms() {
+async function setCurrentAlgorithms () {
   if (!JSON.parse(localStorage.getItem('graphInfo'))) {
     return;
   }
@@ -210,7 +211,7 @@ async function setCurrentAlgorithms() {
       data: {
         // component_name: item.label,
         component_module: item.label.slice(0, -2),
-        component_module: item.label,
+        // component_module: item.label,
         dataIndex: i,
         // algorithm_name: item.label
         algorithm_name: item.label.slice(0, -2),
@@ -223,6 +224,7 @@ async function setCurrentAlgorithms() {
       x: item.x,
       y: item.y,
     };
+    console.log({ node, algMap, zhAlgMap })
     GraphViewerRef.value.addSecretflowNode(node);
   });
   GraphViewerRef.value.addSecretflowEdges(graphInfo.value);
@@ -257,7 +259,7 @@ onMounted(async () => {
 
 const data = ref();
 
-async function onClickNode(item) {
+async function onClickNode (item) {
   console.log(item, '节点数据在这里a');
   if (!state.editable) return; // 如果不可编辑，直接退出
 
@@ -347,7 +349,7 @@ async function onClickNode(item) {
           projectId: graphInfo.value.projectId,
           type: 'CSV',
         });
-
+        console.log({ ProjectDatatable })
         const currentDatatable = datatableList.find((datatable) =>
           datatable.nodeDef.attrs.some(
             (attr) => attr.s === datatableId.datatableId,
@@ -356,10 +358,13 @@ async function onClickNode(item) {
         const targetPort = graphInfo.value.edges
           .find((edge) => edge.source === currentDatatable.graphNodeId)
           ?.edgeId.slice(-1);
-
-        PrivacyExchangeData.value[
-          targetPort === '1' ? 'input_ds2' : 'input_ds1'
-        ] = ProjectDatatable.configs;
+        console.log({ graphInfo, currentDatatable, targetPort })
+        // PrivacyExchangeData.value[
+        //   targetPort === '1' ? 'input_ds2' : 'input_ds1'
+        // ] = ProjectDatatable.configs;
+        // const index = currentDatatable.graphNodeId.replace(`${graphInfo.value.graphId}-node-`, '')
+        // console.log({ index, ProjectDatatable: ProjectDatatable.configs })
+        PrivacyExchangeData.value[`input_ds${Number(targetPort) + 1}`] = ProjectDatatable.configs;
         PrivacyExchangeData.value.nodeList.push(node);
       }
     }
@@ -390,7 +395,7 @@ async function onClickNode(item) {
 //     state.expanded = !state.expanded;
 // }
 
-function goProjectPage() {
+function goProjectPage () {
   cleanLocalStorage();
   router.push({
     name: 'project',
@@ -403,21 +408,21 @@ function goProjectPage() {
   }); // http://localhost:5173/#/project?projectName=联合建模1107&id=1986611313994878976&action=%E6%9F%A5%E7%9C%8B&type=1&dpToken=7d1c7a2ce09d46388a03077b7be290ba
 }
 
-function onEdit() {
+function onEdit () {
   state.editable = true;
 }
 
-function cleanLocalStorage() {
+function cleanLocalStorage () {
   localStorage.setItem('projectInfo', null);
   localStorage.setItem('projectParams', null);
   localStorage.setItem('graphInfo', null);
 }
 
-async function onSave() {
+async function onSave () {
   goProjectPage();
 }
 
-function onCancelEdit() {
+function onCancelEdit () {
   state.editable = false;
   router.push({
     name: 'project',
@@ -434,7 +439,7 @@ onBeforeUnmount(() => {
   cleanLocalStorage();
 });
 
-function onCloseParamDrawer() {
+function onCloseParamDrawer () {
   paramDrawer.visible = false;
   paramDrawer.operatorType = null;
   logDrawer.visible = false;
@@ -442,7 +447,7 @@ function onCloseParamDrawer() {
 }
 
 // 两个算子的边相连时触发(保存)
-async function onEdgeConnected(view, edge) {
+async function onEdgeConnected (view, edge) {
   if (!core.value === 1) return;
   let targetIndex = '';
   let sourceIndex = '';
@@ -521,9 +526,8 @@ async function onEdgeConnected(view, edge) {
   }
 
   graphInfo.value.edges.push({
-    edgeId: `${
-      sourceNode.outputs[sourcePort === 'test_ds' ? 1 : 0]
-    }__${targetAnchor}`,
+    edgeId: `${sourceNode.outputs[sourcePort === 'test_ds' ? 1 : 0]
+      }__${targetAnchor}`,
     source: `${graphId}-node-${sourceIndex}`,
     sourceAnchor: sourceNode.outputs[sourcePort === 'test_ds' ? 1 : 0],
     target: `${graphId}-node-${targetIndex}`,
@@ -534,9 +538,8 @@ async function onEdgeConnected(view, edge) {
   // 2. 更新边的数据（添加标识符）
   edge.setData({
     ...edgeData,
-    edgeId: `${
-      sourceNode.outputs[sourcePort === 'test_ds' ? 1 : 0]
-    }__${targetAnchor}`,
+    edgeId: `${sourceNode.outputs[sourcePort === 'test_ds' ? 1 : 0]
+      }__${targetAnchor}`,
   });
   await fullUpdateGraph(graphInfo.value);
   localStorage.setItem('graphInfo', JSON.stringify(graphInfo.value));
@@ -553,7 +556,7 @@ async function onEdgeConnected(view, edge) {
 }
 
 // 往画布上添加算子的时候触发(保存)
-async function onAddNode(node, index, options) {
+async function onAddNode (node, index, options) {
   if (core.value != 1) return;
   const nodes = GraphViewerRef.value.getNodes();
   const nodeName = node.store.data.data.algorithm_name;
@@ -568,9 +571,9 @@ async function onAddNode(node, index, options) {
   graphInfo.value = graphInfo.value
     ? graphInfo.value
     : await getGraphDetail({
-        projectId: projectInfo.value.projectId,
-        graphId: projectInfo.value.graphId,
-      });
+      projectId: projectInfo.value.projectId,
+      graphId: projectInfo.value.graphId,
+    });
 
   //   //防止回写画布内容的时候触发这个方法反复添加节点
   if (
@@ -625,7 +628,7 @@ async function onAddNode(node, index, options) {
 /**
  * @description 删除节点或边时触发
  */
-async function onCellRemove(cell) {
+async function onCellRemove (cell) {
   console.log(cell, 'cellolo');
   if (!core.value || core.value === 2) return;
   if (cell.store.data.shape === 'edge') {
@@ -654,7 +657,7 @@ async function onCellRemove(cell) {
 }
 
 // 获取隐私求交下拉的值
-async function getPrivacyExchangeData(targetNodeId, targetPort) {
+async function getPrivacyExchangeData (targetNodeId, targetPort) {
   const currentNode = graphInfo.value.nodes.find(
     (item) => item.graphNodeId === targetNodeId,
   );
@@ -703,7 +706,7 @@ const insertAnimationCSS = () => {
   }
 };
 
-async function onRun() {
+async function onRun () {
   insertAnimationCSS(); // 确保样式注入
   console.log(graphInfo.value.nodes, 'graphInfo.value.nodes11');
   try {
@@ -909,84 +912,81 @@ const onCheckResult = async (node) => {
         >返回
       </el-button> -->
       <div class="graph-operations">
-        <el-icon type="primary" @click="onZoomIn">
+        <el-icon type="primary"
+                 @click="onZoomIn">
           <zoom-in />
         </el-icon>
-        <el-icon type="primary" @click="onZoomOut">
+        <el-icon type="primary"
+                 @click="onZoomOut">
           <zoom-out />
         </el-icon>
         <!-- <el-icon v-show="state.editable" type="primary" @click="onGraphClear">
                     <delete />
                 </el-icon> -->
-        <el-icon type="primary" @click="onAutoZoom">
+        <el-icon type="primary"
+                 @click="onAutoZoom">
           <location />
         </el-icon>
-        <el-icon
-          v-show="state.editable"
-          type="primary"
-          @click="onGraphRollback"
-        >
+        <el-icon v-show="state.editable"
+                 type="primary"
+                 @click="onGraphRollback">
           <refresh-left />
         </el-icon>
-        <el-icon type="primary" @click="toggleFullScreen">
+        <el-icon type="primary"
+                 @click="toggleFullScreen">
           <full-screen />
         </el-icon>
       </div>
       <C2Transition>
-        <div v-show="state.editable" class="action-button">
-          <el-button type="primary" @click="onSave"> 保存</el-button>
-          <el-button
-            type="primary"
-            @click="onRun"
-            id="animate-button"
-            :disabled="isRunning"
-          >
-            {{ isRunning ? '运行中' : '运行' }}</el-button
-          >
+        <div v-show="state.editable"
+             class="action-button">
+          <el-button type="primary"
+                     @click="onSave"> 保存</el-button>
+          <el-button type="primary"
+                     @click="onRun"
+                     id="animate-button"
+                     :disabled="isRunning">
+            {{ isRunning ? '运行中' : '运行' }}</el-button>
           <el-button @click="onCancelEdit">取消</el-button>
         </div>
       </C2Transition>
     </div>
     <div class="content">
       <C2Transition>
-        <div v-show="state.expanded" class="side">
-          <ProjectInfoPanel
-            :info="projectInfo"
-            :editable="state.editable"
-            @edit="onEdit"
-          />
-          <SecretflowGraphMenu
-            v-loading="state.loading"
-            :groups="operatorCategories.reverse()"
-            :menus="categories"
-            :editable="state.editable"
-          />
+        <div v-show="state.expanded"
+             class="side">
+          <ProjectInfoPanel :info="projectInfo"
+                            :editable="state.editable"
+                            @edit="onEdit" />
+          <SecretflowGraphMenu v-loading="state.loading"
+                               :groups="operatorCategories.reverse()"
+                               :menus="categories"
+                               :editable="state.editable" />
         </div>
       </C2Transition>
-      <div class="side-tool" :class="{ fold: !state.expanded }">
+      <div class="side-tool"
+           :class="{ fold: !state.expanded }">
         <el-icon @click="onSwitchSide">
           <fold v-if="state.expanded" />
           <expand v-else />
         </el-icon>
       </div>
-      <div class="graph-area" :class="{ wide: !state.expanded }">
-        <GraphViewer
-          ref="GraphViewerRef"
-          :editable="state.editable"
-          @click-node="onClickNode"
-          @delete="onCellRemove"
-          @edge-connected="onEdgeConnected"
-          @add-node="onAddNode"
-          @check-result="onCheckResult"
-        />
-        <div class="log-container" v-if="logDrawer.visible">
+      <div class="graph-area"
+           :class="{ wide: !state.expanded }">
+        <GraphViewer ref="GraphViewerRef"
+                     :editable="state.editable"
+                     @click-node="onClickNode"
+                     @delete="onCellRemove"
+                     @edge-connected="onEdgeConnected"
+                     @add-node="onAddNode"
+                     @check-result="onCheckResult" />
+        <div class="log-container"
+             v-if="logDrawer.visible">
           <div>平台日志</div>
-          <el-icon
-            @click="
+          <el-icon @click="
               logDrawer1.visible = true;
               logDrawer.visible = false;
-            "
-          >
+            ">
             <ArrowUp />
           </el-icon>
         </div>
@@ -994,36 +994,30 @@ const onCheckResult = async (node) => {
     </div>
   </div>
   <C2Transition>
-    <SecretflowAlgorithmParamDrawer
-      v-if="paramDrawer.visible"
-      :info="projectInfo"
-      :operator="paramDrawer.operator"
-      :currentGraphNodeName="currentGraphNodeName"
-      :graph="graph"
-      :currentNode="currentNode"
-      :graphInfo="graphInfo"
-      :PrivacyExchangeData="PrivacyExchangeData"
-      @close="onCloseParamDrawer"
-    />
+    <SecretflowAlgorithmParamDrawer v-if="paramDrawer.visible"
+                                    :info="projectInfo"
+                                    :operator="paramDrawer.operator"
+                                    :currentGraphNodeName="currentGraphNodeName"
+                                    :graph="graph"
+                                    :currentNode="currentNode"
+                                    :graphInfo="graphInfo"
+                                    :PrivacyExchangeData="PrivacyExchangeData"
+                                    @close="onCloseParamDrawer" />
   </C2Transition>
   <C2Transition>
-    <ResultDrawer
-      v-if="resultDrawer.visible"
-      :data="resultData"
-      :info="resultInfo"
-      @close="resultDrawer.visible = false"
-    />
+    <ResultDrawer v-if="resultDrawer.visible"
+                  :data="resultData"
+                  :info="resultInfo"
+                  @close="resultDrawer.visible = false" />
   </C2Transition>
   <C2Transition>
-    <LogDrawer
-      v-if="logDrawer1.visible"
-      @close="
+    <LogDrawer v-if="logDrawer1.visible"
+               @close="
         logDrawer1.visible = false;
         logDrawer.visible = true;
       "
-      @closeAll="onCloseParamDrawer"
-      :data="data"
-    />
+               @closeAll="onCloseParamDrawer"
+               :data="data" />
   </C2Transition>
 </template>
 <style scoped lang="scss">

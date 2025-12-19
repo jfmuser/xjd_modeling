@@ -13,7 +13,8 @@ import { fileURLToPath } from 'url';
 
 const gitRevisionPlugin = new GitRevisionPlugin();
 // const pzPath = 'http://112.74.40.78:5606'
-const pzPath = 'http://119.23.69.219:3071'
+// const pzPath = 'http://119.23.69.219:3071'
+const pzPath ='http://112.74.40.78:5600'
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   const {

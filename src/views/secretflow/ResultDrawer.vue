@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useFullscreen } from '@vueuse/core';
-
+import dayjs from 'dayjs'
 const props = defineProps({
   data: { default: [] },
   info: {
@@ -15,7 +15,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-function handleClose() {
+function handleClose () {
   emit('close');
 }
 
@@ -51,65 +51,67 @@ const tableData = computed(() => {
 </script>
 
 <template>
-  <el-drawer
-    :model-value="true"
-    size="600px"
-    title="执行结果"
-    @close="handleClose"
-  >
+  <el-drawer :model-value="true"
+             size="600px"
+             title="执行结果"
+             @close="handleClose">
     <div class="result-detail">
       <div class="row">
         <span class="name">{{ info.name }}</span>
-        <el-tag type="info" round color="rgba(0, 104, 250, 0.08)">表</el-tag>
+        <el-tag type="info"
+                round
+                color="rgba(0, 104, 250, 0.08)">表</el-tag>
       </div>
       <div class="row">
-        <span class="time">生成时间：</span> {{ info.time }}
+        <span class="time">生成时间：</span> {{ dayjs(info.time).format('YYYY-MM-DD HH:mm:ss') }}
       </div>
-      <div class="row" v-for="i in info.paths" :key="i.name">
+      <div class="row"
+           v-for="i in info.paths"
+           :key="i.name">
         <span class="time">{{ i.name }}节点路径：</span>
         {{ i.path }}
       </div>
     </div>
-    <div ref="tableRef" :style="{ padding: isFullscreen ? '0 20px' : '0' }">
+    <div ref="tableRef"
+         :style="{ padding: isFullscreen ? '0 20px' : '0' }">
       <div class="table-title">
         <h5>表字段</h5>
         <div class="title-btn">
-          <div class="btn" @click="handleExport">
-            <el-icon><Download /></el-icon>导出表结构
+          <div class="btn"
+               @click="handleExport">
+            <el-icon>
+              <Download />
+            </el-icon>导出表结构
           </div>
-          <div class="btn" @click="toggle">
-            <el-icon><FullScreen /></el-icon
-            >{{ isFullscreen ? '退出全屏' : '全屏' }}
+          <div class="btn"
+               @click="toggle">
+            <el-icon>
+              <FullScreen />
+            </el-icon>{{ isFullscreen ? '退出全屏' : '全屏' }}
           </div>
         </div>
       </div>
-      <el-table
-        :data="tableData"
-        :header-cell-style="{
+      <el-table :data="tableData"
+                :header-cell-style="{
           background: '#fafafa',
           textAlign: 'start',
           fontSize: '14px',
-        }"
-      >
+        }">
         <!-- <el-table-column prop="field" label="字段" />
         <el-table-column prop="type" label="类型" />
         <el-table-column prop="node" label="节点" /> -->
-        <el-table-column
-          :prop="value.name"
-          :label="value.zhName || value.name"
-          v-for="value in props.data.tableDataHeader"
-          :value="value.name"
-          sortable
-        />
+        <el-table-column :prop="value.name"
+                         :label="value.zhName || value.name"
+                         v-for="value in props.data.tableDataHeader"
+                         :value="value.name"
+                         sortable />
       </el-table>
       <div class="pagination-wraper">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :total="total"
-          layout="total, prev, pager, next"
-          @current-change="onPageChange"
-        />
+        <el-pagination v-model:current-page="currentPage"
+                       v-model:page-size="pageSize"
+                       :total="total"
+                       layout="total, prev, pager, next"
+                       @current-change="onPageChange" />
       </div>
     </div>
   </el-drawer>

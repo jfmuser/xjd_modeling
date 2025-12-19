@@ -44,7 +44,7 @@ export default {
     async function render () {
       const graph = getGraph();
       stencil = new Addon.Stencil({
-        title: '联邦算子1',
+        title: '联邦算子',
         // 目标画布
         target: graph,
         // 模板画布宽度

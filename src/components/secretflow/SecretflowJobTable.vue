@@ -30,6 +30,7 @@ import {
 import { downloadCsvData } from '../../apis/secretflowApi/secretflow.api';
 import { downloadResultData, getResultTableData } from '@/apis/secretflow/secretflow.api'
 import { downloadFile } from '../../utils';
+import useSiteStore from '@/stores/dept/site.store.js';
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api';
 const STATS_PSI = 'stats/stats_psi';
 const SAMPLE = 'data_filter/sample';
@@ -43,6 +44,7 @@ const DownLoad_Label = {
   [DownLoad_Type.Model]: '模型',
   [DownLoad_Type.FedTable]: '数据'
 }
+const siteStore = useSiteStore();
 let jobStatusInterval;
 let needRun = false;
 const TableContainerRef = ref(null);
@@ -117,7 +119,7 @@ async function fetchTableData (page) {
       const currentPage = page || pager?.page;
       const response = await listJob({
         pageNum: currentPage,
-        pageSize: pager.size,
+        pageSize: pager.size || 10,
         projectId: outterTask.projectId,
         graphId: outterTask.graphId,
       }); // const response = await getProjectJobList({ //     "pageRequest": { //         "pageNumber": currentPage, //         "pageSize": pager.size //     }, //     "requestData": { //         projectId: props.projectId //     } // } // );
@@ -331,11 +333,13 @@ const csvHandler = async (codeName, graphNodeId) => {
   exportCsv(csvData, `${param.taskId}`)
 }
 const apiDownLoad = async () => {
+  const mySite = siteStore.mySite
+  console.log({ mySite, siteStore })
   fetch(`/secretflow-api/proxy/secretPad/api/v1alpha1/data/download`, {
     method: 'POST',
     headers: { "Content-Type": "application/json", "Authorization": localStorage.getItem('token') },
     body: JSON.stringify({
-      nodeId: 'test1',
+      nodeId: mySite.nodeId,
       domainDataId: param.taskId,
     }),
   }).then((res) => {
@@ -377,9 +381,10 @@ async function downloadAlgCsvData () {
 
 }
 async function downloadAlgCsvData1 () {
+  const mySite = siteStore.mySite
   console.log(4444, { param })
   let domainDataId = `${param.jobId}-${param.taskId}-output-0`
-  const data = await downloadResultData({ domainDataId, nodeId: 'test1' })
+  const data = await downloadResultData({ domainDataId, nodeId: mySite.nodeId })
   console.log(333, { data, param })
   // const data = await downloadCsvData(param);
   let fileName = `${param.taskId}.csv`;

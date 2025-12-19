@@ -74,14 +74,16 @@ const layout = computed(() => {
 </script>
 
 <template>
-  <el-config-provider :locale="zhCn" :button="{ autoInsertSpace: false }">
-    <component :is="layout" :class="{ product: !env.DEV }" />
+  <el-config-provider :locale="zhCn"
+                      :button="{ autoInsertSpace: false }">
+    <component :is="layout"
+               :class="{ product: !env.DEV }" />
   </el-config-provider>
-  <el-tooltip effect="dark" content="" placement="top">
-    <span
-      style="position: absolute; left: -2000px; top: -1000px"
-      class="tooltip-widget"
-    />
+  <el-tooltip effect="dark"
+              content=""
+              placement="top">
+    <span style="position: absolute; left: -2000px; top: -1000px"
+          class="tooltip-widget" />
   </el-tooltip>
   <div class="tooltip-widget1" />
 </template>
@@ -90,6 +92,7 @@ const layout = computed(() => {
 body {
   border: 0;
   margin: 0;
+  font-size: 14px;
 }
 
 * {
