@@ -158,12 +158,12 @@ $darkBackground: #060b15;
 .cell,
 .filter-item .label,
 .el-link__inner {
-  font-size: 18px !important;
+  font-size: 16px !important;
 }
 .el-button {
-  font-size: 18px !important;
+  font-size: 14px !important;
 }
 .el-descriptions__cell {
-  font-size: 16px !important;
+  font-size: 14px !important;
 }
 </style>
