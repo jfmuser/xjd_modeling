@@ -6,7 +6,8 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-  <div class="layout-wrapper" :class="route.name">
+  <div class="layout-wrapper"
+       :class="route.name">
     <!-- <img src="../assets/logo.svg" class="logo" /> -->
     <div class="content">
       <router-view></router-view>
@@ -34,14 +35,14 @@ $footerHeight: 20px;
     background-image: url('../assets/bg_blur.png');
   }
 
-  &.login {
-    // background-image: url('../assets/bg.png');
-    // background-image: url('../assets/bg1.jpg');
-    background-image: url('../assets/bg.jpeg');
-    transform: translate(180deg);
-    // background-size: contain;
-    background-color: #102440;
-  }
+  // &.login {
+  //   // background-image: url('../assets/bg.png');
+  //   // background-image: url('../assets/bg1.jpg');
+  //   background-image: url('../assets/bg.jpeg');
+  //   transform: translate(180deg);
+  //   // background-size: contain;
+  //   background-color: #102440;
+  // }
 
   .logo {
     height: $headerHeight;

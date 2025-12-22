@@ -16,7 +16,7 @@ console.log({ VITE_GLOB_XJ_PASSWORD })
 const router = useRouter();
 const route = useRoute();
 const siteStore = useSiteStore();
-//  /
+// 
 const form = reactive({
   username: 'admin',
   password: VITE_GLOB_XJ_PASSWORD,
@@ -52,10 +52,10 @@ const WorkinitGetHouCode = async () => {
 };
 
 async function onLogin () {
-  const valid = await formRef.value.validate().catch(() => { });
-  if (!valid) {
-    return;
-  }
+  // const valid = await formRef.value.validate().catch(() => { });
+  // if (!valid) {
+  //   return;
+  // }
   try {
     loading.value = true;
     let response;
@@ -87,8 +87,8 @@ async function onLogin () {
     if (response.desc) {
       ElMessage.info(response.desc);
     }
-    ElMessage.success('登录成功');
-
+    // ElMessage.success('登录成功');
+    console.info('登录成功')
     // authStore.setIsLogin(true);
 
     authStore.userInfo = null;
@@ -158,7 +158,7 @@ async function updataPasswordSucceed () {
 <template>
   <div v-loading="loading"
        class="login-area">
-    <div class="title">{{ VITE_APP_TITLE }}</div>
+    <!-- <div class="title">{{ VITE_APP_TITLE }}</div>
     <div class="title-bottom"></div>
     <el-form ref="formRef"
              :model="form"
@@ -178,8 +178,12 @@ async function updataPasswordSucceed () {
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <!-- <el-input v-model.trim="form.password" show-password placeholder="请输入密码" autocomplete="new-password" -->
         <el-input v-model.trim="form.password"
+                  show-password
+                  placeholder="请输入密码"
+                  autocomplete="new-password"
+                  <el-input
+                  v-model.trim="form.password"
                   show-password
                   placeholder="请输入密码"
                   autocomplete="off"
@@ -192,32 +196,27 @@ async function updataPasswordSucceed () {
           </template>
         </el-input>
       </el-form-item>
-      <!-- <el-form-item prop="verificationCode" class="verificationCode">
-        <el-input
-          v-model.trim="form.verificationCode"
-          placeholder="请输入验证码"
-          :input-style="inputStyle"
-          @keydown.enter="onLogin"
-          style="width: 60%"
-        >
+      <el-form-item prop="verificationCode"
+                    class="verificationCode">
+        <el-input v-model.trim="form.verificationCode"
+                  placeholder="请输入验证码"
+                  :input-style="inputStyle"
+                  @keydown.enter="onLogin"
+                  style="width: 60%">
           <template #prefix>
             <el-icon>
               <Warning />
             </el-icon>
           </template>
         </el-input>
-        <img
-          class="verificationCodeImg"
-          :src="`data:image/png;base64,${state.codeImg}`"
-          @click="WorkinitGetHouCode"
-        />
-      </el-form-item> -->
+        <img class="verificationCodeImg"
+             :src="`data:image/png;base64,${state.codeImg}`"
+             @click="WorkinitGetHouCode" />
+      </el-form-item>
       <el-form-item>
         <div class="help">
-          <!-- <el-checkbox
-                                                                                                                                    label="自动登录"
-                                                                                                                                    @change="onAutoLoginChange"
-                                                                                                                                  ></el-checkbox> -->
+          <el-checkbox label="自动登录"
+                       @change="onAutoLoginChange"></el-checkbox>
           <el-button v-if="false"
                      type="text">忘记密码</el-button>
         </div>
@@ -236,7 +235,7 @@ async function updataPasswordSucceed () {
           下一步
         </el-button>
       </el-form-item>
-    </el-form>
+    </el-form> -->
     <!-- <div class="tip">您将开始构建联邦应用</div> -->
   </div>
 
@@ -248,15 +247,15 @@ async function updataPasswordSucceed () {
 $width: 370px;
 
 .login-area {
-  width: $width;
-  border-radius: 6px;
-  border: 1.12px solid;
-  box-shadow: inset 0px 0px 16px 0px rgba(255, 255, 255, 0.2);
-  // background-image: url(../assets/login-bg.png);
-  padding: 35px;
-  // background-color: #fff;
-  color: #fff;
-  // color: #000;
+  // width: $width;
+  // border-radius: 6px;
+  // border: 1.12px solid;
+  // box-shadow: inset 0px 0px 16px 0px rgba(255, 255, 255, 0.2);
+  // // background-image: url(../assets/login-bg.png);
+  // padding: 35px;
+  // // background-color: #fff;
+  // color: #fff;
+  // // color: #000;
 
   .title {
     font-size: 20px;
