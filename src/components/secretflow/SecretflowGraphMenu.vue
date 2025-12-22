@@ -156,7 +156,7 @@ $header-height: 50px;
     height: $header-height;
     line-height: $header-height;
     background-color: #fff;
-    font-size: 18px;
+    font-size: 16px;
     border-bottom: 1px solid #4376ff1a;
     position: relative;
     padding-left: 30px;

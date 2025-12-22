@@ -30,7 +30,7 @@ const menuStore = useMenuStore();
 <style scoped lang="scss">
 .el-container {
   height: 100%;
-  font-size: 20px;
+  font-size: 18px;
 
   .el-header {
     position: relative;
@@ -41,7 +41,7 @@ const menuStore = useMenuStore();
   }
 
   .layout-content {
-    height: calc(100% - $headerHeight);
+    // height: calc(100% - $headerHeight);
   }
 
   .el-aside {
@@ -63,8 +63,8 @@ const menuStore = useMenuStore();
     }
   }
 
-  :deep .deptSupervise{
-    padding:0;
+  :deep .deptSupervise {
+    padding: 0;
   }
 }
 
@@ -95,7 +95,6 @@ const menuStore = useMenuStore();
     }
 
     .tab-container {
-
       .el-button,
       .el-link--inner {
         color: $darkTextColor !important;
@@ -113,7 +112,6 @@ const menuStore = useMenuStore();
       .el-table__body-wrapper,
       .el-table__body,
       .el-table__empty-block {
-
         tr,
         td {
           background-color: $darkBackground !important;
@@ -155,13 +153,17 @@ $darkBackground: #060b15;
   }
 }
 
-.el-input__inner,.el-form-item__label,.cell,.filter-item .label,.el-link__inner {
+.el-input__inner,
+.el-form-item__label,
+.cell,
+.filter-item .label,
+.el-link__inner {
   font-size: 18px !important;
 }
 .el-button {
   font-size: 18px !important;
 }
 .el-descriptions__cell {
-font-size: 16px !important;
+  font-size: 16px !important;
 }
 </style>

@@ -1,20 +1,22 @@
 <template>
-  <el-drawer
-    :model-value="true"
-    direction="btt"
-    :modal="false"
-    custom-class="log-drawer"
-    :show-close="false"
-    :append-to-body="false"
-  >
+  <el-drawer :model-value="true"
+             direction="btt"
+             :modal="false"
+             custom-class="log-drawer"
+             :show-close="false"
+             :append-to-body="false">
     <template #title>
       <div class="log-container">
         <div>平台日志</div>
-        <el-icon @click="handleClose"><ArrowDown /></el-icon>
+        <el-icon @click="handleClose">
+          <ArrowDown />
+        </el-icon>
       </div>
     </template>
 
-    <div v-for="(i, index) in logs" :key="i" class="log-content">
+    <div v-for="(i, index) in logs"
+         :key="i"
+         class="log-content">
       <span class="log-index">{{ index + 1 }}</span>
       <span style="color: #008800">{{ time(i) }}&nbsp;</span>
       <span style="color: #4b71ca"> {{ level(i) }} </span>
@@ -83,7 +85,7 @@ const rest = (logItem) =>
     .replace(/(taskId=\w+-[\w-]+)/, '$1 ')
     .replace(/-(\d+)/, '-<span style="color: red">$1</span>');
 
-function handleClose() {
+function handleClose () {
   emit('close');
 }
 

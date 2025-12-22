@@ -578,7 +578,7 @@ const allTableList = ref([])
       arbiterVitalParamList.value,
     );
 
-    hostList.forEach(async (host, i) => {
+    hostList?.forEach(async (host, i) => {
       hostVitalParamListObj.value[`hostVitalParamList${i}`] =
         await checkConstraints(
           hostCurrentVersionParamsObj[`hostVitalParamList${i}`],

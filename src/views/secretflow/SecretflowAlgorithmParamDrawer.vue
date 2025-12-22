@@ -3,9 +3,9 @@
              :direction="direction"
              :before-close="handleClose"
              :size="500"
-             class="custom-drawer">
+             custom-class="custom-drawer">
     <template #title>
-      <!-- <h3 class="title">{{ currentI18n[props.operator.name] }}</h3> -->
+      <div class="title">{{ currentI18n[props.operator.name] }}</div>
     </template>
 
     <template #default>
@@ -13,7 +13,7 @@
         <span>组件类型:纵向</span>
       </div>
       <div v-if="props.operator?.attrs || props.operator?.inputs[0].attrs"
-           style="margin-top: 50px">
+           style="margin-top: 20px">
         <el-form label-width="150px">
           <el-form-item v-for="param in renderParam"
                         :key="param.name">
@@ -25,7 +25,7 @@
                 {{
                   param.name === 'key' ? param.keyI18n : currentI18n[param.name]
                 }}
-                ({{ param.name }})
+                <!-- ({{ param.name }}) -->
               </el-tooltip>
             </template>
             <el-button v-if="param.renderType === 'button'"
@@ -143,7 +143,7 @@ const props = defineProps({
     default: {},
   },
 });
-
+console.log({ operator: props.operator })
 watch(
   () => props.graphInfo,
   (newVal) => {
@@ -900,11 +900,16 @@ function setDrawerMaskTransparent () {
 }
 </script>
 
-<style scoped>
+<style  lang="scss">
 .title {
   color: #000;
+  margin: 0 !important;
 }
-
+.custom-drawer {
+  .el-drawer__header {
+    margin: 0 !important;
+  }
+}
 ::deep el-drawer.rtl {
   pointer-events: auto;
 }

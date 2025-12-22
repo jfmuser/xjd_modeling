@@ -55,7 +55,8 @@ export default {
           // 网格布局的列数，默认为 2。行数根据节点数自动计算。
           columns: 1,
           // 行高。auto: 所有节点中最高节点的高度作为行高，compact: 该行中最高节点的高度作为行高。
-          rowHeight: 55,
+          columnWidth: 'auto',
+          rowHeight: 'auto',
         },
         getDropNode: (draggingNode) => {
           const nodes = graph.getNodes();
@@ -127,7 +128,7 @@ $header-height: 50px;
     height: $header-height;
     line-height: $header-height;
     background-color: #fff;
-    font-size: 18px;
+    font-size: 16px;
     border-bottom: 1px solid #4376ff1a;
     position: relative;
     padding-left: 30px;
@@ -174,7 +175,7 @@ $header-height: 50px;
   }
 }
 
-:deep .graph-node-wrapper {
-  margin-left: 60px;
-}
+// :deep .graph-node-wrapper {
+//   margin-left: 60px;
+// }
 </style>

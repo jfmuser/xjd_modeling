@@ -23,7 +23,7 @@ const node = getNode ? getNode() : null;
 
 const label = node?.store.data.data?.label;
 const name_zh = node?.store.data.data?.name_zh;
-console.log(node,'kaskdksadkn')
+console.log(node, 'kaskdksadkn')
 let nodeStatus = ref(false);
 
 let timer;
@@ -93,35 +93,29 @@ onBeforeUnmount(() => {
   clearInterval(timer);
 });
 
-function changeNodeStatus() {
+function changeNodeStatus () {
   nodeStatus.value = true;
 }
 </script>
 
 <template>
-  <div
-    class="graph-node-wrapper"
-    :class="{
+  <div class="graph-node-wrapper"
+       :class="{
       [state.role]: true,
       [state.type]: true,
       'common-node': true,
       [status]: true,
       active: !isStartNode && state.active,
       success: nodeStatus,
-    }"
-  >
+    }">
     <div class="content">
       <template v-if="isStartNode">
-        <img
-          v-if="state.role === 'host'"
-          src="../../assets/host_node.png"
-          alt=""
-        />
-        <img
-          v-else-if="state.role === 'guest'"
-          src="../../assets/guest_node.png"
-          alt=""
-        />
+        <img v-if="state.role === 'host'"
+             src="../../assets/host_node.png"
+             alt="" />
+        <img v-else-if="state.role === 'guest'"
+             src="../../assets/guest_node.png"
+             alt="" />
       </template>
       <div class="text">
         <!-- <div>{{ state.label }}</div> -->
@@ -135,13 +129,11 @@ function changeNodeStatus() {
       <CircleClose v-if="status === 'failed'" />
     </el-icon> -->
   </div>
-  <el-progress
-    v-if="status === 'running'"
-    :percentage="100"
-    :indeterminate="true"
-    :duration="3"
-    :show-text="false"
-  />
+  <el-progress v-if="status === 'running'"
+               :percentage="100"
+               :indeterminate="true"
+               :duration="3"
+               :show-text="false" />
 </template>
 
 <style  lang="scss">
@@ -165,8 +157,8 @@ function changeNodeStatus() {
 }
 
 .graph-node-wrapper {
-  width: 266px;
-  height: 50px;
+  width: 250px;
+  height: 45px;
   background-color: #ffffff;
   box-shadow: 0px 8px 14px 0px rgba(50, 91, 183, 0.1);
   display: flex;

@@ -391,9 +391,9 @@ async function onClickNode (item) {
   }
 }
 
-// function onSwitchSide() {
-//     state.expanded = !state.expanded;
-// }
+function onSwitchSide () {
+  state.expanded = !state.expanded;
+}
 
 function goProjectPage () {
   cleanLocalStorage();
@@ -442,8 +442,8 @@ onBeforeUnmount(() => {
 function onCloseParamDrawer () {
   paramDrawer.visible = false;
   paramDrawer.operatorType = null;
-  logDrawer.visible = false;
-  logDrawer1.visible = false;
+  // logDrawer.visible = false;
+  // logDrawer1.visible = false;
 }
 
 // 两个算子的边相连时触发(保存)
@@ -908,9 +908,10 @@ const onCheckResult = async (node) => {
 <template>
   <div class="project-edit">
     <div class="header">
-      <!-- <el-button type="text" :icon="ArrowLeft" @click="goProjectPage"
-        >返回
-      </el-button> -->
+      <el-button type="text"
+                 :icon="ArrowLeft"
+                 @click="goProjectPage">返回
+      </el-button>
       <div class="graph-operations">
         <el-icon type="primary"
                  @click="onZoomIn">
@@ -964,13 +965,13 @@ const onCheckResult = async (node) => {
                                :editable="state.editable" />
         </div>
       </C2Transition>
-      <div class="side-tool"
+      <!-- <div class="side-tool"
            :class="{ fold: !state.expanded }">
         <el-icon @click="onSwitchSide">
           <fold v-if="state.expanded" />
           <expand v-else />
         </el-icon>
-      </div>
+      </div> -->
       <div class="graph-area"
            :class="{ wide: !state.expanded }">
         <GraphViewer ref="GraphViewerRef"
@@ -1070,7 +1071,7 @@ $project-info-height: 100px;
     width: $side-width;
     background-color: #fff;
     border-radius: 4px;
-    height: calc(100% - #{$side-tool-height});
+    // height: calc(100% - #{$side-tool-height});
     overflow: auto;
     box-shadow: 2px 4px 12px 0px rgba(67, 118, 255, 0.2);
 

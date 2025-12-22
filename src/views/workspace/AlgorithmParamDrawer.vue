@@ -31,10 +31,10 @@ const props = defineProps({ operator: { type: Object, required: true }, info: { 
 const route = useRoute()
 const selectedParamVersion = reactive({});
 const projectInfo = ref({})
-  
+
 onBeforeMount(async () => {
   projectInfo.value = JSON.parse(localStorage.getItem('projectInfo'))
-  console.log(props.operator,'OPERATOR');
+  console.log(props.operator, 'OPERATOR');
   // const label = props.operator.algorithm_name ?? props.operator.component_name;
   const label = props.operator.label;
   let componentName = label;
@@ -46,7 +46,7 @@ onBeforeMount(async () => {
   selectedParamVersion.id = paramVersion.value.param_version;
   add();
   // cloneVitalParamList()
-  console.log(guestVitalParamList,'AKSKSKDO')
+  console.log(guestVitalParamList, 'AKSKSKDO')
 })
 
 watchEffect(handleVitalParamList)
@@ -63,13 +63,13 @@ watchEffect(handleVitalParamList)
 //   add();
 // });
 
-function handleClose() {
+function handleClose () {
   emit('close');
 }
 const changeValues = ref([]);
 const staticParams = ref([]);
 const add = async () => {
-  console.log('paramVersionList',paramVersionList.value);
+  console.log('paramVersionList', paramVersionList.value);
   const firstParm = vitalParamList.value.find(
     (item) => item.inputStyle != 'level',
   );
@@ -83,7 +83,7 @@ const add = async () => {
 };
 
 
-function handleVitalParamList() {
+function handleVitalParamList () {
   // 如果有hostVitalParamListObj对象里有一个属性就默认host已经克隆添加完
   if (hostVitalParamListObj.value[`hostVitalParamList0`] && hostVitalParamListObj.value[`hostVitalParamList0`][0]) {
     // 这块是在控制这条参数是否显示(把模板hostVitalParamList的isVitalParam赋值给克隆出的host数据)
@@ -93,7 +93,7 @@ function handleVitalParamList() {
           const hostVitalParam = hostVitalParamListObj.value[`hostVitalParamList${i}`].find((item) => item.key === vitalParam.key)
           handleLevelParam(hostVitalParam.subParams, vitalParam.subParams)
         } else {
-          if(!hostVitalParamListObj.value[`hostVitalParamList${i}`][idx]) return
+          if (!hostVitalParamListObj.value[`hostVitalParamList${i}`][idx]) return
           hostVitalParamListObj.value[`hostVitalParamList${i}`][idx].isVitalParam = vitalParam.isVitalParam
         }
       })
@@ -101,7 +101,7 @@ function handleVitalParamList() {
   }
 }
 
-function handleLevelParam(hostVitalparam, subParams) {
+function handleLevelParam (hostVitalparam, subParams) {
   subParams.forEach((param, i) => {
     if (param.inputStyle === 'level') {
       handleLevelParam(hostVitalparam.subParams, param.subParams)
@@ -111,7 +111,7 @@ function handleLevelParam(hostVitalparam, subParams) {
   })
 }
 
-function isShow(dataList, roleType) {
+function isShow (dataList, roleType) {
   let arr = [];
   dataList.forEach((item) => {
     if (item.inputStyle === 'level') {
@@ -125,67 +125,104 @@ function isShow(dataList, roleType) {
 </script>
 
 <template>
-  <el-drawer v-loading="state.loading" :model-value="true" :before-close="handleClose" size="50%"
-    @close="showEditDrawer = false">
+  <el-drawer v-loading="state.loading"
+             :model-value="true"
+             :before-close="handleClose"
+             size="50%"
+             custom-class="custom-drawer"
+             @close="showEditDrawer = false">
+    <template #title>
+      <div class="title">参数配置</div>
+    </template>
     <template #default>
       <el-form label-width="150px">
         <div>
-          <h3>数据版本</h3>
-          <el-form-item v-show="paramVersionList.length > 0" label="参数版本" style="font-weight: bolder">
+          <h4>数据版本</h4>
+          <el-form-item v-show="paramVersionList.length > 0"
+                        label="参数版本"
+                        style="font-weight: bolder">
             <!--            <span slot="label">-->
             <!--              <span><strong>参数版本</strong></span>-->
             <!--            </span>-->
-            <el-select v-model="selectedParamVersion.id" :disabled="paramVersionList.length === 1" @change="
+            <el-select v-model="selectedParamVersion.id"
+                       :disabled="paramVersionList.length === 1"
+                       @change="
               selectParamVersion(selectedParamVersion.id, props.operator.type, props.operator.label, projectInfo.host)
-              " style="width: 80%" value-key="id">
-              <el-option v-for="item in paramVersionList" :label="item.param_version_description" :value="item.param_version" :key="item.param_version" />
+              "
+                       style="width: 80%"
+                       value-key="id">
+              <el-option v-for="item in paramVersionList"
+                         :label="item.param_version_description"
+                         :value="item.param_version"
+                         :key="item.param_version" />
             </el-select>
           </el-form-item>
 
-          <h3 v-if="isShow(guestVitalParamList, 'guest').length !== 0">
-            生效参数:业务方</h3>
+          <h4 v-if="isShow(guestVitalParamList, 'guest').length !== 0">
+            生效参数:业务方</h4>
           <div>
             <AlgorithmParamTree v-if="isShow(guestVitalParamList, 'guest').length !== 0"
-              v-for="vitalParam in guestVitalParamList" :key="vitalParam.id" :data="vitalParam"
-              :operatorName="props.operator.label" :constraints="constraintList" :roleType="'guest'"
-              @params-change="changeParams($event, 'guest')" />
+                                v-for="vitalParam in guestVitalParamList"
+                                :key="vitalParam.id"
+                                :data="vitalParam"
+                                :operatorName="props.operator.label"
+                                :constraints="constraintList"
+                                :roleType="'guest'"
+                                @params-change="changeParams($event, 'guest')" />
           </div>
 
           <template v-for="(item, i) in projectInfo?.host">
-            <h3 v-if="isShow(hostVitalParamList, 'host').length !== 0">
-              生效参数:数据方</h3>
+            <h4 v-if="isShow(hostVitalParamList, 'host').length !== 0">
+              生效参数:数据方</h4>
             <div>
               <AlgorithmParamTree v-if="isShow(hostVitalParamList, 'host').length !== 0"
-                v-for="vitalParam in hostVitalParamListObj[`hostVitalParamList${i}`]" :key="vitalParam.id"
-                :data="vitalParam" :operatorName="props.operator.label" :constraints="constraintList"
-                @params-change="changeParams($event, 'host', hostVitalParamListObj, i)" :roleType="'host'" />
+                                  v-for="vitalParam in hostVitalParamListObj[`hostVitalParamList${i}`]"
+                                  :key="vitalParam.id"
+                                  :data="vitalParam"
+                                  :operatorName="props.operator.label"
+                                  :constraints="constraintList"
+                                  @params-change="changeParams($event, 'host', hostVitalParamListObj, i)"
+                                  :roleType="'host'" />
             </div>
           </template>
 
-          <h3 v-if="isShow(commonVitalParamList, 'common').length !== 0">
-            公共参数</h3>
+          <h4 v-if="isShow(commonVitalParamList, 'common').length !== 0">
+            公共参数</h4>
           <div>
             <AlgorithmParamTree v-if="isShow(commonVitalParamList, 'common').length !== 0"
-              v-for="vitalParam in commonVitalParamList" :key="vitalParam.id" :data="vitalParam"
-              :operatorName="props.operator.label" :constraints="constraintList" :roleType="'common'"
-              @params-change="changeParams($event, 'common')" />
+                                v-for="vitalParam in commonVitalParamList"
+                                :key="vitalParam.id"
+                                :data="vitalParam"
+                                :operatorName="props.operator.label"
+                                :constraints="constraintList"
+                                :roleType="'common'"
+                                @params-change="changeParams($event, 'common')" />
           </div>
 
-          <h3 v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0">
-            生效参数:聚合方</h3>
+          <h4 v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0">
+            生效参数:聚合方</h4>
           <div>
             <AlgorithmParamTree v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0"
-              v-for="vitalParam in arbiterVitalParamList" :key="vitalParam.id" :data="vitalParam"
-              :operatorName="props.operator.label" :constraints="constraintList" :roleType="'arbiter'"
-              @params-change="changeParams($event, 'arbiter')" />
+                                v-for="vitalParam in arbiterVitalParamList"
+                                :key="vitalParam.id"
+                                :data="vitalParam"
+                                :operatorName="props.operator.label"
+                                :constraints="constraintList"
+                                :roleType="'arbiter'"
+                                @params-change="changeParams($event, 'arbiter')" />
           </div>
         </div>
         <div>
-          <h3>全部参数</h3>
+          <h4>全部参数</h4>
           <div>
-            <el-tree :data="optionParamList" :props="optionParam" node-key="key" show-checkbox default-expand-all="true"
-              :default-checked-keys="defaultVitalParamList" @check-change="handleCheckChange"
-              @paramsChange="handelparamsChange">
+            <el-tree :data="optionParamList"
+                     :props="optionParam"
+                     node-key="key"
+                     show-checkbox
+                     default-expand-all="true"
+                     :default-checked-keys="defaultVitalParamList"
+                     @check-change="handleCheckChange"
+                     @paramsChange="handelparamsChange">
               <template #default="{ node, data }">
                 <span>{{ data.label_zh }} </span>
                 <span>({{ data.label_en }})</span>
@@ -193,12 +230,23 @@ function isShow(dataList, roleType) {
             </el-tree>
           </div>
         </div>
-        <el-form-item>
-          <el-button type="primary" @click="onSaveNode(props.operator, handleClose, hostVitalParamListObj)">
+        <!-- <el-form-item>
+          <el-button type="primary"
+                     class="right fixed"
+                     @click="onSaveNode(props.operator, handleClose, hostVitalParamListObj)">
             保存
           </el-button>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
+    </template>
+    <template #footer>
+      <div style="flex: auto">
+        <el-button type="primary"
+                   @click="onSaveNode(props.operator, handleClose, hostVitalParamListObj)">
+          保存
+        </el-button>
+
+      </div>
     </template>
   </el-drawer>
 </template>
@@ -208,5 +256,10 @@ function isShow(dataList, roleType) {
   position: fixed;
   right: 5%;
   bottom: 2%;
+}
+.custom-drawer {
+  .el-drawer__header {
+    margin: 0 !important;
+  }
 }
 </style>

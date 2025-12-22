@@ -547,13 +547,13 @@ onBeforeUnmount(() => {
                      :editable="state.editable" />
         </div>
       </C2Transition>
-      <div class="side-tool"
+      <!-- <div class="side-tool"
            :class="{ fold: !state.expanded }">
         <el-icon @click="onSwitchSide">
           <fold v-if="state.expanded" />
           <expand v-else />
         </el-icon>
-      </div>
+      </div> -->
       <div class="graph-area"
            :class="{ wide: !state.expanded }">
         <GraphViewer ref="GraphViewerRef"
@@ -623,7 +623,7 @@ $project-info-height: 100px;
     width: $side-width;
     background-color: #fff;
     border-radius: 4px;
-    height: calc(100% - #{$side-tool-height});
+    // height: calc(100% - #{$side-tool-height});
     overflow: auto;
     box-shadow: 2px 4px 12px 0px rgba(67, 118, 255, 0.2);
     display: flex;

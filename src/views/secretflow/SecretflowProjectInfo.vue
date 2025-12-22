@@ -48,7 +48,14 @@ const state = reactive({
   partyId: '',
   role: '',
 });
+function cleanLocalStorage () {
+  localStorage.setItem('projectInfo', null);
+  localStorage.setItem('projectParams', null);
+  localStorage.setItem('graphInfo', null);
+}
 onBeforeMount(async () => {
+  // 为了避免画布组件在刷新页面情况下不执行onBeforeUnMount
+  cleanLocalStorage()
   // getSiteInfo();
   await fetchData();
 });

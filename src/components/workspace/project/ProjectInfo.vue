@@ -254,7 +254,7 @@ async function onSaveProjectBaseInfo () {
         console.log(Params, 'host');
         // 这一步在给这个对象添加已经处理好的算子
         projectParams[componentName] = [
-          ...Params[0][`hostVitalParamList0`],
+          ...(Params[0][`hostVitalParamList0`] || []),
           ...Params[1],
           ...Params[2],
           ...Params[3],
@@ -351,7 +351,7 @@ function setDefaultValue (params, componentName, hostList) {
   let num = '';
   const projectParamsList = [guestParams, commonParams, arbiterParams];
   const roleTypeList = ['guest', 'common', 'arbiter'];
-  hostList.forEach(() => {
+  hostList?.forEach(() => {
     roleTypeList.unshift('host');
     projectParamsList.unshift([]);
   });
@@ -412,7 +412,7 @@ function setDefaultValue (params, componentName, hostList) {
     }
   });
 
-  for (let k = hostList.length; k > 0; k--) {
+  for (let k = hostList?.length; k > 0; k--) {
     hostParams[`hostVitalParamList${k - 1}`] = projectParamsList[0];
     projectParamsList.splice(0, 1);
   }
