@@ -91,7 +91,7 @@ async function registerSecretflowNode() {
     isDataLoaded = true;
 
     let x = 82;
-    let y = 50;
+    let y = 45;
     // const data = await listComponents()
     // console.log(data, 'await listComponents()');
     // data.secretflow.comps.forEach(item => {

@@ -179,7 +179,7 @@ onMounted(async () => {
       document.querySelectorAll('.graph-area .graph-node-wrapper'),
     );
     console.log(dom, '看看变色dom');
-    dom.forEach((dom) => (dom.style.borderBottom = '6px solid #0068fa'));
+    dom.forEach((dom) => (dom.style.borderBottom = '6px solid #2a50ec'));
     if (dom.length !== 0) {
       clearTimeout(timerId);
     }
@@ -345,7 +345,85 @@ const stopPolling = () => {
     ws = null;
   }
 };
+const handleEdgeStyle = (components) => {
+  const graph = GraphViewerRef.value?.getGraph();
+  const edges = graph.getEdges(); // 1. 调试输出节点和边信息
+  const component_list = new Map(components.map(item => [item.component_name, item.status]) || [])
 
+  console.log('边数量:', edges.length, edges); // 2. 先清除所有动画
+
+  edges.forEach((edge) => {
+    const currentNode = edge?.store?.data?.data?.edgeId.split('__')[0]
+    const status = component_list.get(currentNode)
+    console.log({ currentNode, status })
+    let animation = 'none';
+    let strokeDasharray = '';
+    let edgeColor = '#000';
+    switch (status) {
+      case 'running': strokeDasharray = 5; animation = 'running-line 30s linear infinite'; edgeColor = '#2a50ec'; break;
+      case 'success': edgeColor = '#2a50ec'; break;
+      case 'failed': edgeColor = '#ff4f38'; break;
+      default: break;
+    }
+    edge.attr({
+      line: {
+        strokeDasharray,
+        style: {
+          animation,
+          stroke: edge.attr('line/stroke', edgeColor), // 强制触发重绘
+        },
+      },
+    });
+    // if (status == 'waiting') {
+    //   console.log('waiting', { currentNode })
+    //   edge.attr({
+    //     line: {
+    //       strokeDasharray: '',
+    //       style: {
+    //         animation: 'none',
+    //         stroke: edge.attr('line/stroke', '#000'), // 强制触发重绘
+    //       },
+    //     },
+    //   });
+    // }
+    // if (status == 'running') {
+    //   console.log('running', { currentNode })
+    //   edge.attr({
+    //     line: {
+    //       strokeDasharray: '5',
+    //       style: {
+    //         animation: 'running-line 30s linear infinite',
+    //         stroke: edge.attr('line/stroke', '#2a50ec'), // 强制重绘
+    //       },
+    //     },
+    //   });
+    // }
+    // if (status == 'success') {
+    //   console.log('success', { currentNode })
+    //   edge.attr({
+    //     line: {
+    //       strokeDasharray: '',
+    //       style: {
+    //         animation: 'none',
+    //         stroke: edge.attr('line/stroke', '#2a50ec'), // 强制重绘
+    //       },
+    //     },
+    //   });
+    // }
+    // if (status == 'failed') {
+    //   console.log('failed', { currentNode })
+    //   edge.attr({
+    //     line: {
+    //       strokeDasharray: '',
+    //       style: {
+    //         animation: 'none',
+    //         stroke: edge.attr('line/stroke', '#ff4f38'), // 强制重绘
+    //       },
+    //     },
+    //   });
+    // }
+  }); // 3. 仅对RUNNING节点的连线添加动画
+}
 const onMessage = (data, event) => {
   if (data.status === 'running') {
     console.log('正在运行', data);
@@ -361,19 +439,21 @@ const onMessage = (data, event) => {
   } else if (data.status == 'failed') {
     console.log('运行失败', data);
     isRunning.value = false;
-    ElMessage.success('运行失败');
+    ElMessage.error('运行失败');
     ws.close()
   } else {
     console.log('其他消息', data);
   }
+  handleEdgeStyle(data?.dependency_data?.component_list || [])
 }
 // 带调试日志的状态检查
 // 3. 带调试日志的状态检查
 const fetchStatus = async () => {
-  const partyId = siteStore?.mySite?.tDomainEngineList?.find(item => item.engine == 0)?.partyId;
-  console.log({ partyId })
+  const engineInfo = siteStore?.mySite?.tDomainEngineList?.find(item => item.engine == 0)?.engineInfo;
+  const partyId = JSON.parse(engineInfo || '{}')?.partyId
+  console.log({ partyId, mySite: siteStore?.mySite })
   try {
-    ws = new WebSocketClient(`/fate/websocket/progress/${state.newJobId}/guest/${partyId}`, {
+    ws = new WebSocketClient(`/fateboard-ui/websocket/progress/${state.newJobId}/guest/${partyId}`, {
       autoReconnect: true,        // 自动重连
       reconnectInterval: 3000,     // 重连间隔 3 秒
       maxReconnectAttempts: 5,     // 最多重连 5 次

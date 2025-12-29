@@ -436,7 +436,7 @@ async function confirmClick () {
   const dom = Array.from(
     document.querySelectorAll('.graph-area .graph-node-wrapper'),
   ).find((dom) => dom.innerText === props.currentGraphNodeName);
-  dom.style.borderBottom = '6px solid #0068fa';
+  dom.style.borderBottom = '6px solid #2a50ec';
   paramObj.value[props.currentGraphNodeName] = attrs;
   localStorage.setItem('projectParams', JSON.stringify(paramObj.value));
   handleClose();
