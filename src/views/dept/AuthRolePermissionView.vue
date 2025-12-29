@@ -1,27 +1,35 @@
 <template>
-  <div class="table-container" v-loading="loading">
+  <div class="table-container"
+       v-loading="loading">
     <div class="table-container__header">
       <div class="title--primary">权限管理</div>
       <div class="tool">
-        <el-button type="text" @click="onEdit" v-show="!edit">
+        <el-button type="text"
+                   @click="onEdit"
+                   v-show="!edit">
           <el-icon>
             <Edit />
           </el-icon>
           编辑
         </el-button>
-        <el-button type="text" @click="onBack"> 返回 </el-button>
-        <el-button type="text" @click="onSave" v-show="edit">保存</el-button>
-        <el-button type="text" @click="onCancel" v-show="edit">取消</el-button>
+        <el-button type="text"
+                   @click="onBack"> 返回 </el-button>
+        <el-button type="text"
+                   @click="onSave"
+                   v-show="edit">保存</el-button>
+        <el-button type="text"
+                   @click="onCancel"
+                   v-show="edit">取消</el-button>
       </div>
     </div>
-    <el-form
-      class="padding20"
-      :inline="true"
-      :model="baseForm"
-      label-width="100px"
-    >
-      <el-form-item label="" style="width: 100%">
-        <el-row :gutter="20" style="width: 100%">
+    <el-form class="padding20"
+             :inline="true"
+             :model="baseForm"
+             label-width="100px">
+      <el-form-item label=""
+                    style="width: 100%">
+        <el-row :gutter="20"
+                style="width: 100%">
           <el-col :span="4">
             <h4>可见页面</h4>
           </el-col>
@@ -29,20 +37,20 @@
             <h4>功能权限</h4>
           </el-col>
         </el-row>
-        <el-checkbox-group v-model="authPages" style="width: 100%">
+        <el-checkbox-group v-model="authPages"
+                           style="width: 100%">
           <div v-for="item in menuList">
-            <el-row :gutter="20" style="width: 100%">
+            <el-row :gutter="20"
+                    style="width: 100%">
               <el-col :span="4">
-                <el-checkbox :label="item.id" :disabled="!edit"
-                  >{{ item.name }}
+                <el-checkbox :label="item.id"
+                             :disabled="!edit">{{ item.name }}
                 </el-checkbox>
               </el-col>
               <el-col :span="20">
-                <el-checkbox
-                  v-for="item in authData[item.path]"
-                  :label="item.id"
-                  :disabled="!edit"
-                >
+                <el-checkbox v-for="item in authData[item.path]"
+                             :label="item.id"
+                             :disabled="!edit">
                   {{ item.name }}
                 </el-checkbox>
               </el-col>
@@ -142,7 +150,7 @@ const getRoleMenuList = async () => {
   authPages.value = data.map((item) => item.menuId);
 };
 
-function onBack() {
+function onBack () {
   router.push({ name: 'authRole' });
 }
 </script>
@@ -187,13 +195,15 @@ function onBack() {
   &__table {
     :deep .el-table {
       .el-table__header {
+        height: 46px;
         th {
-          background-color: #f0f3f8;
+          background-color: #e6ebf5;
         }
       }
 
       .cell {
         text-align: center;
+        color: #000;
       }
 
       .table-action {

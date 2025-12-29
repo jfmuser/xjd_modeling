@@ -196,7 +196,7 @@ function changeNodeStatus () {
   }
 
   &.guest {
-    color: #00c7beff;
+    color: #2a50ec;
   }
 
   &.arbiter {

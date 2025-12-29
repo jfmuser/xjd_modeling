@@ -500,13 +500,15 @@ watch(() => pager, () => { console.log(33, { pager }) }, { flush: 'post', immedi
   &__table {
     :deep .el-table {
       .el-table__header {
+        height: 46px;
         th {
-          background-color: #f0f3f8;
+          background-color: #e6ebf5;
         }
       }
 
       .cell {
         text-align: center;
+        color: #000;
       }
 
       .table-action {
