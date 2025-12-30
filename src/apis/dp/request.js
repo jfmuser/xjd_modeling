@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
 // 不做任何处理，只做最简单的请求
 const instance = axios.create({
     baseURL: '/js/a',
@@ -13,9 +12,6 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-      const route =useRoute()
-      const router =useRouter()
-      console.log({config,lcoation:window.location,route,router})
         const search = window.location.search||window.location.hash.split('?')?.[1];
         console.log("window url is: "+search)
         if(search){
