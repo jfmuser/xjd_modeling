@@ -285,8 +285,10 @@ watch(() => pager, () => { console.log(33, { pager }) }, { flush: 'post', immedi
     <div v-if="showPagination"
          class="table-container__pagination">
       <el-pagination v-model:current-page="pager.page"
+                     size="small"
                      :page-size="pager.size"
                      :total="pager.total"
+                     background
                      layout="total, prev, pager, next"
                      @current-change="onPageChange"></el-pagination>
     </div>
