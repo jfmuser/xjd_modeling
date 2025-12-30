@@ -934,7 +934,7 @@ console.log({tableNameOptions})
     const dom = Array.from(
       document.querySelectorAll('.graph-area .graph-node-wrapper'),
     ).find((dom) => dom.innerText === operator.name_zh);
-    dom.style.borderBottom = '6px solid #0068fa';
+    dom.style.borderBottom = '6px solid #2a50ec';
     console.log('vitalParamList.value', vitalParamList.value);
     vitalParamList.value = formatJsonValue(vitalParamList.value);
     hostVitalParamList.value = formatJsonValue(hostVitalParamList.value);

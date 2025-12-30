@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 
 const gitRevisionPlugin = new GitRevisionPlugin();
 // const pzPath = 'http://112.74.40.78:5606'
+const ltFateboardUi = '112.74.40.78:5605'
 // const pzPath = 'http://119.23.69.219:3071'
 const pzPath ='http://112.74.40.78:5600'
 // https://vitejs.dev/config/
@@ -292,6 +293,13 @@ export default ({ mode }) => {
           target: 'http://1.fateboard.test.pcp.convcloud.cn:18082',
           // 'http://192.168.50.202:8053',
           changeOrigin: true,
+        },
+        '/fateboard-ui/websocket': {
+           target:`ws://${ltFateboardUi}`,
+           changeOrigin: true,
+            ws: true,
+            rewrite: (path) => path.replace('/fateboard-ui/websocket', '/websocket'),
+            
         },
         '/yinyu/api/': {
           target: 'http://100.112.107.112:8088',

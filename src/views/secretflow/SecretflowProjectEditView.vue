@@ -248,7 +248,7 @@ onMounted(async () => {
     );
     dom.forEach((dom) => {
       if (paramsKey.some((key) => dom.innerHTML.includes(key))) {
-        dom.style.borderBottom = '6px solid #0068fa';
+        dom.style.borderBottom = '6px solid #2a50ec';
       }
     });
     if (dom.length !== 0) {

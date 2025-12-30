@@ -461,7 +461,7 @@ export function register() {
 
 async function registerNode() {
   let x = 82;
-  let y = 50;
+  let y = 45;
   const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
     algorithmVersionList: [],
   };
