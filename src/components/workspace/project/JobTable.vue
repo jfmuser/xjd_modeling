@@ -107,7 +107,7 @@ async function fetchTableData (page) {
     // },
     // );
     // const { records, current, size, total } = response;
-    state.tableData = res.data;
+    state.tableData = res?.data || [];
     pager.size = 10;//size;
     pager.page = 1;//current;
     pager.total = project?.jobIds?.length || 0 //total;

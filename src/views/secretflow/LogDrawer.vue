@@ -94,9 +94,9 @@ onMounted(getLog);
 
 <style lang="scss">
 .log-drawer {
-  width: calc(100% - 1020px) !important;
+  width: calc(100% - 320px) !important;
   // width: calc(100% - 2.03125rem) !important;
-  margin-left: 520px;
+  margin-left: 320px;
   .el-drawer__body {
     padding: 20px 0;
   }

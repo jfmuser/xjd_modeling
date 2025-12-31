@@ -15,17 +15,15 @@ const state = reactive({
 
 const isAlgorithmLib = computed(() => state.activeTab === 1);
 
-function onTabChange(tab) {
+function onTabChange (tab) {
   state.activeTab = tab.value;
 }
 </script>
 
 <template>
-  <TabContainer
-    :options="state.tabs"
-    :activeValue="state.activeTab"
-    @change="onTabChange"
-  >
+  <TabContainer :options="state.tabs"
+                :activeValue="state.activeTab"
+                @change="onTabChange">
     <AlgorithmLibListView v-if="isAlgorithmLib" />
     <AlgorithmListView v-else />
   </TabContainer>
@@ -33,7 +31,7 @@ function onTabChange(tab) {
 
 <style scoped lang="scss">
 .tab-container {
-  padding: 16px;
+  padding: 0px;
   background-color: #fff;
 }
 

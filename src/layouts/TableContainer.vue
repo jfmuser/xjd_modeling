@@ -502,7 +502,7 @@ watch(() => pager, () => { console.log(33, { pager }) }, { flush: 'post', immedi
   &__table {
     :deep .el-table {
       .el-table__header {
-        height: 46px;
+        height: 47px;
         th {
           background-color: #e6ebf5;
         }

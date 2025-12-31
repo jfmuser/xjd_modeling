@@ -27,7 +27,7 @@ const {
 } = useAlgorithmParam();
 const emit = defineEmits(['close']);
 const state = reactive({ loading: false, data: {} });
-const props = defineProps({ operator: { type: Object, required: true }, info: { type: Object, required: true } });
+const props = defineProps({ operator: { type: Object, required: true }, info: { type: Object, required: true }, currentNode: { type: Object, required: true }, graph: { type: Object, required: true } });
 const route = useRoute()
 const selectedParamVersion = reactive({});
 const projectInfo = ref({})
@@ -65,6 +65,17 @@ watchEffect(handleVitalParamList)
 
 function handleClose () {
   emit('close');
+}
+
+function deleteNode () {
+  if (props.currentNode.id) {
+    console.log(props.graph, '画布实例');
+    //    获取所有连接到该节点的边
+    const edges = props.graph.getConnectedEdges(props.currentNode);
+    // 删除节点和所有关联边
+    props.graph.removeCells([props.currentNode, ...edges]);
+    handleClose();
+  }
 }
 const changeValues = ref([]);
 const staticParams = ref([]);
@@ -241,6 +252,10 @@ function isShow (dataList, roleType) {
     </template>
     <template #footer>
       <div style="flex: auto">
+        <el-button type="primary"
+                   @click="deleteNode">
+          删除
+        </el-button>
         <el-button type="primary"
                    @click="onSaveNode(props.operator, handleClose, hostVitalParamListObj)">
           保存

@@ -52,7 +52,7 @@ onMounted(() => {
   fetchTableData(1);
 });
 
-async function fetchTableData(page) {
+async function fetchTableData (page) {
   try {
     state.loading = true;
     const pager = TableContainerRef.value.pager;
@@ -72,7 +72,7 @@ async function fetchTableData(page) {
       if (!secretflowStore.nodeDetail) {
         const data = await listComponents()
         data.secretflow.comps.forEach(item => {
-          allArr.push({ app:'secretflow', name: item.name, domain: item.domain })
+          allArr.push({ app: 'secretflow', name: item.name, domain: item.domain })
         })
         await secretflowStore.getNodeDetail(allArr)
         await secretflowStore.getSecretflowI18n()
@@ -100,34 +100,34 @@ async function fetchTableData(page) {
   }
 }
 
-function onPageChange(page) {
+function onPageChange (page) {
   fetchTableData(page);
 }
 
-function onSearch(reset = false) {
+function onSearch (reset = false) {
   if (reset) {
     state.search = {};
   }
   fetchTableData(1);
 }
 
-function onAdd() {
+function onAdd () {
   CreateAlgorithmLibraryDialogRef.value.show();
 }
 
-function onImport() {
+function onImport () {
   ImportAlgorithmLibraryDialogRef.value.show();
 }
 
-function onBindAlgorithm(data) {
+function onBindAlgorithm (data) {
   BindAlgorithmDialogRef.value.show(data);
 }
 
-function onAfter() {
+function onAfter () {
   fetchTableData(1);
 }
 
-function onEdit(row) {
+function onEdit (row) {
   // router.push({
   //   name: route.name,
   //   query: {
@@ -139,7 +139,7 @@ function onEdit(row) {
   CreateAlgorithmLibraryDialogRef.value.show(row);
 }
 
-async function onCopy(data) {
+async function onCopy (data) {
   try {
     state.loading = true;
     await copyAlgorithmLib(data.id);
@@ -154,7 +154,7 @@ async function onCopy(data) {
   }
 }
 
-async function onPublish(data) {
+async function onPublish (data) {
   try {
     state.loading = true;
     await publish(data.id);
@@ -167,7 +167,7 @@ async function onPublish(data) {
   }
 }
 
-async function onDelete(data) {
+async function onDelete (data) {
   const confirm = await ElMessageBox.confirm(
     '此操作将永久删除, 是否继续?',
     '提示',
@@ -194,7 +194,7 @@ async function onDelete(data) {
   }
 }
 
-async function unbind(row) {
+async function unbind (row) {
   const confirm = await ElMessageBox.confirm(
     '此操作会将该算法移出算法库, 是否继续?',
     '提示',
@@ -221,21 +221,34 @@ async function unbind(row) {
   }
 }
 
-async function load(row, treeNode, resolve) { }
+async function load (row, treeNode, resolve) { }
 </script>
 
 <template>
-  <TableContainer ref="TableContainerRef" class="table-container__table" loading="state.loading" title="算法库列表"
-    :showImport="state.canEdit" :showAdd="state.canEdit" @search="onSearch" @page-change="onPageChange" @add="onAdd"
-    @import="onImport">
+  <TableContainer ref="TableContainerRef"
+                  class="table-container__table"
+                  loading="state.loading"
+                  title="算法库列表"
+                  :showImport="state.canEdit"
+                  :showAdd="state.canEdit"
+                  @search="onSearch"
+                  @page-change="onPageChange"
+                  @add="onAdd"
+                  @import="onImport">
     <template #filter>
       <FilterItem>
-        <el-input v-model.trim="state.search.name" placeholder="算法库名称" style="width: 276px" />
+        <el-input v-model.trim="state.search.name"
+                  placeholder="算法库名称"
+                  style="width: 276px" />
       </FilterItem>
     </template>
 
-    <el-table :data="state.tableData" row-key="id" :tree-props="{ children: 'algorithmVersionList' }">
-      <el-table-column label="算法(库)名称" prop="labelName" width="400px">
+    <el-table :data="state.tableData"
+              row-key="id"
+              :tree-props="{ children: 'algorithmVersionList' }">
+      <el-table-column label="算法(库)名称"
+                       prop="labelName"
+                       width="300px">
         <template #default="{ row }">
           <template v-if="algAndLibType.isLib(row.type)">
             {{ row.labelName }}
@@ -243,7 +256,9 @@ async function load(row, treeNode, resolve) { }
           <template v-else>{{ row.labelName }}({{ row.name }})</template>
         </template>
       </el-table-column>
-      <el-table-column label="版本号" prop="outerVerNo" width="200px">
+      <el-table-column label="版本号"
+                       prop="outerVerNo"
+                       width="100px">
         <template #default="{ row }">
           <template v-if="algAndLibType.isLib(row.type) || row.type === 'secretflow'">
             {{ row.outerVerNo }}
@@ -251,43 +266,68 @@ async function load(row, treeNode, resolve) { }
           <template v-else>{{ row.algorithmVersion }}</template>
         </template>
       </el-table-column>
-      <el-table-column label="发布状态" width="200px">
+      <el-table-column label="发布状态"
+                       width="200px">
         <template #default="{ row }">
           <template v-if="algAndLibType.isLib(row.type) || row.type === 'secretflow'">
             {{ AlgorithmLibPublishType.getLabel(row.publishState) }}
             <el-button v-show="AlgorithmLibPublishType.canEdit(row.publishState) &&
               state.canEdit
-              " type="primary" @click="onPublish(row)">
+              "
+                       type="primary"
+                       @click="onPublish(row)">
               发布
             </el-button>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="算法类型" prop="category" width="200px">
+      <el-table-column label="算法类型"
+                       prop="category"
+                       width="200px">
         <template #default="{ row }">{{ AlgorithmCategory.getLabel(row.category) || row.category }}
         </template>
       </el-table-column>
 
-      <el-table-column label="版本描述" prop="description" show-overflow-tooltip>
+      <el-table-column label="版本描述"
+                       prop="description"
+                       show-overflow-tooltip>
         <template #default="{ row }">{{ row.description || '-' }}</template>
       </el-table-column>
-      <el-table-column v-if="state.canEdit" label="操作" width="260px" fixed="right">
+      <el-table-column v-if="state.canEdit"
+                       label="操作"
+                       width="260px"
+                       fixed="right">
         <template #default="{ row }">
-          <el-link v-show="algAndLibType.isLib(row.type)" type="primary" :underline="false" @click="onCopy(row)">复制
+          <el-link v-show="algAndLibType.isLib(row.type)"
+                   type="primary"
+                   :underline="false"
+                   @click="onCopy(row)">复制
           </el-link>
-          <el-divider v-show="algAndLibType.isLib(row.type)" direction="vertical" />
-          <el-link v-show="algAndLibType.isLib(row.type)" type="primary" :underline="false"
-            :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)" @click="onEdit(row)">编辑
+          <el-divider v-show="algAndLibType.isLib(row.type)"
+                      direction="vertical" />
+          <el-link v-show="algAndLibType.isLib(row.type)"
+                   type="primary"
+                   :underline="false"
+                   :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)"
+                   @click="onEdit(row)">编辑
           </el-link>
-          <el-divider v-show="algAndLibType.isLib(row.type)" direction="vertical" />
-          <el-link v-show="algAndLibType.isLib(row.type)" type="primary" :underline="false"
-            :disabled="!AlgorithmLibPublishType.canDel(row.publishState)" @click="onDelete(row)">删除
+          <el-divider v-show="algAndLibType.isLib(row.type)"
+                      direction="vertical" />
+          <el-link v-show="algAndLibType.isLib(row.type)"
+                   type="primary"
+                   :underline="false"
+                   :disabled="!AlgorithmLibPublishType.canDel(row.publishState)"
+                   @click="onDelete(row)">删除
           </el-link>
-          <el-link v-show="!algAndLibType.isLib(row.type) && row.type !== 'secretflow'" type="primary" :underline="false"
-            :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)" @click="unbind(row)">解绑
+          <el-link v-show="!algAndLibType.isLib(row.type) && row.type !== 'secretflow'"
+                   type="primary"
+                   :underline="false"
+                   :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)"
+                   @click="unbind(row)">解绑
           </el-link>
-          <el-divider v-show="algAndLibType.isLib(row.type)" direction="vertical" />
+          <el-divider v-show="algAndLibType.isLib(row.type)"
+                      direction="vertical" />
 
           <!--          <el-link-->
           <!--            v-show="algAndLibType.isLib(row.type)"-->
@@ -301,17 +341,22 @@ async function load(row, treeNode, resolve) { }
           <!--            v-show="algAndLibType.isLib(row.type)"-->
           <!--            direction="vertical"-->
           <!--          />-->
-          <el-link v-show="algAndLibType.isLib(row.type)" type="primary" :underline="false"
-            :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)"
-            @click="onBindAlgorithm(row)">绑定算法
+          <el-link v-show="algAndLibType.isLib(row.type)"
+                   type="primary"
+                   :underline="false"
+                   :disabled="!userInfo.id === '1' && !AlgorithmLibPublishType.canEdit(row.publishState)"
+                   @click="onBindAlgorithm(row)">绑定算法
           </el-link>
         </template>
       </el-table-column>
     </el-table>
   </TableContainer>
-  <CreateAlgorithmLibraryDialog ref="CreateAlgorithmLibraryDialogRef" @done="onAfter" />
-  <ImportAlgorithmLibraryDialog ref="ImportAlgorithmLibraryDialogRef" @done="onAfter" />
-  <BindAlgorithmDialog ref="BindAlgorithmDialogRef" @done="onAfter" />
+  <CreateAlgorithmLibraryDialog ref="CreateAlgorithmLibraryDialogRef"
+                                @done="onAfter" />
+  <ImportAlgorithmLibraryDialog ref="ImportAlgorithmLibraryDialogRef"
+                                @done="onAfter" />
+  <BindAlgorithmDialog ref="BindAlgorithmDialogRef"
+                       @done="onAfter" />
 </template>
 
 <style scoped lang="scss">

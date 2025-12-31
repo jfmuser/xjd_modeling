@@ -64,6 +64,9 @@ const state = reactive({
   newJobId: '',
 });
 let timerId = null;
+const graph = ref(null)
+//当前被点击的node实例
+const currentNode = ref(null);
 const paramDrawer = reactive({ visible: false });
 const resultDrawer = reactive({ visible: false });
 const { toggle: toggleFullScreen } = useFullscreen(GraphViewerRef);
@@ -189,6 +192,8 @@ onMounted(async () => {
 function onClickNode (item) {
   if (item.node.port.ports.length == 0) return;
   console.log('item>>>', item);
+  currentNode.value = item.node;
+  graph.value = GraphViewerRef.value?.getGraph();
   if (state.editable) {
     paramDrawer.visible = true;
     paramDrawer.operator = item.node.store.data.data;
@@ -647,7 +652,9 @@ onBeforeUnmount(() => {
   <C2Transition>
     <AlgorithmParamDrawer v-if="paramDrawer.visible"
                           :operator="paramDrawer.operator"
-                          @close="onCloseParamDrawer" />
+                          @close="onCloseParamDrawer"
+                          :graph="graph"
+                          :currentNode="currentNode" />
   </C2Transition>
   <C2Transition>
     <ResultDrawer v-if="resultDrawer.visible"

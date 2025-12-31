@@ -12,7 +12,7 @@ import useSiteStore from '../../stores/dept/site.store';
 import dictionary from '../../utils/dictionary';
 import { ElMessage } from 'element-plus';
 import { getStatus } from '@/apis/secretflow/secretflow.api.js';
-
+import { useRoute } from 'vue-router';
 const siteStore = useSiteStore();
 
 const secretflowStore = useSecretflowStore();
@@ -55,7 +55,7 @@ export default {
     const i18n = inject(I18N);
     const ContainerRef = ref();
     let graph;
-
+    const route = useRoute()
     expose({
       addNode,
       getNodes,
@@ -289,12 +289,15 @@ export default {
         }
       }
       const projectInfo = JSON.parse(localStorage.getItem('projectInfo'));
+      let res
       try {
-        const res = await getStatus({
+        if (route.query.type == '0') return
+        res = await getStatus({
           graphId: projectInfo.graphId,
           projectId: projectInfo.projectId,
         });
-        localStorage.setItem('nodeStatusInfo', JSON.stringify(res.nodes));
+
+        localStorage.setItem('nodeStatusInfo', JSON.stringify(res?.nodes));
       } catch (error) {
         console.log(error, '获取节点状态失败');
       }
@@ -477,6 +480,7 @@ export default {
       };
 
       graph.on('node:mouseenter', (args) => {
+        if (route.query.type == '0') return
         console.log(args, 'ARGSargs');
         console.log(localStorage.getItem('graphInfo'), '>>>>>>node:mouseenter');
 

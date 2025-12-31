@@ -982,7 +982,7 @@ const onCheckResult = async (node) => {
                      @add-node="onAddNode"
                      @check-result="onCheckResult" />
         <div class="log-container"
-             v-if="logDrawer.visible">
+             v-if="!logDrawer1.visible">
           <div>平台日志</div>
           <el-icon @click="
               logDrawer1.visible = true;
