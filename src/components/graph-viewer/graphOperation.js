@@ -424,6 +424,7 @@ import {
   inEffectAlgorithmParams,
   getInEffectLibAndAlgList,
 } from '../../apis/workspace/algorithm.api';
+import useAlgorithmStore from '@/stores/algorithm.store'
 
 const nodeWidth = 266;
 const nodeHeight = 50;
@@ -462,17 +463,24 @@ export function register() {
 async function registerNode() {
   let x = 82;
   let y = 45;
-  const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
-    algorithmVersionList: [],
-  };
+  const algorithmStore = useAlgorithmStore()
+  // const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
+  //   algorithmVersionList: [],
+  // };
+  console.log('算法请求了')
+   await algorithmStore.fetchAlgorithmAllList()
+  const algorithmVersionList =  algorithmStore.getAlgorithmAllList
   console.log(algorithmVersionList, '>>>>>algorithmVersionList');
   algorithmList = algorithmVersionList;
+  let algorithmObj = {}
   algorithmVersionList.forEach((item) => {
+      algorithmObj = {...algorithmObj, [item.name]:item}
     // customNodeTypeList.push(item.name)
     // customNodeTypeList.push({ name: item.labelName, algName: item.name })
     if (item.platform == 0) {
       customNodeTypeList.push(item.name);
     }
+    
   });
   customNodeTypeList.forEach(async (item) => {
     const customNodeType = {};
@@ -812,7 +820,7 @@ async function registerNode() {
         height: nodeHeight,
         component: {
           render: () => {
-            return h(GraphNode);
+            return h(GraphNode,{ info:algorithmObj[item]});
           },
         },
         ports: {

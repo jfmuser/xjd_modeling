@@ -5,6 +5,7 @@ import { GET_GRAPH } from '../../utils/key';
 import { getSecretflowGraphNodeShape } from './secretflowGraphOperation';
 import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
 import { graphNodeList } from './secretflowGraphOperation';
+import useAlgorithmStore from '@/stores/algorithm.store'
 
 export default {
   name: 'GraphMenu',
@@ -26,6 +27,7 @@ export default {
     let stencil;
     const StencilRef = ref();
     const getGraph = inject(GET_GRAPH);
+    const algorithmStore = useAlgorithmStore()
     watch(
       () => props.groups,
       () => {
@@ -42,8 +44,9 @@ export default {
     }
 
     async function render () {
-      const { algorithmVersionList } = await getInEffectLibAndAlgList();
-
+      // const { algorithmVersionList } = await getInEffectLibAndAlgList();
+      const algorithmVersionList = algorithmStore.getAlgorithmAllList
+      console.log(123, { algorithmVersionList })
       const graph = getGraph();
       stencil = new Addon.Stencil({
         title: '联邦算子',

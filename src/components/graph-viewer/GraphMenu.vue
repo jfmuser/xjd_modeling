@@ -84,7 +84,7 @@ export default {
       props.menus.forEach((item) => {
         const nodes = item.operators.map((item) => {
           console.log(item, '初始化');
-          return graph.createNode({
+          return graph?.createNode({
             // shape: getGraphNodeShape(item.module),
             shape: getGraphNodeShape(item.name),
 

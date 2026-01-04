@@ -1,15 +1,19 @@
 import { I18N } from '../utils/key';
 import dictionary from '../utils/dictionary';
 import { inEffectAlgorithmParams, getInEffectLibAndAlgList } from '../apis/workspace/algorithm.api'
+import useAlgorithmStore from '@/stores/algorithm.store'
 
 let graphName = {}
 let timer = null
 async function getGraph() {
+  const algorithmStore = useAlgorithmStore()
   if (!localStorage.getItem('token') || localStorage.getItem('token') === 'undefined' || location.href.split('/#/')[1] === 'home') return
   // const { algorithmVersionList } = await getInEffectLibAndAlgList()
-  const algorithmList = await getInEffectLibAndAlgList()
-  if (!algorithmList) return
-  const { algorithmVersionList } = algorithmList
+  // const algorithmList = await getInEffectLibAndAlgList()
+   const algorithmVersionList =  algorithmStore.getAlgorithmAllList
+  console.log('算法请求',{algorithmVersionList})
+  if (!algorithmVersionList) return
+  // const { algorithmVersionList } = algorithmList
   algorithmVersionList.forEach(async (item) => {
     const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item.name)
     const inputDataDsl = tAlgorithmParamVersions[0].param_dsl.input.data

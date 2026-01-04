@@ -40,6 +40,7 @@ import { ElMessage } from 'element-plus';
 import { refreshDatas } from '../../apis/dp/api';
 import LogDrawer from './LogDrawer.vue';
 import { graphNodeList } from '../../components/secretflow/secretflowGraphOperation';
+import useAlgorithmStore from '@/stores/algorithm.store'
 
 const route = useRoute();
 const secretflwoStore = useSecretflowStore();
@@ -131,7 +132,10 @@ async function getOperators () {
   try {
     const temporary = [];
     state.loading = true;
-    const { algorithmVersionList } = await getInEffectLibAndAlgList();
+    // const { algorithmVersionList } = await getInEffectLibAndAlgList();
+    const algorithmStore = useAlgorithmStore()
+    const algorithmVersionList = algorithmStore.getAlgorithmAllList
+    console.log('operator', { algorithmVersionList })
     const response = await listComponents();
     console.log(response.secretflow.comps, 'response.secretflow.comps');
     // state.operators = response.secretflow.comps.filter(comp => {

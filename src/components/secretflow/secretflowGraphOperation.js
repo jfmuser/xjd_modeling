@@ -5,6 +5,7 @@ import GraphNode from '../graph-viewer/GraphNode.vue';
 import { listComponents } from '../../apis/secretflow/secretflow.api';
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
 import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
+import useAlgorithmStore from '@/stores/algorithm.store'
 import { ElMessage } from 'element-plus';
 const secretflowStore = useSecretflowStore();
 
@@ -58,11 +59,13 @@ async function registerSecretflowNode() {
 
     // 并行执行数据请求
     const dataPromise = listComponents();
-    const algorithmPromise = getInEffectLibAndAlgList();
-
+    const algorithmStore = useAlgorithmStore()
+    // const algorithmPromise = getInEffectLibAndAlgList();
+  console.log('secretflow算法请求了')
     const data = await dataPromise;
-    const algorithmData = await algorithmPromise;
-
+    await algorithmStore.fetchAlgorithmAllList()
+    // const algorithmData = await algorithmPromise;
+ const algorithmVersionList =  algorithmStore.getAlgorithmAllList
     // 使用Promise.race实现超时控制
     // const [data, algorithmData] = await Promise.race([
     //   Promise.all([dataPromise, algorithmPromise]),
@@ -74,7 +77,9 @@ async function registerSecretflowNode() {
     data.secretflow.comps.forEach((item) => {
       yl_comp[item.name] = item;
     });
-    algorithmData.algorithmVersionList.forEach((item) => {
+    let algorithmObj = {}
+    algorithmVersionList.forEach((item) => {
+       algorithmObj = {...algorithmObj, [item.name]:item}
       if (yl_comp[item.module]) {
         yyCustomNodeTypeList.push({
           app: 'secretflow',
@@ -84,7 +89,7 @@ async function registerSecretflowNode() {
       }
     });
 
-    customNodeTypeList = algorithmData.algorithmVersionList;
+    customNodeTypeList = algorithmVersionList;
     await secretflowStore.getNodeDetail(yyCustomNodeTypeList);
 
     // 标记数据已加载
@@ -275,7 +280,7 @@ async function registerSecretflowNode() {
           height: nodeHeight,
           component: {
             render: () => {
-              return h(GraphNode);
+              return h(GraphNode,{ info:algorithmObj[item]});
             },
           },
           ports: {
