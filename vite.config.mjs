@@ -13,9 +13,9 @@ import { fileURLToPath } from 'url';
 
 const gitRevisionPlugin = new GitRevisionPlugin();
 // const ltFateboardUi = '119.23.69.219:3071'
-const ltFateboardUi = '100.98.66.54:8096'
+const ltFateboardUi = '112.74.40.78:5600' //'100.98.66.54:8096'
 // const pzPath = 'http://119.23.69.219:3071'
-const pzPath ='http://100.98.66.54:8096'
+const pzPath ='http://112.74.40.78:5600'
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   const {

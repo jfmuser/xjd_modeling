@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { ElLoading, ElMessage } from 'element-plus';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref,toRaw } from 'vue';
 import {
   getOtherDataNamespaceList,
   getSelfDataNamespaceList,
@@ -42,6 +42,7 @@ import useGraph from '../hooks/useGraph';
 import { getAuthData } from '../apis/manager/managerApi';
 import { getSelectAlgorithmParams } from '../apis/manager/managerApi';
 import * as Base64 from 'js-base64';
+import useAlgorithmStore from '@/stores/algorithm.store'
 
 export default function useAlgorithmParam() {
   // 项目信息
@@ -57,7 +58,7 @@ export default function useAlgorithmParam() {
   const hostVitalParamListObj = ref({});
   // 来观看全部参数是否有改变
   const changeHostVitelParamList = ref(true);
-
+const algorithmStore = useAlgorithmStore()
   const changeValues = ref([]);
   const staticParams = ref([]);
   //全部参数
@@ -130,8 +131,10 @@ const allTableList = ref([])
     console.log('projectParams>>>>', JSON.parse(JSON.stringify(projectParams)));
 
     // 获取当前算法的默认参数
-    const response = await inEffectAlgorithmParams(operatorType);
-    paramVersionList.value = response.tAlgorithmParamVersions;
+    // const response = await inEffectAlgorithmParams(operatorType);
+    const getAlgorithmParams = toRaw(algorithmStore.getAlgorithmParams);
+
+    paramVersionList.value =  getAlgorithmParams[operatorType]//response.tAlgorithmParamVersions;
     console.log(
       'paramVersionList1::',
       JSON.parse(JSON.stringify(paramVersionList.value)),

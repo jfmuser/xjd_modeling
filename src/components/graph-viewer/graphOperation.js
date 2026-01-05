@@ -416,7 +416,7 @@
 //   });
 // }
 
-import { h } from 'vue';
+import { h ,toRaw} from 'vue';
 import { Graph } from '@antv/x6';
 import '@antv/x6-vue-shape';
 import GraphNode from './GraphNode.vue';
@@ -425,7 +425,6 @@ import {
   getInEffectLibAndAlgList,
 } from '../../apis/workspace/algorithm.api';
 import useAlgorithmStore from '@/stores/algorithm.store'
-
 const nodeWidth = 266;
 const nodeHeight = 50;
 const color = {
@@ -467,8 +466,7 @@ async function registerNode() {
   // const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
   //   algorithmVersionList: [],
   // };
-  console.log('算法请求了')
-   await algorithmStore.fetchAlgorithmAllList()
+  await algorithmStore.fetchAlgorithmAllList(0)
   const algorithmVersionList =  algorithmStore.getAlgorithmAllList
   console.log(algorithmVersionList, '>>>>>algorithmVersionList');
   algorithmList = algorithmVersionList;
@@ -482,10 +480,13 @@ async function registerNode() {
     }
     
   });
+  await algorithmStore.fetchAlgorithmParams(0);
+  const getAlgorithmParams = toRaw(algorithmStore.getAlgorithmParams);
   customNodeTypeList.forEach(async (item) => {
     const customNodeType = {};
     const items = [];
-    const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item);
+    // const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item);
+    const tAlgorithmParamVersions = getAlgorithmParams[item]
     if (
       !tAlgorithmParamVersions[0].param_dsl ||
       tAlgorithmParamVersions[0].param_dsl === ''

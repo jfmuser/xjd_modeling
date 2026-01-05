@@ -11,11 +11,12 @@ async function getGraph() {
   // const { algorithmVersionList } = await getInEffectLibAndAlgList()
   // const algorithmList = await getInEffectLibAndAlgList()
    const algorithmVersionList =  algorithmStore.getAlgorithmAllList
-  console.log('算法请求',{algorithmVersionList})
+   const getAlgorithmParams = algorithmStore.getAlgorithmParams
+  console.log('算法请求',{algorithmVersionList,getAlgorithmParams})
   if (!algorithmVersionList) return
   // const { algorithmVersionList } = algorithmList
   algorithmVersionList.forEach(async (item) => {
-    const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item.name)
+    const  tAlgorithmParamVersions  = getAlgorithmParams[item.name]//await inEffectAlgorithmParams(item.name)
     const inputDataDsl = tAlgorithmParamVersions[0].param_dsl.input.data
     const inputModelDsl = tAlgorithmParamVersions[0].param_dsl.input.model
     const outputDataDsl = tAlgorithmParamVersions[0].param_dsl.output.data

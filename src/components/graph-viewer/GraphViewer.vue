@@ -32,17 +32,31 @@ let isDisposing = false;
 //   await secretflowRegister();
 // }
 (async () => {
-  const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
-    (engine) => engine.engine == '0',
-  );
-
-  if (hasEngine0) {
-    await register();
+  const params = window.location.href?.split('?')?.[1]
+  const pairs = params.split("&")
+  let type = ''
+  for (const pair of pairs) {
+    const [paramKey, paramValue] = pair.split('=');
+    if (paramKey == 'type') { type = paramValue }
   }
-  const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
-    (engine) => engine.engine == '1',
-  );
-  if (hasEngine1) {
+  // const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
+  //   (engine) => engine.engine == '0',
+  // );
+
+  // if (hasEngine0) {
+  //   await register();
+  // }
+  // const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
+  //   (engine) => engine.engine == '1',
+  // );
+  // if (hasEngine1) {
+  //   secretflowStore.getSecretflowI18n();
+  //   await secretflowRegister();
+  // }
+  // fate
+  if (type == '0') {
+    await register();
+  } else {
     secretflowStore.getSecretflowI18n();
     await secretflowRegister();
   }
