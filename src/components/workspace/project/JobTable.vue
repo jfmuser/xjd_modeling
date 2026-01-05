@@ -107,9 +107,9 @@ async function fetchTableData (page) {
     // },
     // );
     // const { records, current, size, total } = response;
-    state.tableData = res?.data || [];
+    state.tableData = res?.data?.slice((currentPage - 1) * 10, currentPage * 10) || [];
     pager.size = 10;//size;
-    pager.page = 1;//current;
+    pager.page = currentPage;
     pager.total = project?.jobIds?.length || 0 //total;
     needRun = state?.tableData?.some?.((item) => {
       return Status.isRunning(item.status);
