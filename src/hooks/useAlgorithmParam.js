@@ -88,10 +88,10 @@ const allTableList = ref([])
   });
 
   // 获取生效中得算法列表
-  async function getInEffectAlgorithmList() {
-    algorithmList.value = await inEffectAlgorithmList();
-    console.log(algorithmList.value, 999);
-  }
+  // async function getInEffectAlgorithmList() {
+  //   algorithmList.value = await inEffectAlgorithmList();
+  //   console.log(algorithmList.value, 999);
+  // }
 
   // 获取当前项目的算法参数
   async function getProjectAlgorithmParams(projectId) {
@@ -132,9 +132,9 @@ const allTableList = ref([])
 
     // 获取当前算法的默认参数
     // const response = await inEffectAlgorithmParams(operatorType);
-    const getAlgorithmParams = toRaw(algorithmStore.getAlgorithmParams);
+    const getAlgorithmParams = algorithmStore.getAlgorithmParams;
 
-    paramVersionList.value =  getAlgorithmParams[operatorType]//response.tAlgorithmParamVersions;
+    paramVersionList.value =  getAlgorithmParams(operatorType).tAlgorithmParamVersions ||[]//response.tAlgorithmParamVersions;
     console.log(
       'paramVersionList1::',
       JSON.parse(JSON.stringify(paramVersionList.value)),
@@ -1056,7 +1056,9 @@ console.log({tableNameOptions})
     console.log('edges>>', edges);
     console.log('nodes>>', nodes);
     // 把所有算子获取到
-    await getInEffectAlgorithmList();
+    // await getInEffectAlgorithmList();
+    const algorithmStore = useAlgorithmStore()
+     algorithmList.value = algorithmStore.getAlgorithmParamsList
     console.log('algorithmList>>', algorithmList.value);
     const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
     //筛选掉没有node.component_name的节点
@@ -1074,7 +1076,7 @@ console.log({tableNameOptions})
           operator.name === node.algorithm_name,
       );
       // res['componentName'] = node.label ? node.label : node.component_name;
-      console.log(res);
+      console.log({res,algorithmList,node});
       console.log(JSON.stringify(node), '是啥阿');
       res['componentName'] = node.label ? node.label : node.component_name;
       // res['componentName'] = node.component_name + node.label.slice(-2);
@@ -1128,6 +1130,8 @@ console.log({tableNameOptions})
 
   async function onSaveDsl(info, nodes, edges) {
     console.log(edges, nodes, 'GGBO');
+    const algorithmStore = useAlgorithmStore()
+     const getAlgorithmParams = algorithmStore.getAlgorithmParams
     for (let i = 0; i < nodes.length; i++) {
       let data = null;
       //如果是背景的节点则不做处理跳过该次循环
@@ -1148,16 +1152,19 @@ console.log({tableNameOptions})
           nodes[i].component_name.indexOf('_1') == -1 &&
           nodes[i].component_name.indexOf('_2') == -1
         ) {
-          data = await inEffectAlgorithmParams(nodes[i].component_name);
+          // data = await inEffectAlgorithmParams(nodes[i].component_name);
+          data = getAlgorithmParams(nodes[i].component_name)
         } else {
-          data = await inEffectAlgorithmParams(
-            nodes[i].component_name.slice(0, -2),
-          );
+          // data = await inEffectAlgorithmParams(
+          //   nodes[i].component_name.slice(0, -2),
+          // );
+          data = getAlgorithmParams(nodes[i].component_name.slice(0, -2))
         }
       } else {
         console.log(nodes[i].type, 'TTYYPPEE');
 
-        data = await inEffectAlgorithmParams(nodes[i].type);
+        // data = await inEffectAlgorithmParams(nodes[i].type);
+        data = getAlgorithmParams(nodes[i].type)
       }
       const versionId = JSON.parse(
         sessionStorage.getItem('projectParamsVersion'),

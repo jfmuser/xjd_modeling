@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --host --mode development",
     "build": "vite build",
+    "build_deploy": "vite build && python upload.py",
     "preview": "vite preview",
     "prepare": "husky install",
     "test": "jest"

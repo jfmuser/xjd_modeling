@@ -16,7 +16,7 @@ async function getGraph() {
   if (!algorithmVersionList) return
   // const { algorithmVersionList } = algorithmList
   algorithmVersionList.forEach(async (item) => {
-    const  tAlgorithmParamVersions  = getAlgorithmParams[item.name]//await inEffectAlgorithmParams(item.name)
+    const  { tAlgorithmParamVersions }  = getAlgorithmParams(item.name)//await inEffectAlgorithmParams(item.name)
     const inputDataDsl = tAlgorithmParamVersions[0].param_dsl.input.data
     const inputModelDsl = tAlgorithmParamVersions[0].param_dsl.input.model
     const outputDataDsl = tAlgorithmParamVersions[0].param_dsl.output.data

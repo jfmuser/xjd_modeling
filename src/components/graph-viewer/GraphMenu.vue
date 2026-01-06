@@ -43,6 +43,7 @@ export default {
 
     async function render () {
       const graph = getGraph();
+      if (!graph) return;
       stencil = new Addon.Stencil({
         title: '联邦算子',
         // 目标画布

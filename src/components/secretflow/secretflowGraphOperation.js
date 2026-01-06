@@ -61,12 +61,11 @@ async function registerSecretflowNode() {
     const dataPromise = listComponents();
     const algorithmStore = useAlgorithmStore()
     // const algorithmPromise = getInEffectLibAndAlgList();
-  console.log('secretflow算法请求了')
     const data = await dataPromise;
-    await algorithmStore.fetchAlgorithmAllList(1)
-    await algorithmStore.fetchAlgorithmParams(1)
+    const algorithmVersionList  = await algorithmStore.fetchAlgorithmAllList(1)
+    await algorithmStore.fetchAlgorithmParams()
     // const algorithmData = await algorithmPromise;
- const algorithmVersionList =  algorithmStore.getAlgorithmAllList
+//  const algorithmVersionList =  algorithmStore.getAlgorithmAllList
     // 使用Promise.race实现超时控制
     // const [data, algorithmData] = await Promise.race([
     //   Promise.all([dataPromise, algorithmPromise]),

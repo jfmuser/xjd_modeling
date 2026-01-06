@@ -466,8 +466,7 @@ async function registerNode() {
   // const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
   //   algorithmVersionList: [],
   // };
-  await algorithmStore.fetchAlgorithmAllList(0)
-  const algorithmVersionList =  algorithmStore.getAlgorithmAllList
+  const algorithmVersionList = await algorithmStore.fetchAlgorithmAllList(0)
   console.log(algorithmVersionList, '>>>>>algorithmVersionList');
   algorithmList = algorithmVersionList;
   let algorithmObj = {}
@@ -480,13 +479,13 @@ async function registerNode() {
     }
     
   });
-  await algorithmStore.fetchAlgorithmParams(0);
-  const getAlgorithmParams = toRaw(algorithmStore.getAlgorithmParams);
+  await algorithmStore.fetchAlgorithmParams();
+  const getAlgorithmParams = algorithmStore.getAlgorithmParams;
   customNodeTypeList.forEach(async (item) => {
     const customNodeType = {};
     const items = [];
     // const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item);
-    const tAlgorithmParamVersions = getAlgorithmParams[item]
+    const { tAlgorithmParamVersions } = getAlgorithmParams(item)
     if (
       !tAlgorithmParamVersions[0].param_dsl ||
       tAlgorithmParamVersions[0].param_dsl === ''
