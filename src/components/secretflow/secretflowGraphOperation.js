@@ -224,6 +224,7 @@ async function registerSecretflowNode() {
               },
             },
             zIndex: 2,
+            portType: 'output',
             attrs: {
               magnet: true,
               circle: {
@@ -239,6 +240,7 @@ async function registerSecretflowNode() {
           items.push({
             group: outputNode.name,
             id: outputNode.name,
+            portType: 'output',
             desc: outputNode.desc,
           });
         });
@@ -252,6 +254,7 @@ async function registerSecretflowNode() {
             },
           },
           zIndex: 2,
+          portType: 'output',
           attrs: {
             magnet: true,
             circle: {
@@ -266,6 +269,7 @@ async function registerSecretflowNode() {
         items.push({
           group: outputPortObj[0].name,
           id: outputPortObj[0].name,
+          portType: 'output',
           desc: outputPortObj[0].desc,
         });
       }
