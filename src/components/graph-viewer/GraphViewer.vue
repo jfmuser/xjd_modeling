@@ -12,7 +12,7 @@ import useSiteStore from '../../stores/dept/site.store';
 import dictionary from '../../utils/dictionary';
 import { ElMessage } from 'element-plus';
 import { getStatus } from '@/apis/secretflow/secretflow.api.js';
-
+import { useRoute } from 'vue-router';
 const siteStore = useSiteStore();
 
 const secretflowStore = useSecretflowStore();
@@ -32,17 +32,31 @@ let isDisposing = false;
 //   await secretflowRegister();
 // }
 (async () => {
-  const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
-    (engine) => engine.engine == '0',
-  );
-
-  if (hasEngine0) {
-    await register();
+  const params = window.location.href?.split('?')?.[1]
+  const pairs = params.split("&")
+  let type = ''
+  for (const pair of pairs) {
+    const [paramKey, paramValue] = pair.split('=');
+    if (paramKey == 'type') { type = paramValue }
   }
-  const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
-    (engine) => engine.engine == '1',
-  );
-  if (hasEngine1) {
+  // const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
+  //   (engine) => engine.engine == '0',
+  // );
+
+  // if (hasEngine0) {
+  //   await register();
+  // }
+  // const hasEngine1 = siteStore?.mySite?.tDomainEngineList?.some(
+  //   (engine) => engine.engine == '1',
+  // );
+  // if (hasEngine1) {
+  //   secretflowStore.getSecretflowI18n();
+  //   await secretflowRegister();
+  // }
+  // fate
+  if (type == '0') {
+    await register();
+  } else {
     secretflowStore.getSecretflowI18n();
     await secretflowRegister();
   }
@@ -55,7 +69,7 @@ export default {
     const i18n = inject(I18N);
     const ContainerRef = ref();
     let graph;
-
+    const route = useRoute()
     expose({
       addNode,
       getNodes,
@@ -287,12 +301,15 @@ export default {
         }
       }
       const projectInfo = JSON.parse(localStorage.getItem('projectInfo'));
+      let res
       try {
-        const res = await getStatus({
+        if (route.query.type == '0') return
+        res = await getStatus({
           graphId: projectInfo.graphId,
           projectId: projectInfo.projectId,
         });
-        localStorage.setItem('nodeStatusInfo', JSON.stringify(res.nodes));
+
+        localStorage.setItem('nodeStatusInfo', JSON.stringify(res?.nodes));
       } catch (error) {
         console.log(error, '获取节点状态失败');
       }
@@ -476,6 +493,7 @@ export default {
       };
 
       graph.on('node:mouseenter', (args) => {
+        if (route.query.type == '0') return
         console.log(args, 'ARGSargs');
         console.log(localStorage.getItem('graphInfo'), '>>>>>>node:mouseenter');
 

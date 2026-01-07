@@ -4,8 +4,8 @@ export default function useGraph() {
   const GraphViewerRef = ref();
   const graph = ref();
 
-  onMounted(async () => {
-    await nextTick();
+  onMounted(() => {
+    // await nextTick();
     graph.value = GraphViewerRef.value.getGraph();
   });
 

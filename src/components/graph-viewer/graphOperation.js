@@ -416,7 +416,7 @@
 //   });
 // }
 
-import { h } from 'vue';
+import { h ,toRaw} from 'vue';
 import { Graph } from '@antv/x6';
 import '@antv/x6-vue-shape';
 import GraphNode from './GraphNode.vue';
@@ -424,7 +424,7 @@ import {
   inEffectAlgorithmParams,
   getInEffectLibAndAlgList,
 } from '../../apis/workspace/algorithm.api';
-
+import useAlgorithmStore from '@/stores/algorithm.store'
 const nodeWidth = 266;
 const nodeHeight = 50;
 const color = {
@@ -462,22 +462,30 @@ export function register() {
 async function registerNode() {
   let x = 82;
   let y = 45;
-  const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
-    algorithmVersionList: [],
-  };
+  const algorithmStore = useAlgorithmStore()
+  // const { algorithmVersionList } = (await getInEffectLibAndAlgList()) ?? {
+  //   algorithmVersionList: [],
+  // };
+  const algorithmVersionList = await algorithmStore.fetchAlgorithmAllList(0)
   console.log(algorithmVersionList, '>>>>>algorithmVersionList');
   algorithmList = algorithmVersionList;
+  let algorithmObj = {}
   algorithmVersionList.forEach((item) => {
+      algorithmObj = {...algorithmObj, [item.name]:item}
     // customNodeTypeList.push(item.name)
     // customNodeTypeList.push({ name: item.labelName, algName: item.name })
     if (item.platform == 0) {
       customNodeTypeList.push(item.name);
     }
+    
   });
+  await algorithmStore.fetchAlgorithmParams();
+  const getAlgorithmParams = algorithmStore.getAlgorithmParams;
   customNodeTypeList.forEach(async (item) => {
     const customNodeType = {};
     const items = [];
-    const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item);
+    // const { tAlgorithmParamVersions } = await inEffectAlgorithmParams(item);
+    const { tAlgorithmParamVersions } = getAlgorithmParams(item)
     if (
       !tAlgorithmParamVersions[0].param_dsl ||
       tAlgorithmParamVersions[0].param_dsl === ''
@@ -812,7 +820,7 @@ async function registerNode() {
         height: nodeHeight,
         component: {
           render: () => {
-            return h(GraphNode);
+            return h(GraphNode,{ info:algorithmObj[item]});
           },
         },
         ports: {

@@ -37,6 +37,7 @@ import { FormType } from '@/utils/const';
 import * as Base64 from 'js-base64';
 import WebSocketClient from '@/utils/WebSocketClient.js';
 import useSiteStore from '../../stores/dept/site.store';
+import useAlgorithmStore from '@/stores/algorithm.store'
 const { onSaveGraphInfo } = useAlgorithmParam();
 const siteStore = useSiteStore()
 const {
@@ -50,6 +51,7 @@ const {
   onGraphClear,
   onGraphRollback,
 } = useGraph();
+const algorithmStore = useAlgorithmStore()
 provide(GET_GRAPH, getGraph);
 const { appContext } = getCurrentInstance();
 const indexedDB = appContext.config.globalProperties.$indexedDB;
@@ -64,6 +66,9 @@ const state = reactive({
   newJobId: '',
 });
 let timerId = null;
+const graph = ref(null)
+//当前被点击的node实例
+const currentNode = ref(null);
 const paramDrawer = reactive({ visible: false });
 const resultDrawer = reactive({ visible: false });
 const { toggle: toggleFullScreen } = useFullscreen(GraphViewerRef);
@@ -119,19 +124,21 @@ async function getOperators () {
     // const FATEList = ["reader", "data_transform", "scale", "hetero_fast_secure_boost", "HomoSecureboost","homo_lr", "HeteroKmeans", "hetero_linr_he", "hetero_lr", "evaluation", "intersection"
     //   ,"secure_information_retrieval","homo_lr",""
     // ]
-    const response = await getInEffectLibAndAlgList();
-    response?.algorithmVersionList.forEach((alg) => {
-      // alg.forEach((item,i) => {
-      //   // if (FATEList.includes(item.name)) {
-      //   //   console.log(item,'FATEList')
-      //   //   state.operators.push(item)
-      //   // }
-      // })
-      if (alg.platform == 0) {
-        state.operators.push(alg);
-      }
-      console.log(alg, 'ALG');
-    });
+    // const response = await getInEffectLibAndAlgList();
+    // response?.algorithmVersionList.forEach((alg) => {
+    //   // alg.forEach((item,i) => {
+    //   //   // if (FATEList.includes(item.name)) {
+    //   //   //   console.log(item,'FATEList')
+    //   //   //   state.operators.push(item)
+    //   //   // }
+    //   // })
+    //   if (alg.platform == 0) {
+    //     state.operators.push(alg);
+    //   }
+    //   console.log(alg, 'ALG');
+    // });
+    state.operators = algorithmStore.getAlgorithmAllList
+
     // state.operators = response.flat();
   } catch (error) {
     console.error(error);
@@ -189,6 +196,8 @@ onMounted(async () => {
 function onClickNode (item) {
   if (item.node.port.ports.length == 0) return;
   console.log('item>>>', item);
+  currentNode.value = item.node;
+  graph.value = GraphViewerRef.value?.getGraph();
   if (state.editable) {
     paramDrawer.visible = true;
     paramDrawer.operator = item.node.store.data.data;
@@ -647,7 +656,9 @@ onBeforeUnmount(() => {
   <C2Transition>
     <AlgorithmParamDrawer v-if="paramDrawer.visible"
                           :operator="paramDrawer.operator"
-                          @close="onCloseParamDrawer" />
+                          @close="onCloseParamDrawer"
+                          :graph="graph"
+                          :currentNode="currentNode" />
   </C2Transition>
   <C2Transition>
     <ResultDrawer v-if="resultDrawer.visible"

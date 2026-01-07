@@ -8,7 +8,7 @@ const props = defineProps({
 
 const emits = defineEmits(['change']);
 
-function onClick(val) {
+function onClick (val) {
   emits('change', val);
 }
 </script>
@@ -16,11 +16,15 @@ function onClick(val) {
 <template>
   <div class="tab-container">
     <div class="header">
-      <el-button v-for="(item, index) in props.options" :key="item.value" type="text" :class="{
+      <el-button v-for="(item, index) in props.options"
+                 :key="item.value"
+                 type="text"
+                 :class="{
         active: props.activeValue
           ? props.activeValue === item.value
           : index === 0,
-      }" @click="onClick(item)">
+      }"
+                 @click="onClick(item)">
         {{ item.label }}{{ props.mode }}
       </el-button>
 
@@ -37,15 +41,15 @@ function onClick(val) {
   .header {
     display: flex;
     border-bottom: 1px solid rgba(67, 118, 255, 0.2);
-    gap: 15px;
+    gap: 4px;
 
     .el-button {
       border: 1px solid rgba(67, 118, 255, 0.2) !important;
       padding: 10px;
-      border-radius: 2px 2px 0 0;
+      border-radius: 4px 4px 0 0;
       border-bottom: 0 !important;
       font-size: 12px;
-      height: 24px;
+      height: 36px;
       margin: 0;
 
       &:hover {

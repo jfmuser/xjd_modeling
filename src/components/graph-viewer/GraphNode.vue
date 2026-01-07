@@ -17,6 +17,7 @@ import { getInEffectLibAndAlgList } from '../../apis/workspace/algorithm.api';
 
 const secretflowStore = useSecretflowStore();
 const jobComponentStore = useJobComponentStore();
+const props = defineProps({ info: { type: Object, default: null } })
 const state = reactive({ label: '', active: false, time: 0 });
 const getNode = inject('getNode');
 const node = getNode ? getNode() : null;
@@ -56,30 +57,34 @@ onMounted(async () => {
   state.role = role || 'guest';
   state.label = label;
   state.name_zh = name_zh;
-
+  console.log({ label: state.label })
   // 设置隐语算法的名称
-  const { algorithmVersionList } = await getInEffectLibAndAlgList();
-  // for (let k in secretflowStore.i18n) {
-  algorithmVersionList.forEach((alg) => {
-    console.log(window.nodeIndex, 'WINDOWINDEX');
+  // const algorithmVersionList = []
+  // const { algorithmVersionList } = await getInEffectLibAndAlgList();
+  // // for (let k in secretflowStore.i18n) {
+  // algorithmVersionList.forEach((alg) => {
+  //   console.log(window.nodeIndex, 'WINDOWINDEX');
 
-    if (alg.module === state.label) {
-      console.log(alg, 'alg.labelName');
-      // state.label = secretflowStore.i18n[k][state.label]
-      state.label = alg.labelName;
-    }
-  });
+  //   if (alg.module === state.label) {
+  //     console.log(alg, 'alg.labelName');
+  //     // state.label = secretflowStore.i18n[k][state.label]
+  //     state.label = alg.labelName;
+  //   }
+  // });
   //   console.log(state.label.slice(0,-2),state.label,'瞎水道');
   //   if (k.includes(state.label.slice(0,-2))) {
   //   state.label = secretflowStore.i18n[k][state.label.slice(0,-2)]
   // }
   // }
-
+  if (props.info.module === state.label) {
+    console.log(props.info, 'alg.labelName');
+    state.label = props?.info?.labelName;
+  }
   if (status.value === 'running') {
     // FIXME:
     console.log(Date.now() - time);
     state.time = formatSeconds(Math.max(0, Date.now() - time));
-    timer = setIsnterval(() => {
+    timer = setInterval(() => {
       state.time = formatSeconds(Math.max(0, Date.now() - time));
     }, 1e3);
   }

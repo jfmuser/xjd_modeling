@@ -19,4 +19,5 @@ export default {
   certificate: 'certificate',
   authority: 'authority',
   jobComponent: 'jobComponent',
+  algorithm: 'algorithm'
 };

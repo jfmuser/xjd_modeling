@@ -32,7 +32,7 @@ onMounted(async () => {
 //   fetchTreeData();
 // }
 
-async function renderTree() {
+async function renderTree () {
   await nextTick();
   if (treeId.value) {
     const treeNode = document.querySelector(
@@ -45,7 +45,7 @@ async function renderTree() {
   }
 }
 
-async function fetchTreeData() {
+async function fetchTreeData () {
   try {
     state.loading = true;
     const libAndAlg = await getInEffectLibAndAlgList();
@@ -54,23 +54,23 @@ async function fetchTreeData() {
       // state.libraryList.forEach((item) => {
       //   item.type = 'lib';
       // });
-      libAndAlg.algorithmVersionList.forEach((alg,i) => {
+      libAndAlg.algorithmVersionList.forEach((alg, i) => {
         if (state.libraryList.find(item => item.name === alg.category)) {
           // alg.type = 'lib'
           state.libraryList.find(item => item.name === alg.category).children.push(alg)
         } else {
           // alg.type = 'lib'
           state.libraryList.push({
-            name:alg.category,
+            name: alg.category,
             labelName: dictionary.arithmetic[alg.category],
             id: i,
-            children:[alg]
+            children: [alg]
           })
         }
       });
     }
-    console.log(libAndAlg,'GGGGGGGGGGGGGGGGG');
-    
+    console.log(libAndAlg, 'GGGGGGGGGGGGGGGGG');
+
   } catch (e) {
     console.error(e);
   } finally {
@@ -87,14 +87,14 @@ async function fetchTreeData() {
 //   ImportAlgorithmLibraryDialogRef.value.show();
 // }
 
-function onViewAll() {
+function onViewAll () {
   router.push({
     name: route.name,
     query: { all: true },
   });
 }
 
-function onUpdateTreeData() {
+function onUpdateTreeData () {
   fetchTreeData();
 }
 
@@ -127,7 +127,9 @@ function onUpdateTreeData() {
         <!--          添加-->
         <!--        </el-button>-->
 
-        <el-button type="text" class="tree-switch" @click="onViewAll">
+        <el-button type="text"
+                   class="tree-switch"
+                   @click="onViewAll">
           查看所有
           <el-icon>
             <ArrowRight />
@@ -159,7 +161,8 @@ function onUpdateTreeData() {
         <!--          </el-button>-->
         <!--        </div>-->
         <!-- 左侧树形结构 -->
-        <AlgorithmLibTree :data="state.libraryList" @done="onUpdateTreeData" />
+        <AlgorithmLibTree :data="state.libraryList"
+                          @done="onUpdateTreeData" />
       </div>
     </div>
   </div>
@@ -181,9 +184,10 @@ function onUpdateTreeData() {
   background-color: #fff;
   height: 100%;
   overflow: auto;
- &::-webkit-scrollbar {
-        width: 0px;
-    }
+  border: 1px solid $headerBackgroundColor;
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
   .main {
     padding: 20px;
   }
