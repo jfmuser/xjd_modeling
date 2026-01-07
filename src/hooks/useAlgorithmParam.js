@@ -316,7 +316,7 @@ const allTableList = ref([])
         hostCurrentVersionParamsObj[
           `hostVitalParamList${i}`
         ][0].subParams[0].options =
-          hostCurrentVersionParams[0].subParams[0].options;
+          hostCurrentVersionParams?.[0]?.subParams[0]?.options;
       });
     }
     if (operatorType.includes('reader')) {
@@ -1065,7 +1065,7 @@ console.log({tableNameOptions})
     const nodeList = nodes.filter((node) => {
       return !(node.disableMove == false);
     });
-    console.log(nodeList);
+    console.log({nodeList});
     // 得到画布上算子的基本信息
     const selectedOperators = nodeList.map((node) => {
       node.algorithm_name = node.component_name;
@@ -1073,13 +1073,12 @@ console.log({tableNameOptions})
       const res = algorithmList.value.find(
         (operator) =>
           operator.algorithmId === node.algorithm_id ||
-          operator.name === node.algorithm_name,
+          operator.name === node.algorithm_name
       );
       // res['componentName'] = node.label ? node.label : node.component_name;
       console.log({res,algorithmList,node});
       console.log(JSON.stringify(node), '是啥阿');
       res['componentName'] = node.label ? node.label : node.component_name;
-      // res['componentName'] = node.component_name + node.label.slice(-2);
       return _.cloneDeep(res);
     });
     console.log('selectedOperators>>', selectedOperators);
@@ -1842,8 +1841,13 @@ console.log({tableNameOptions})
       let outterTaskId = {...info.outterTaskId,configData,dependencyData,projectJson,edgeData,host:info.host}
       console.log({outterTaskId})
       localStorage.setItem('projectInfo',JSON.stringify(info))
-      await dpProjectTasks05Save({id:projectId,isNewRecord:false,outterTaskId:JSON.stringify(outterTaskId)})
-      ElMessage.success('应用修改成功');
+      const res = await dpProjectTasks05Save({id:projectId,isNewRecord:false,outterTaskId:JSON.stringify(outterTaskId)})
+      if(res.result =='login') {
+         ElMessage.error(res.message);
+         throw new Error(res.message)
+      } else {
+       ElMessage.success('应用修改成功');
+      }
     } catch (error) {
       ElMessage.error('error');
     } finally {
