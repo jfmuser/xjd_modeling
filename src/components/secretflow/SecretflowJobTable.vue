@@ -21,14 +21,27 @@ import { listJob, getJobDetail } from '@/apis/secretflow/secretflow.api.js';
 import TableContainer from '@/layouts/TableContainer.vue';
 // import ModelCollect from './ModelCollect.vue';
 import { CollectType, Status, JobType } from '@/utils/const';
-import { modifyDataStructure, convertDownDataSource, getFullCsvDataForSample, getFullCsvDataForStatsPSI } from '@/utils/secretflowUtils.js'
-import { formatDateTime, formatTimestamp, getTimeCost, exportCsv } from '@/utils';
+import {
+  modifyDataStructure,
+  convertDownDataSource,
+  getFullCsvDataForSample,
+  getFullCsvDataForStatsPSI,
+} from '@/utils/secretflowUtils.js';
+import {
+  formatDateTime,
+  formatTimestamp,
+  getTimeCost,
+  exportCsv,
+} from '@/utils';
 import {
   getProjectById,
   getProjectJobList,
 } from '../../apis/workspace/project.api';
 import { downloadCsvData } from '../../apis/secretflowApi/secretflow.api';
-import { downloadResultData, getResultTableData } from '@/apis/secretflow/secretflow.api'
+import {
+  downloadResultData,
+  getResultTableData,
+} from '@/apis/secretflow/secretflow.api';
 import { downloadFile } from '../../utils';
 import useSiteStore from '@/stores/dept/site.store.js';
 import { dpProjectTasks05Form, dpProjectForm } from '../../apis/dp/api';
@@ -37,13 +50,13 @@ const SAMPLE = 'data_filter/sample';
 const DownLoad_Type = {
   Report: 'Report',
   Model: 'Model',
-  FedTable: "FedTable"
-}
+  FedTable: 'FedTable',
+};
 const DownLoad_Label = {
   [DownLoad_Type.Report]: '报告',
   [DownLoad_Type.Model]: '模型',
-  [DownLoad_Type.FedTable]: '数据'
-}
+  [DownLoad_Type.FedTable]: '数据',
+};
 const siteStore = useSiteStore();
 let jobStatusInterval;
 let needRun = false;
@@ -88,14 +101,14 @@ onMounted(async () => {
   fetchTableData(1);
 });
 
-function clearJobStatusInterval () {
+function clearJobStatusInterval() {
   if (jobStatusInterval) {
     clearInterval(jobStatusInterval);
   }
   jobStatusInterval = null;
 }
 
-function syncJobStatus (page) {
+function syncJobStatus(page) {
   if (jobStatusInterval) {
     return;
   }
@@ -104,7 +117,7 @@ function syncJobStatus (page) {
   }, 3000);
 }
 
-async function fetchTableData (page) {
+async function fetchTableData(page) {
   try {
     if (type.value == '1' || type.value == '3' || props.projectId) {
       const res = await dpProjectTasks05Form({ id: props.projectId });
@@ -119,7 +132,7 @@ async function fetchTableData (page) {
       const currentPage = page || pager?.page;
       const response = await listJob({
         pageNum: currentPage,
-        pageSize: pager.size || 10,
+        pageSize: pager?.size || 10,
         projectId: outterTask.projectId,
         graphId: outterTask.graphId,
       }); // const response = await getProjectJobList({ //     "pageRequest": { //         "pageNumber": currentPage, //         "pageSize": pager.size //     }, //     "requestData": { //         projectId: props.projectId //     } // } // );
@@ -144,15 +157,15 @@ async function fetchTableData (page) {
   }
 }
 
-async function onPageChange (page) {
+async function onPageChange(page) {
   await fetchTableData(page);
 }
 
-function onUpdateDataTable () {
+function onUpdateDataTable() {
   fetchTableData(1);
 }
 const emits = defineEmits(['JobDetail']);
-async function toDetail (row) {
+async function toDetail(row) {
   console.log(row);
   // 跳转到 算子详情页面
   // const url = `/secretpad-ui/#/record?projectId=${state.info.secretflowProjectId}&mode=MPC&dagId=${state.info.graphId}&jobId=${row.jobId}`;
@@ -205,7 +218,7 @@ async function toDetail (row) {
 //     }
 // }
 
-function onCollected (row) {
+function onCollected(row) {
   ModelCollectRef.value.show(row.fJobId, props.projectName);
 }
 
@@ -228,54 +241,61 @@ function onCollected (row) {
 //   }
 // }
 
-function downloadResult (jobId) {
+function downloadResult(jobId) {
   window.open(
     `/manager-api/api/project-job/downloadJobOutputByIdAndOpt/${jobId}/xgb_predict`,
   );
 }
 
-async function openDownloadDialog (row) {
+async function openDownloadDialog(row) {
   const data = await getJobDetail({
     projectId: state.info.secretflowProjectId,
     jobId: row.jobId,
   });
-  let resultList = []
-  data.graph.nodes.forEach(item => {
+  let resultList = [];
+  data.graph.nodes.forEach((item) => {
     if (item.results && item.status == 'SUCCEED') {
-      item.results.forEach(it => {
-        console.log({ it })
+      item.results.forEach((it) => {
+        console.log({ it });
         resultList.push({
           value: it.refId,
           key: it.refId,
-          label: `${item.label}_${DownLoad_Label[it.kind || DownLoad_Type.FedTable]}`,
+          label: `${item.label}_${
+            DownLoad_Label[it.kind || DownLoad_Type.FedTable]
+          }`,
           codeName: item.codeName,
           graphNodeId: item.graphNodeId,
           taskId: item.taskId,
-          type: it.kind == DownLoad_Type.Report ? 1 : 2
-        })
-      })
+          type: it.kind == DownLoad_Type.Report ? 1 : 2,
+        });
+      });
     }
-  })
+  });
   nodesList.value = resultList;
   param.jobId = row.jobId;
   param.projectId = state.info.secretflowProjectId;
-  console.log({ nodesList })
+  console.log({ nodesList });
   // console.log(state.info)
   dialogVisible.value = true;
 }
 const csvHandler = async (codeName, graphNodeId) => {
-  let outputId = param.taskId.replace(`${param.jobId}-`, '')
-  const res = await getResultTableData({ jobId: param.jobId, projectId: param.projectId, taskId: `${param.jobId}-${graphNodeId}`, outputId })
-  console.log({ res })
-  let allTableInfo = res.tabs
-  console.log({ allTableInfo })
+  let outputId = param.taskId.replace(`${param.jobId}-`, '');
+  const res = await getResultTableData({
+    jobId: param.jobId,
+    projectId: param.projectId,
+    taskId: `${param.jobId}-${graphNodeId}`,
+    outputId,
+  });
+  console.log({ res });
+  let allTableInfo = res.tabs;
+  console.log({ allTableInfo });
   if (!allTableInfo || allTableInfo.length == 0) {
-    ElMessage.info('暂无数据可下载')
-    return
+    ElMessage.info('暂无数据可下载');
+    return;
   }
 
-  let tableInfo = modifyDataStructure(res.tabs[0], codeName)
-  console.log({ tableInfo })
+  let tableInfo = modifyDataStructure(res.tabs[0], codeName);
+  console.log({ tableInfo });
   let columnsList = [];
   tableInfo.schema.forEach(({ name, type }) => {
     if (name !== 'name') {
@@ -285,7 +305,6 @@ const csvHandler = async (codeName, graphNodeId) => {
         dataIndex: name,
 
         showSorterTooltip: false,
-
       });
     } else {
       columnsList.push({
@@ -293,35 +312,32 @@ const csvHandler = async (codeName, graphNodeId) => {
         title: name,
         dataIndex: name,
         showSorterTooltip: false,
-
       });
     }
   });
-  let datasource = ((tableInfo?.records) || []).map(
-    (record, index) => {
-      const res = {
-        key: index,
-      };
-      columnsList.forEach((col, i) => {
-        if (typeof record[i] === 'string') {
-          // 防止导出时候值也会进行逗号分割
-          res[col.dataIndex] = (record[i]).replace(/"/g, '');
-        } else {
-          res[col.dataIndex] = record[i];
-        }
-      });
-      return res;
-    },
-  );
-  console.log({ datasource })
+  let datasource = (tableInfo?.records || []).map((record, index) => {
+    const res = {
+      key: index,
+    };
+    columnsList.forEach((col, i) => {
+      if (typeof record[i] === 'string') {
+        // 防止导出时候值也会进行逗号分割
+        res[col.dataIndex] = record[i].replace(/"/g, '');
+      } else {
+        res[col.dataIndex] = record[i];
+      }
+    });
+    return res;
+  });
+  console.log({ datasource });
   let csvData;
-  if (tableInfo.type === "descriptions") {
-    console.log({ codeName })
-    let fullCavData
+  if (tableInfo.type === 'descriptions') {
+    console.log({ codeName });
+    let fullCavData;
     if (codeName && codeName === SAMPLE) {
       fullCavData = getFullCsvDataForSample(tableInfo.records);
     }
-    csvData = tableInfo.records || fullCavData
+    csvData = tableInfo.records || fullCavData;
   } else if (codeName && codeName === STATS_PSI && allTableInfo) {
     console.log('进来', { codeName });
     csvData = getFullCsvDataForStatsPSI(allTableInfo);
@@ -329,25 +345,30 @@ const csvHandler = async (codeName, graphNodeId) => {
     console.log('这边', { codeName });
     csvData = convertDownDataSource(datasource);
   }
-  console.log({ csvData })
-  exportCsv(csvData, `${param.taskId}`)
-}
+  console.log({ csvData });
+  exportCsv(csvData, `${param.taskId}`);
+};
 const apiDownLoad = async () => {
-  const mySite = siteStore.mySite
-  console.log({ mySite, siteStore })
+  const mySite = siteStore.mySite;
+  console.log({ mySite, siteStore });
   fetch(`/secretflow-api/proxy/secretPad/api/v1alpha1/data/download`, {
     method: 'POST',
-    headers: { "Content-Type": "application/json", "Authorization": localStorage.getItem('token') },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: localStorage.getItem('token'),
+    },
     body: JSON.stringify({
       nodeId: mySite.nodeId,
       domainDataId: param.taskId,
     }),
   }).then((res) => {
     res.blob().then((blob) => {
-      const data = new Blob(['\ufeff', blob], { type: 'text/plain;charset=utf-8' });
+      const data = new Blob(['\ufeff', blob], {
+        type: 'text/plain;charset=utf-8',
+      });
 
       const disposition = res.headers.get('Content-Disposition');
-      console.log({ disposition, blob })
+      console.log({ disposition, blob });
       let filename = ``;
       const filenameRegex = /filename[^;=\n]*=[^'"]*['"]*((['"]).*?\2|[^;\n]*)/;
       const matches = filenameRegex.exec(disposition || '');
@@ -367,25 +388,27 @@ const apiDownLoad = async () => {
         type: 'success',
       });
       dialogVisible.value = false;
-    })
-  })
-}
-async function downloadAlgCsvData () {
-  let { codeName, graphNodeId, type } = nodesList.value.find(item => item.value == param.taskId) || {}
+    });
+  });
+};
+async function downloadAlgCsvData() {
+  let { codeName, graphNodeId, type } =
+    nodesList.value.find((item) => item.value == param.taskId) || {};
   if (type == 1) {
-    await csvHandler(codeName, graphNodeId)
+    await csvHandler(codeName, graphNodeId);
   } else {
-    await apiDownLoad()
+    await apiDownLoad();
   }
-
-
 }
-async function downloadAlgCsvData1 () {
-  const mySite = siteStore.mySite
-  console.log(4444, { param })
-  let domainDataId = `${param.jobId}-${param.taskId}-output-0`
-  const data = await downloadResultData({ domainDataId, nodeId: mySite.nodeId })
-  console.log(333, { data, param })
+async function downloadAlgCsvData1() {
+  const mySite = siteStore.mySite;
+  console.log(4444, { param });
+  let domainDataId = `${param.jobId}-${param.taskId}-output-0`;
+  const data = await downloadResultData({
+    domainDataId,
+    nodeId: mySite.nodeId,
+  });
+  console.log(333, { data, param });
   // const data = await downloadCsvData(param);
   let fileName = `${param.taskId}.csv`;
   let filename = '';
@@ -420,15 +443,18 @@ async function downloadAlgCsvData1 () {
 </script>
 
 <template>
-  <TableContainer ref="TableContainerRef"
-                  :showFilter="false"
-                  @page-change="onPageChange">
-    <el-table v-loading="state.loading"
-              :data="state.tableData">
-      <el-table-column label="作业ID"
-                       fixed
-                       show-overflow-tooltip
-                       min-width="200px">
+  <TableContainer
+    ref="TableContainerRef"
+    :showFilter="false"
+    @page-change="onPageChange"
+  >
+    <el-table v-loading="state.loading" :data="state.tableData">
+      <el-table-column
+        label="作业ID"
+        fixed
+        show-overflow-tooltip
+        min-width="200px"
+      >
         <template #default="{ row }">
            <span>{{ row.jobId }}</span>
           <!-- <el-link type="primary" :disabled="!row.status || row.status === Status.WAITING" -->
@@ -441,20 +467,17 @@ async function downloadAlgCsvData1 () {
           </el-link> -->
         </template>
       </el-table-column>
-      <el-table-column label="开始时间"
-                       min-width="170px">
+      <el-table-column label="开始时间" min-width="170px">
         <template #default="{ row }">
           {{ formatDateTime(row.gmtCreate) }}
         </template>
       </el-table-column>
-      <el-table-column label="结束时间"
-                       min-width="170px">
+      <el-table-column label="结束时间" min-width="170px">
         <template #default="{ row }">
           {{ formatDateTime(row.gmtFinished) }}
         </template>
       </el-table-column>
-      <el-table-column prop="fEndTime"
-                       label="耗时">
+      <el-table-column prop="fEndTime" label="耗时">
         <template #default="{ row }">
           {{
             row.gmtFinished ? getTimeCost(row.gmtCreate, row.gmtFinished) : ''
@@ -465,26 +488,33 @@ async function downloadAlgCsvData1 () {
                 <template #default="{ row }">{{ JobType.getLabel(row.jobType) }}
                 </template>
             </el-table-column> -->
-      <el-table-column prop="fStatus"
-                       fixed="right"
-                       label="状态">
-        <template #default="{ row }">{{ Status.getLabel(row.status.toLowerCase()) }}
+      <el-table-column prop="fStatus" fixed="right" label="状态">
+        <template #default="{ row }"
+          >{{ Status.getLabel(row.status.toLowerCase()) }}
         </template>
       </el-table-column>
-      <el-table-column prop="fStatus"
-                       fixed="right"
-                       label="操作"
-                       v-if="route.query.type == '3'">
-        <template #default="{ row }"><el-button type="text"
-                     @click="downloadResult(row.jobId)">下载结果</el-button>
+      <el-table-column
+        prop="fStatus"
+        fixed="right"
+        label="操作"
+        v-if="route.query.type == '3'"
+      >
+        <template #default="{ row }"
+          ><el-button type="text" @click="downloadResult(row.jobId)"
+            >下载结果</el-button
+          >
         </template>
       </el-table-column>
-      <el-table-column prop="fStatus"
-                       fixed="right"
-                       label="操作"
-                       v-if="route.query.type == '1'">
-        <template #default="{ row }"><el-button type="text"
-                     @click="openDownloadDialog(row)">下载结果</el-button>
+      <el-table-column
+        prop="fStatus"
+        fixed="right"
+        label="操作"
+        v-if="route.query.type == '1'"
+      >
+        <template #default="{ row }"
+          ><el-button type="text" @click="openDownloadDialog(row)"
+            >下载结果</el-button
+          >
         </template>
       </el-table-column>
       <!-- <el-table-column header-align="center" align="center" label="操作" fixed="right" min-width="130px">
@@ -500,22 +530,23 @@ async function downloadAlgCsvData1 () {
             </el-table-column> -->
     </el-table>
   </TableContainer>
-  <el-dialog v-model="dialogVisible"
-             title="结果下载"
-             width="500px">
-    <el-select v-model="param.taskId"
-               placeholder="选择要下载的算子"
-               style="width: 240px">
-      <el-option v-for="item in nodesList"
-                 :key="item.key"
-                 :label="item.label"
-                 :value="item.value" />
+  <el-dialog v-model="dialogVisible" title="结果下载" width="500px">
+    <el-select
+      v-model="param.taskId"
+      placeholder="选择要下载的算子"
+      style="width: 240px"
+    >
+      <el-option
+        v-for="item in nodesList"
+        :key="item.key"
+        :label="item.label"
+        :value="item.value"
+      />
     </el-select>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary"
-                   @click="downloadAlgCsvData"> 确定 </el-button>
+        <el-button type="primary" @click="downloadAlgCsvData"> 确定 </el-button>
       </div>
     </template>
   </el-dialog>

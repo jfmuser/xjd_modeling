@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { ElLoading, ElMessage } from 'element-plus';
-import { onMounted, ref,toRaw } from 'vue';
+import { onMounted, ref, toRaw } from 'vue';
 import {
   getOtherDataNamespaceList,
   getSelfDataNamespaceList,
@@ -12,7 +12,7 @@ import {
 } from '../apis/workspace/algorithm.api';
 import useSiteStore from '@/stores/dept/site.store';
 import { getSecretflowProject } from '@/apis/secretflow/secretflow.api';
-import {dpProjectTasks05Save} from '@/apis/dp/api'
+import { dpProjectTasks05Save } from '@/apis/dp/api';
 import {
   checkConstraints,
   formatParamList,
@@ -42,7 +42,7 @@ import useGraph from '../hooks/useGraph';
 import { getAuthData } from '../apis/manager/managerApi';
 import { getSelectAlgorithmParams } from '../apis/manager/managerApi';
 import * as Base64 from 'js-base64';
-import useAlgorithmStore from '@/stores/algorithm.store'
+import useAlgorithmStore from '@/stores/algorithm.store';
 
 export default function useAlgorithmParam() {
   // 项目信息
@@ -58,7 +58,7 @@ export default function useAlgorithmParam() {
   const hostVitalParamListObj = ref({});
   // 来观看全部参数是否有改变
   const changeHostVitelParamList = ref(true);
-const algorithmStore = useAlgorithmStore()
+  const algorithmStore = useAlgorithmStore();
   const changeValues = ref([]);
   const staticParams = ref([]);
   //全部参数
@@ -76,7 +76,7 @@ const algorithmStore = useAlgorithmStore()
 
   // 项目已有的授权数据
   const authProjectList = ref([]);
-const allTableList = ref([])
+  const allTableList = ref([]);
   // 定义el-tree Props
   const optionParam = {
     label: 'label_en',
@@ -134,7 +134,8 @@ const allTableList = ref([])
     // const response = await inEffectAlgorithmParams(operatorType);
     const getAlgorithmParams = algorithmStore.getAlgorithmParams;
 
-    paramVersionList.value =  getAlgorithmParams(operatorType).tAlgorithmParamVersions ||[]//response.tAlgorithmParamVersions;
+    paramVersionList.value =
+      getAlgorithmParams(operatorType).tAlgorithmParamVersions || []; //response.tAlgorithmParamVersions;
     console.log(
       'paramVersionList1::',
       JSON.parse(JSON.stringify(paramVersionList.value)),
@@ -299,7 +300,7 @@ const allTableList = ref([])
     //   currentVersionParams = await setOptions(currentVersionParams);
     // }
     if (!exist) {
-      console.log({hostList})
+      console.log({ hostList });
       // 这块是在根据添加项目时有几个host方来克隆几个host数据
       hostList.forEach((item, i) => {
         hostCurrentVersionParamsObj[`hostVitalParamList${i}`] = _.cloneDeep([
@@ -615,8 +616,8 @@ const allTableList = ref([])
 
   // 设置reader的namespace和name下拉选项，后端接口获取
   async function setOptions(currentVersionParams, projectId) {
-    console.log({currentVersionParams,projectId})
-   const siteStore = useSiteStore()
+    console.log({ currentVersionParams, projectId });
+    const siteStore = useSiteStore();
     // if (type === 'guest') {
     // const selfNamespaceOptions = await getSelfDataNamespaceList();
     //   currentVersionParams = setReaderOptions(
@@ -662,29 +663,28 @@ const allTableList = ref([])
     //   }
     // }
 
-   const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
-    console.log({authProjectList,info})
+    const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
+    console.log({ authProjectList, info });
     let namespaceOptions = [];
-    allTableList.value = []
-    const res =await getSecretflowProject({projectId:info.secretflowPrjId})
-    console.log({res})
-    res?.nodes?.forEach(item => {
-      item?.datatables?.forEach(it => {
+    allTableList.value = [];
+    const res = await getSecretflowProject({ projectId: info.secretflowPrjId });
+    console.log({ res });
+    res?.nodes?.forEach((item) => {
+      item?.datatables?.forEach((it) => {
         namespaceOptions.push({
-          label:`namespace_${it.datatableId}`,
-          value:`namespace_${it.datatableId}`
-        })
+          label: `namespace_${it.datatableId}`,
+          value: `namespace_${it.datatableId}`,
+        });
         allTableList.value.push({
-          label:it.datatableName,
-          value:it.datatableName,
+          label: it.datatableName,
+          value: it.datatableName,
           dataFromId: siteStore.getByNodeId(item.nodeId).id,
-          namespace:`namespace_${it.datatableId}`
-        })
-      })
-     
-    })
-    console.log({namespaceOptions})
-    authProjectList.value  = res.nodes
+          namespace: `namespace_${it.datatableId}`,
+        });
+      });
+    });
+    console.log({ namespaceOptions });
+    authProjectList.value = res.nodes;
     // authProjectList.value = await getAuthData(projectId);
 
     // authProjectList.value.forEach((item) => {
@@ -719,7 +719,7 @@ const allTableList = ref([])
   }
 
   async function changeParams(vars, type, hostVitalParamListObj, i) {
-    console.log(vars, 'vars',{ type, hostVitalParamListObj});
+    console.log(vars, 'vars', { type, hostVitalParamListObj });
     console.log(constraintList.value, 'constraintList');
     const keyPath = vars.keyPath;
     const operatorName = vars.operatorName;
@@ -764,10 +764,10 @@ const allTableList = ref([])
       //   }
       // });
 
-tableNameOptions = allTableList.value.filter(item => {
- return item.namespace == value
-})
-console.log({tableNameOptions})
+      tableNameOptions = allTableList.value.filter((item) => {
+        return item.namespace == value;
+      });
+      console.log({ tableNameOptions });
       if (type.includes('host')) {
         const hostTableNameOptions = tableNameOptions.filter(
           (tableName) =>
@@ -780,7 +780,7 @@ console.log({tableNameOptions})
           'name',
           roleType,
         );
-        console.log({hostTableNameOptions,hostVitalParamListObj})
+        console.log({ hostTableNameOptions, hostVitalParamListObj });
 
         // hostVitalParamList.value = setReaderOptions(
         //   hostVitalParamList.value,
@@ -1057,8 +1057,8 @@ console.log({tableNameOptions})
     console.log('nodes>>', nodes);
     // 把所有算子获取到
     // await getInEffectAlgorithmList();
-    const algorithmStore = useAlgorithmStore()
-     algorithmList.value = algorithmStore.getAlgorithmParamsList
+    const algorithmStore = useAlgorithmStore();
+    algorithmList.value = algorithmStore.getAlgorithmParamsList;
     console.log('algorithmList>>', algorithmList.value);
     const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
     //筛选掉没有node.component_name的节点
@@ -1069,14 +1069,14 @@ console.log({tableNameOptions})
     // 得到画布上算子的基本信息
     const selectedOperators = nodeList.map((node) => {
       node.algorithm_name = node.component_name;
-
       const res = algorithmList.value.find(
         (operator) =>
           operator.algorithmId === node.algorithm_id ||
-          operator.name === node.algorithm_name,
+          operator.name === node.algorithm_name ||
+          operator.name === node.algorithm_name.replace(/(_\d+)$/, ''),
       );
       // res['componentName'] = node.label ? node.label : node.component_name;
-      console.log({res,algorithmList,node});
+      console.log({ res, algorithmList, node });
       console.log(JSON.stringify(node), '是啥阿');
       res['componentName'] = node.label ? node.label : node.component_name;
       // res['componentName'] = node.component_name + node.label.slice(-2);
@@ -1130,8 +1130,8 @@ console.log({tableNameOptions})
 
   async function onSaveDsl(info, nodes, edges) {
     console.log(edges, nodes, 'GGBO');
-    const algorithmStore = useAlgorithmStore()
-     const getAlgorithmParams = algorithmStore.getAlgorithmParams
+    const algorithmStore = useAlgorithmStore();
+    const getAlgorithmParams = algorithmStore.getAlgorithmParams;
     for (let i = 0; i < nodes.length; i++) {
       let data = null;
       //如果是背景的节点则不做处理跳过该次循环
@@ -1153,18 +1153,18 @@ console.log({tableNameOptions})
           nodes[i].component_name.indexOf('_2') == -1
         ) {
           // data = await inEffectAlgorithmParams(nodes[i].component_name);
-          data = getAlgorithmParams(nodes[i].component_name)
+          data = getAlgorithmParams(nodes[i].component_name);
         } else {
           // data = await inEffectAlgorithmParams(
           //   nodes[i].component_name.slice(0, -2),
           // );
-          data = getAlgorithmParams(nodes[i].component_name.slice(0, -2))
+          data = getAlgorithmParams(nodes[i].component_name.slice(0, -2));
         }
       } else {
         console.log(nodes[i].type, 'TTYYPPEE');
 
         // data = await inEffectAlgorithmParams(nodes[i].type);
-        data = getAlgorithmParams(nodes[i].type)
+        data = getAlgorithmParams(nodes[i].type);
       }
       const versionId = JSON.parse(
         sessionStorage.getItem('projectParamsVersion'),
@@ -1266,7 +1266,9 @@ console.log({tableNameOptions})
     const projectNodeCoord = JSON.parse(
       localStorage.getItem('projectNodeCoord'),
     );
-    const hostParamsKey = Object.keys(hostProjectParams?.[nodes[0].label]||{});
+    const hostParamsKey = Object.keys(
+      hostProjectParams?.[nodes[0].label] || {},
+    );
     // const hostParamsKey = Object.keys(hostProjectParams[nodes[3].label]);
     const guestProjectParams = JSON.parse(
       localStorage.getItem('guestProjectParams'),
@@ -1294,7 +1296,9 @@ console.log({tableNameOptions})
       // const labelName = node.algorithm_name + node.label.slice(-2);
       const operator = selectedOperators.find(
         (item) =>
-          item.algorithmId === componentId || item.name === componentName,
+          item.algorithmId === componentId ||
+          item.name === componentName ||
+          item.name === componentName.replace(/(_\d+)$/, ''),
       );
       // const operatorParams = projectParams[labelName];
 
@@ -1550,7 +1554,9 @@ console.log({tableNameOptions})
         // labelName为当前算子的名称
         const operator = selectedOperators.find(
           (item) =>
-            item.algorithmId === componentId || item.name === componentName,
+            item.algorithmId === componentId ||
+            item.name === componentName ||
+            item.name === componentName.replace(/(_\d+)$/, ''),
         );
         if (['reader', 'federated_training'].includes(operator.category)) {
           const hostDefaultParam = {};
@@ -1825,10 +1831,10 @@ console.log({tableNameOptions})
     // dependencyData = Base64.encode(JSON.stringify(dependencyData));
     // let selectedAlgorithm = Base64.encode(JSON.stringify(selectedOperators));
     // console.log('algorithmParams>>', JSON.parse(algorithmParams));
-        let configData = JSON.stringify(ProjectParams);
-    let projectJson = JSON.stringify(info.projectJson)
-    dependencyData = JSON.stringify(dependencyData)
-    let edgeData = JSON.stringify(selectedOperators)
+    let configData = JSON.stringify(ProjectParams);
+    let projectJson = JSON.stringify(info.projectJson);
+    dependencyData = JSON.stringify(dependencyData);
+    let edgeData = JSON.stringify(selectedOperators);
     try {
       projectId = projectInfo.value.id;
 
@@ -1839,10 +1845,21 @@ console.log({tableNameOptions})
       //   algorithmParams,
       //   dependencyData,
       // });
-      let outterTaskId = {...info.outterTaskId,configData,dependencyData,projectJson,edgeData,host:info.host}
-      console.log({outterTaskId})
-      localStorage.setItem('projectInfo',JSON.stringify(info))
-      await dpProjectTasks05Save({id:projectId,isNewRecord:false,outterTaskId:JSON.stringify(outterTaskId)})
+      let outterTaskId = {
+        ...info.outterTaskId,
+        configData,
+        dependencyData,
+        projectJson,
+        edgeData,
+        host: info.host,
+      };
+      console.log({ outterTaskId });
+      localStorage.setItem('projectInfo', JSON.stringify(info));
+      await dpProjectTasks05Save({
+        id: projectId,
+        isNewRecord: false,
+        outterTaskId: JSON.stringify(outterTaskId),
+      });
       ElMessage.success('应用修改成功');
     } catch (error) {
       ElMessage.error('error');
