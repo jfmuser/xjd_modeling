@@ -1101,7 +1101,9 @@ export default function useAlgorithmParam() {
       componentArray,
     );
     await onSaveDependencyData(nodes, edges, dependencyData);
-    await onSaveProject(selectedOperators, info, dependencyData);
+    const isSuccess = await onSaveProject(selectedOperators, info, dependencyData);
+    console.log({isSuccess})
+    return isSuccess
   }
 
   function onSaveDependencyData(nodes, edges, dependencyData) {
@@ -1859,14 +1861,17 @@ export default function useAlgorithmParam() {
         isNewRecord: false,
         outterTaskId: JSON.stringify(outterTaskId),
       });
+      console.log('请求是否失败',{res})
        if(res.result =='login') {
          ElMessage.error(res.message);
-         throw new Error(res.message)
+         return false
       } else {
        ElMessage.success('应用修改成功');
+       return true
       }
     } catch (error) {
       ElMessage.error('error');
+      return false
     } finally {
       loadingInstance.close();
     }

@@ -249,8 +249,10 @@ async function onSave () {
     ElMessage.error('保存失败,画布不能为空!');
     throw new Error('画布为空');
   }
-  await onSaveGraphInfo(nodes, edges);
-  goProjectPage();
+  let isSuccess = await onSaveGraphInfo(nodes, edges);
+  if (isSuccess) {
+    goProjectPage();
+  }
 }
 
 function onCancelEdit () {
@@ -314,8 +316,9 @@ async function onRun () {
       ElMessage.error('运行失败,画布不能为空!');
       throw new Error('画布为空');
     }
-    await onSaveGraphInfo(nodes, edges);
-    console.log(449)
+    const isSuccess = await onSaveGraphInfo(nodes, edges);
+    if (!isSuccess) { throw new Error('保存失败') }
+    console.log(449, { isSuccess })
     // const response = await createJob(route.query.id);
     let projectJson = JSON.parse(localStorage.getItem('projectInfo')).projectJson;
     projectJson = Base64.encode(JSON.stringify(projectJson));
@@ -647,6 +650,7 @@ onBeforeUnmount(() => {
            :class="{ wide: !state.expanded }">
         <GraphViewer ref="GraphViewerRef"
                      :editable="state.editable"
+                     :isRunning="isRunning"
                      @click-node="onClickNode"
                      @add-node="onAddNode"
                      @check-result="onCheckResult" />
@@ -656,6 +660,7 @@ onBeforeUnmount(() => {
   <C2Transition>
     <AlgorithmParamDrawer v-if="paramDrawer.visible"
                           :operator="paramDrawer.operator"
+                          :isRunning="isRunning"
                           @close="onCloseParamDrawer"
                           :graph="graph"
                           :currentNode="currentNode" />

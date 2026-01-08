@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 // 不做任何处理，只做最简单的请求
 const instance = axios.create({
     baseURL: '/js/a',
@@ -49,6 +50,10 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     function (response) {
         const { data } = response;
+        // if(data.result == 'login') {
+        //   ElMessage.error('登录过期')
+        //   window.parent.postMessage({type:'dpTokenExpire',message:true})
+        // }
         return data;
     }
 );
