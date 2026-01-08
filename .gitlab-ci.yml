@@ -1,0 +1,21 @@
+image: node:20
+
+stages:
+  - install
+  - build
+  - test
+  - deploy
+
+job_install:
+  stage: install
+  script:
+    - npm install
+  tags:
+    - frontend
+
+job_build:
+  stage: build
+  script:
+    - npm run build
+  tags:
+    - frontend
