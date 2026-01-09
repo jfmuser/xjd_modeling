@@ -12,11 +12,11 @@ import { fileURLToPath } from 'url';
 // import obfuscator from 'rollup-plugin-obfuscator';
 
 const gitRevisionPlugin = new GitRevisionPlugin();
-// const ltFateboardUi = '119.23.69.219:3071'
-const ltFateboardUi = '112.74.40.78:5606'
+const ltFateboardUi = '119.23.69.219:3071';
+// const ltFateboardUi = '112.74.40.78:5606'
 // const ltFateboardUi = '112.74.40.78:5600' //'100.98.66.54:8096'
-// const pzPath = 'http://119.23.69.219:3071'
-const pzPath = 'http://112.74.40.78:5606'
+const pzPath = 'http://119.23.69.219:3071';
+// const pzPath = 'http://112.74.40.78:5606'
 // const pzPath ='http://112.74.40.78:5600'
 // https://vitejs.dev/config/
 export default ({ mode }) => {
@@ -36,9 +36,10 @@ export default ({ mode }) => {
   // 替代 __dirname
   const dirname = path.dirname(fileURLToPath(import.meta.url));
   return defineConfig({
-    base: process.env.NODE_ENV === 'production'
-    ? '/xj/' // 生产环境的路径
-    : '/' ,// 开发环境的路径,
+    base:
+      process.env.NODE_ENV === 'production'
+        ? '/xj/' // 生产环境的路径
+        : '/', // 开发环境的路径,
     resolve: {
       alias: [
         {
@@ -228,32 +229,32 @@ export default ({ mode }) => {
           //   '^/websocket': 'websocket',
           // },
           ws: true,
-           // 代理事件监听 - 在控制台显示详细日志
-        // configure: (proxy, options) => {
-        //   // 监听代理连接建立
-        //   proxy.on('proxyReqWs', (proxyReq, req, socket, options, head) => {
-        //     console.log('🔗 WebSocket代理请求建立:', {
-        //       target: options.target,
-        //       url: req.url,
-        //       headers: req.headers
-        //     });
-        //   });
-          
-        //   // 监听代理连接成功
-        //   proxy.on('open', (socket) => {
-        //     console.log('✅ WebSocket代理连接已建立',{socket});
-        //   });
-          
-        //   // 监听代理错误
-        //   proxy.on('error', (err, req, socket) => {
-        //     console.error('❌ WebSocket代理错误:', err.message);
-        //   });
-          
-        //   // 监听代理关闭
-        //   proxy.on('close', (req, socket, head) => {
-        //     console.log('🔌 WebSocket代理连接已关闭');
-        //   });
-        // },
+          // 代理事件监听 - 在控制台显示详细日志
+          // configure: (proxy, options) => {
+          //   // 监听代理连接建立
+          //   proxy.on('proxyReqWs', (proxyReq, req, socket, options, head) => {
+          //     console.log('🔗 WebSocket代理请求建立:', {
+          //       target: options.target,
+          //       url: req.url,
+          //       headers: req.headers
+          //     });
+          //   });
+
+          //   // 监听代理连接成功
+          //   proxy.on('open', (socket) => {
+          //     console.log('✅ WebSocket代理连接已建立',{socket});
+          //   });
+
+          //   // 监听代理错误
+          //   proxy.on('error', (err, req, socket) => {
+          //     console.error('❌ WebSocket代理错误:', err.message);
+          //   });
+
+          //   // 监听代理关闭
+          //   proxy.on('close', (req, socket, head) => {
+          //     console.log('🔌 WebSocket代理连接已关闭');
+          //   });
+          // },
         },
         // 9999/10000
         '/log/new': {
@@ -297,11 +298,10 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         '/fateboard-ui/websocket': {
-           target:`ws://${ltFateboardUi}`,
-           changeOrigin: true,
-            ws: true,
-            // rewrite: (path) => path.replace('/fateboard-ui/websocket', '/websocket'),
-            
+          target: `ws://${ltFateboardUi}`,
+          changeOrigin: true,
+          ws: true,
+          // rewrite: (path) => path.replace('/fateboard-ui/websocket', '/websocket'),
         },
         '/yinyu/api/': {
           target: 'http://100.112.107.112:8088',
@@ -326,48 +326,50 @@ export default ({ mode }) => {
           changeOrigin: true,
         },
         '/js/a': {
-          target:  `${pzPath}`,
+          target: `${pzPath}`,
           changeOrigin: true,
         },
         '/algorithm': {
-          target:  `${pzPath}`,
+          target: `${pzPath}`,
           changeOrigin: true,
         },
         '/manager-api': {
           // target: 'http://192.168.50.122:7072',
           // target: 'http://1.hz-test.manager-api.test.pcp.convcloud.cn:18082',
           // target: 'http://1.yl.manager-api.dev.pcp.convcloud.cn:18082',
-          target:  `${pzPath}`,
+          target: `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://1.org.manager-api.dev.pcp.convcloud.cn:18082',
           changeOrigin: true,
         },
         '/innovate-api': {
-            target:  `${pzPath}`,
-            changeOrigin: true,
-          },
+          target: `${pzPath}`,
+          changeOrigin: true,
+        },
         '/secretflow-api/api': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
-          target:  `${pzPath}`,
+          target: `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://1.org.secretflow.dev.pcp.convcloud.cn:18082',
           // target: 'http://192.168.50.122:7061',
           // target: 'http://1.hz.secretflow.test.pcp.convcloud.cn:18082',
           changeOrigin: true,
-          rewrite: (path) => path.replace('/secretflow-api/', '/xj-secretflow-api/'),
+          rewrite: (path) =>
+            path.replace('/secretflow-api/', '/xj-secretflow-api/'),
         },
         '/secretflow-api/proxy': {
           // target: 'http://1.yl.secretflow.dev.pcp.convcloud.cn:18082',
-          target:  `${pzPath}`,
+          target: `${pzPath}`,
           // target: 'http://100.112.107.112:8051',
           // target: 'http://192.168.50.202:8051',
           // target: 'http://192.168.50.122:7061',
           // target: 'http://1.org.secretflow.dev.pcp.convcloud.cn:18082',
           // target: 'http://1.hz.secretflow.test.pcp.convcloud.cn:18082',
           changeOrigin: true,
-          rewrite: (path) => path.replace('/secretflow-api/', '/xj-secretflow-api/'),
+          rewrite: (path) =>
+            path.replace('/secretflow-api/', '/xj-secretflow-api/'),
         },
         '/innovate-api/api': {
           // target: 'http://192.168.50.122:7060',
