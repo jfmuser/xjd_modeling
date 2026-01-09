@@ -143,6 +143,7 @@ import {
 import SetField from '@/components/secretflow/SetField.vue';
 import dictionary from '../../utils/dictionary';
 import PZarithmetic from '../../utils/PZarithmetic';
+import { convertToNumberIfNeeded } from '../../utils';
 
 const secretflowStore = useSecretflowStore();
 const emit = defineEmits(['close']);
@@ -294,7 +295,11 @@ async function confirmClick() {
       param.name === 'allow_empty_features' ||
       param.name === 'label_feature'
     ) {
-      attrPaths.push(`input/input_table/${param.name}`);
+      attrPaths.push(
+        param.renderType == 'input'
+          ? param.name
+          : `input/input_table/${param.name}`,
+      );
     } else if (param.name === 'feature_selects') {
       attrPaths.push(`input/${param.attrPathName}/feature_selects`);
     } else if (param.name === 'feature_names') {
@@ -384,7 +389,7 @@ async function confirmClick() {
         break;
       case 'AT_FLOAT':
         attrs.push({
-          f: param.default,
+          f: convertToNumberIfNeeded(param.default),
           is_na: false,
         });
         break;
@@ -584,14 +589,16 @@ async function initParam() {
           type: '',
           attrPathName: item.name,
         });
-        renderParam.value.push({
-          name: item.attrs[1].name,
-          desc: item.attrs[1].desc,
-          renderType: 'button',
-          default: '',
-          type: '',
-          attrPathName: item.name,
-        });
+        if (item.attrs[1]) {
+          renderParam.value.push({
+            name: item.attrs[1].name,
+            desc: item.attrs[1].desc,
+            renderType: 'button',
+            default: '',
+            type: '',
+            attrPathName: item.name,
+          });
+        }
         if (item.attrs[2]) {
           renderParam.value.push({
             name: item.attrs[2].name,
