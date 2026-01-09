@@ -1,36 +1,53 @@
 <template>
-  <el-drawer :model-value="true"
-             :direction="direction"
-             :before-close="handleClose"
-             :size="500"
-             custom-class="custom-drawer">
+  <el-drawer
+    :model-value="true"
+    :direction="direction"
+    :before-close="handleClose"
+    :size="500"
+    custom-class="custom-drawer"
+  >
     <template #title>
-      <div class="title">{{ currentI18n[props.operator.name] }}</div>
+      <!-- 在没有中文翻译的情况下展示英文 -->
+      <div class="title">
+        {{
+          (currentI18n && currentI18n[props.operator.name]) ??
+          props.operator.name
+        }}
+      </div>
     </template>
 
     <template #default>
       <div>
         <span>组件类型:纵向</span>
       </div>
-      <div v-if="props.operator?.attrs || props.operator?.inputs[0].attrs"
-           style="margin-top: 20px">
+      <div
+        v-if="props.operator?.attrs || props.operator?.inputs[0].attrs"
+        style="margin-top: 20px"
+      >
         <el-form label-width="150px">
-          <el-form-item v-for="param in renderParam"
-                        :key="param.name">
+          <el-form-item v-for="param in renderParam" :key="param.name">
             <template #label>
-              <el-tooltip v-if="param.desc"
-                          effect="dark"
-                          placement="top-start"
-                          :content="currentI18n[param.desc]">
+              <el-tooltip
+                v-if="param.desc"
+                effect="dark"
+                placement="top-start"
+                :content="
+                  (currentI18n && currentI18n[param.desc]) ?? param.desc
+                "
+              >
                 {{
-                  param.name === 'key' ? param.keyI18n : currentI18n[param.name]
+                  param.name === 'key'
+                    ? param.keyI18n
+                    : (currentI18n && currentI18n[param.name]) ?? param.name
                 }}
                 <!-- ({{ param.name }}) -->
               </el-tooltip>
             </template>
-            <el-button v-if="param.renderType === 'button'"
-                       type="info"
-                       @click="getSubjectInfo(param)">{{
+            <el-button
+              v-if="param.renderType === 'button'"
+              type="info"
+              @click="getSubjectInfo(param)"
+              >{{
                 JSON.stringify(fieldInfo) === '{}'
                   ? '未选择字段'
                   : `已选择${
@@ -38,41 +55,58 @@
                         ? fieldInfo[param.name].ss?.length
                         : 0
                     }个字段`
-              }}</el-button>
-            <el-select v-else-if="param.renderType === 'selected'"
-                       v-model="param.default"
-                       class="m-2"
-                       @change="changeParam(param.name, param.default)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.datatableId"
-                         :label="item.datatableName"
-                         :value="item.datatableId" />
+              }}</el-button
+            >
+            <el-select
+              v-else-if="param.renderType === 'selected'"
+              v-model="param.default"
+              class="m-2"
+              @change="changeParam(param.name, param.default)"
+            >
+              <el-option
+                v-for="(item, i) in param.options"
+                :key="item.datatableId"
+                :label="item.datatableName"
+                :value="item.datatableId"
+              />
             </el-select>
-            <el-select v-else-if="param.renderType === 'select'"
-                       v-model="param.default"
-                       class="m-2"
-                       @change="changeParam(param.name, param.default, param.keyI18n)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.value"
-                         :label="item"
-                         :value="item" />
+            <el-select
+              v-else-if="param.renderType === 'select'"
+              v-model="param.default"
+              class="m-2"
+              @change="changeParam(param.name, param.default, param.keyI18n)"
+            >
+              <el-option
+                v-for="(item, i) in param.options"
+                :key="item.value"
+                :label="item"
+                :value="item"
+              />
             </el-select>
-            <el-select v-else-if="param.renderType === 'selected_mult'"
-                       v-model="param.default"
-                       multiple
-                       class="m-2"
-                       @change="changeParam(param.name, param.default, param.keyI18n)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.datatableId"
-                         :label="item.datatableName"
-                         :value="item.datatableId" />
+            <el-select
+              v-else-if="param.renderType === 'selected_mult'"
+              v-model="param.default"
+              multiple
+              class="m-2"
+              @change="changeParam(param.name, param.default, param.keyI18n)"
+            >
+              <el-option
+                v-for="(item, i) in param.options"
+                :key="item.datatableId"
+                :label="item.datatableName"
+                :value="item.datatableId"
+              />
             </el-select>
-            <el-input v-else-if="param.renderType === 'input'"
-                      v-model="param.default"
-                      @change="changeParam(param.name, param.default)" />
-            <el-switch v-else-if="param.renderType === 'switch'"
-                       v-model="param.default"
-                       @change="changeParam(param.name, param.default)" />
+            <el-input
+              v-else-if="param.renderType === 'input'"
+              v-model="param.default"
+              @change="changeParam(param.name, param.default)"
+            />
+            <el-switch
+              v-else-if="param.renderType === 'switch'"
+              v-model="param.default"
+              @change="changeParam(param.name, param.default)"
+            />
             <!-- <el-button
               @click="handleRandomNum(param)"
               v-if="param.name == 'random_state'"
@@ -80,20 +114,20 @@
           </el-form-item>
         </el-form>
       </div>
-      <SetField v-if="isVisible"
-                :projectInfo="projectInfo"
-                :operatorName="props.currentGraphNodeName"
-                :field="fieldInfo[specialParam.name]"
-                @save="saveFieldInfo"
-                @closeSetField="closeSetField" />
+      <SetField
+        v-if="isVisible"
+        :projectInfo="projectInfo"
+        :operatorName="props.currentGraphNodeName"
+        :field="fieldInfo[specialParam.name]"
+        @save="saveFieldInfo"
+        @closeSetField="closeSetField"
+      />
     </template>
 
     <template #footer>
       <div style="flex: auto">
-        <el-button type="primary"
-                   @click="confirmClick">保存</el-button>
-        <el-button type="primary"
-                   @click="deleteNode">删除</el-button>
+        <el-button type="primary" @click="confirmClick">保存</el-button>
+        <el-button type="primary" @click="deleteNode">删除</el-button>
       </div>
     </template>
   </el-drawer>
@@ -109,6 +143,7 @@ import {
 import SetField from '@/components/secretflow/SetField.vue';
 import dictionary from '../../utils/dictionary';
 import PZarithmetic from '../../utils/PZarithmetic';
+import { convertToNumberIfNeeded } from '../../utils';
 
 const secretflowStore = useSecretflowStore();
 const emit = defineEmits(['close']);
@@ -175,8 +210,8 @@ const currentI18n = computed(() => {
     keys.find((key) =>
       key.includes(dictionary.algorithm_En[props.operator.name]),
     );
-  console.log({ currentI18n: secretflowStore.i18n[key], keys, operator: props.operator.name, algorithm_En: dictionary.algorithm_En })
-  return secretflowStore.i18n[key];
+
+  return secretflowStore.i18n[key] ?? {};
 });
 
 onBeforeMount(async () => {
@@ -187,7 +222,6 @@ onBeforeMount(async () => {
     currentGraphNodeName: props.currentGraphNodeName,
   });
   if (!paramObj.value || !paramObj.value[props.currentGraphNodeName]) return;
-  console.log(22, { paramObj });
   backflowParam();
   console.log(renderParam, 'props.currentGraphNodeName');
 });
@@ -195,7 +229,7 @@ onBeforeMount(async () => {
 /**
  * @description 获取设置的字段信息
  */
-async function getSubjectInfo (param) {
+async function getSubjectInfo(param) {
   console.log(param);
   specialParam.value = param;
   fieldInfo.value[param.name] = fieldInfo.value[param.name]
@@ -205,14 +239,14 @@ async function getSubjectInfo (param) {
   isVisible.value = true;
 }
 
-function closeSetField () {
+function closeSetField() {
   isVisible.value = false;
 }
 
 /**
  * @description 保存
  */
-async function confirmClick () {
+async function confirmClick() {
   let attrs = [];
   const attrPaths = [];
 
@@ -261,7 +295,11 @@ async function confirmClick () {
       param.name === 'allow_empty_features' ||
       param.name === 'label_feature'
     ) {
-      attrPaths.push(`input/input_table/${param.name}`);
+      attrPaths.push(
+        param.renderType == 'input'
+          ? param.name
+          : `input/input_table/${param.name}`,
+      );
     } else if (param.name === 'feature_selects') {
       attrPaths.push(`input/${param.attrPathName}/feature_selects`);
     } else if (param.name === 'feature_names') {
@@ -351,7 +389,7 @@ async function confirmClick () {
         break;
       case 'AT_FLOAT':
         attrs.push({
-          f: param.default,
+          f: convertToNumberIfNeeded(param.default),
           is_na: false,
         });
         break;
@@ -415,9 +453,9 @@ async function confirmClick () {
           intValues = param.default.flatMap((item) =>
             typeof item === 'string' && item.includes(',')
               ? item
-                .split(',')
-                .map(Number)
-                .filter((num) => !isNaN(num))
+                  .split(',')
+                  .map(Number)
+                  .filter((num) => !isNaN(num))
               : [typeof item === 'string' ? Number(item) : item],
           );
         } else if (typeof param.default === 'string') {
@@ -486,7 +524,7 @@ async function confirmClick () {
   handleClose();
 }
 
-async function changeParam (name, val, keyI18n) {
+async function changeParam(name, val, keyI18n) {
   if (name === 'sample_algorithm' && val === 'system') {
     renderParam.value = PZarithmetic.sample_system;
     renderParam.value[0].default = val;
@@ -511,7 +549,7 @@ async function changeParam (name, val, keyI18n) {
 }
 
 // 初始化参数
-async function initParam () {
+async function initParam() {
   try {
     if (!projectInfo.value)
       projectInfo.value = await getProject({ projectId: props.info.projectId });
@@ -551,14 +589,16 @@ async function initParam () {
           type: '',
           attrPathName: item.name,
         });
-        renderParam.value.push({
-          name: item.attrs[1].name,
-          desc: item.attrs[1].desc,
-          renderType: 'button',
-          default: '',
-          type: '',
-          attrPathName: item.name,
-        });
+        if (item.attrs[1]) {
+          renderParam.value.push({
+            name: item.attrs[1].name,
+            desc: item.attrs[1].desc,
+            renderType: 'button',
+            default: '',
+            type: '',
+            attrPathName: item.name,
+          });
+        }
         if (item.attrs[2]) {
           renderParam.value.push({
             name: item.attrs[2].name,
@@ -844,7 +884,7 @@ async function initParam () {
 }
 
 // 回写参数
-function backflowParam () {
+function backflowParam() {
   console.log(paramObj.value);
   console.log();
   console.log(paramObj.value[props.currentGraphNodeName], renderParam);
@@ -898,7 +938,7 @@ function backflowParam () {
   });
 }
 
-function saveFieldInfo (data) {
+function saveFieldInfo(data) {
   fieldInfo.value[specialParam.value.name] = { ss: data, is_na: false };
   console.log(
     fieldInfo.value[specialParam.value.name],
@@ -909,11 +949,11 @@ function saveFieldInfo (data) {
   specialParam.value = '';
 }
 
-function handleClose () {
+function handleClose() {
   emit('close');
 }
 
-function deleteNode () {
+function deleteNode() {
   if (props.currentNode.id) {
     console.log(props.graph, '画布实例');
     //    获取所有连接到该节点的边
@@ -925,7 +965,7 @@ function deleteNode () {
 }
 
 //JS 动态修改当前遮罩层样式
-function setDrawerMaskTransparent () {
+function setDrawerMaskTransparent() {
   nextTick(() => {
     const masks = document.querySelectorAll('.el-overlay');
     const drawers = document.querySelectorAll('.el-drawer');

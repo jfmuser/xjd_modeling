@@ -32,12 +32,14 @@ let isDisposing = false;
 //   await secretflowRegister();
 // }
 (async () => {
-  const params = window.location.href?.split('?')?.[1]
-  const pairs = params.split("&")
-  let type = ''
+  const params = window.location.href?.split('?')?.[1];
+  const pairs = params.split('&');
+  let type = '';
   for (const pair of pairs) {
     const [paramKey, paramValue] = pair.split('=');
-    if (paramKey == 'type') { type = paramValue }
+    if (paramKey == 'type') {
+      type = paramValue;
+    }
   }
   // const hasEngine0 = siteStore?.mySite?.tDomainEngineList?.some(
   //   (engine) => engine.engine == '0',
@@ -63,13 +65,16 @@ let isDisposing = false;
 })();
 export default {
   name: 'GraphViewer',
-  props: { editable: { type: Boolean, default: false }, isRunning: { type: Boolean, default: false } },
+  props: {
+    editable: { type: Boolean, default: false },
+    isRunning: { type: Boolean, default: false },
+  },
   emits: ['clickNode', 'edge-connected', 'add-node', 'delete', 'check-result'],
-  setup (props, { emit, expose }) {
+  setup(props, { emit, expose }) {
     const i18n = inject(I18N);
     const ContainerRef = ref();
     let graph;
-    const route = useRoute()
+    const route = useRoute();
     expose({
       addNode,
       getNodes,
@@ -88,19 +93,19 @@ export default {
       },
     );
 
-    function clearCells () {
+    function clearCells() {
       graph.clearCells();
     }
 
-    function getGraph () {
+    function getGraph() {
       return graph;
     }
 
-    function getNodes () {
+    function getNodes() {
       return graph.getNodes();
     }
 
-    function addEdges (edges) {
+    function addEdges(edges) {
       const nodes = graph.getNodes();
       for (let i = 0, l = edges.length; i < l; i += 1) {
         const edgeItem = edges[i];
@@ -122,7 +127,7 @@ export default {
       }
     }
 
-    function addSecretflowEdges (graphInfo) {
+    function addSecretflowEdges(graphInfo) {
       const nodes = graph.getNodes();
       for (let i = 0, l = graphInfo.edges.length; i < l; i += 1) {
         const edgeItem = graphInfo.edges[i];
@@ -155,7 +160,7 @@ export default {
             sourcePortList,
             edgeItem.sourceAnchor[edgeItem.sourceAnchor.length - 1],
             sourcePortList[
-            edgeItem.sourceAnchor[edgeItem.sourceAnchor.length - 1]
+              edgeItem.sourceAnchor[edgeItem.sourceAnchor.length - 1]
             ],
             'sourcePortList',
           );
@@ -195,7 +200,7 @@ export default {
       }
     }
 
-    function addEdge ({
+    function addEdge({
       target,
       source,
       strokeDasharray,
@@ -219,7 +224,7 @@ export default {
       });
     }
 
-    function addNode ({ role, label, type, ports, x, y, data } = {}) {
+    function addNode({ role, label, type, ports, x, y, data } = {}) {
       const result = graph.addNode({
         x,
         y,
@@ -237,7 +242,7 @@ export default {
       return result;
     }
 
-    function addSecretflowNode ({ role, label, type, ports, x, y, data } = {}) {
+    function addSecretflowNode({ role, label, type, ports, x, y, data } = {}) {
       console.log(type, graph, 'WO错了');
       const result = graph.addNode({
         x,
@@ -301,9 +306,9 @@ export default {
         }
       }
       const projectInfo = JSON.parse(localStorage.getItem('projectInfo'));
-      let res
+      let res;
       try {
-        if (route.query.type == '0') return
+        if (route.query.type == '0') return;
         res = await getStatus({
           graphId: projectInfo.graphId,
           projectId: projectInfo.projectId,
@@ -319,7 +324,7 @@ export default {
       destroy();
     });
 
-    function render () {
+    function render() {
       graph = new Graph({
         // 当 snap 设置为 true 时连线的过程中距离节点或者连接桩 50px 时会触发自动吸附
         snap: true,
@@ -388,8 +393,8 @@ export default {
           showNodeSelectionBox: true,
         },
         // sorting: 'none',
-        onPortRendered ({ contentContainer, container, node, port }) {
-          if (props.isRunning) return
+        onPortRendered({ contentContainer, container, node, port }) {
+          if (props.isRunning) return;
           contentContainer.addEventListener('mouseenter', (e) => {
             const tooltip = document.querySelector('.tooltip-widget');
             if (tooltip) {
@@ -397,11 +402,11 @@ export default {
               const key = keys.find((key) =>
                 key.includes(
                   dictionary.yinyu_algorithm_reverse[
-                  node.store.data.data.algorithm_name
+                    node.store.data.data.algorithm_name
                   ] ||
-                  dictionary.algorithm_En[
-                  node.store.data.data.algorithm_name
-                  ],
+                    dictionary.algorithm_En[
+                      node.store.data.data.algorithm_name
+                    ],
                 ),
               );
               // tooltip.innerHTML = i18n.graph[port.id] || i18n.secretflowGraph[port.id];
@@ -413,13 +418,17 @@ export default {
                 node,
                 '这里呢',
               );
-
+              //这块是鼠标悬浮在链接桩上显示该链接桩的描述
               tooltip.innerHTML =
-                i18n.graph[port.id] || secretflowStore.i18n[key]?.[port.desc];
+                (i18n.graph[port.id] ||
+                  secretflowStore.i18n[key]?.[port.desc]) ??
+                '';
+              console.log(tooltip.innerHTML, 'tooltip.innerHTML');
               // tooltip.innerHTML = i18n.graph[port.id] || '';
               setTimeout(() => {
-                tooltip.style.left = `${e.clientX - tooltip.offsetWidth / 2 + 5
-                  }px`;
+                tooltip.style.left = `${
+                  e.clientX - tooltip.offsetWidth / 2 + 5
+                }px`;
                 tooltip.style.top = `${e.clientY}px`;
               }, 300);
             }
@@ -455,7 +464,7 @@ export default {
       });
 
       graph.on('edge:connected', ({ isNew, view, edge }) => {
-        if (props.isRunning) return
+        if (props.isRunning) return;
         edge.attr({
           line: {
             strokeDasharray: '',
@@ -494,7 +503,7 @@ export default {
       };
 
       graph.on('node:mouseenter', (args) => {
-        if (route.query.type == '0') return
+        if (route.query.type == '0') return;
         console.log(args, 'ARGSargs');
         console.log(localStorage.getItem('graphInfo'), '>>>>>>node:mouseenter');
 
@@ -537,20 +546,22 @@ export default {
                     <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M768 832a128 128 0 0 1-128 128H192A128 128 0 0 1 64 832V384a128 128 0 0 1 128-128v64a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64h64z"></path><path fill="currentColor" d="M384 128a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64V192a64 64 0 0 0-64-64H384zm0-64h448a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128H384a128 128 0 0 1-128-128V192A128 128 0 0 1 384 64z"></path></svg>
                   </span>
                 </p>
-                <p class="tooltip-item">执行状态: ${['SUCCEED', 'FAILED'].includes(executionStatus)
-                  ? `<span class="dot ${statusMap[executionStatus].className}"></span>`
-                  : ''
+                <p class="tooltip-item">执行状态: ${
+                  ['SUCCEED', 'FAILED'].includes(executionStatus)
+                    ? `<span class="dot ${statusMap[executionStatus].className}"></span>`
+                    : ''
                 }
                  ${statusMap[executionStatus]?.text || '未运行'}</p>
-                ${['SUCCEED', 'FAILED'].includes(executionStatus)
-                  ? `<p class="tooltip-item">执行结果: </p>
+                ${
+                  ['SUCCEED', 'FAILED'].includes(executionStatus)
+                    ? `<p class="tooltip-item">执行结果: </p>
                 <p class="result">
                   <span class="icon">
                     <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32zm160 448h384v64H320v-64zm0-192h160v64H320v-64zm0 384h384v64H320v-64z"></path></svg>
                   </span>
                  <span>输出表: datatable_output </span>
                 </p>`
-                  : ''
+                    : ''
                 }
               </div>
             `;
@@ -630,7 +641,7 @@ export default {
 
       // 添加边悬停显示删除按钮
       graph.on('edge:mouseenter', ({ cell }) => {
-        if (props.isRunning) return
+        if (props.isRunning) return;
         if (props.editable) {
           cell.addTools([
             {
@@ -646,7 +657,7 @@ export default {
       });
     }
 
-    function destroy () {
+    function destroy() {
       if (graph) {
         isDisposing = true; // 设置标志
         graph.dispose();

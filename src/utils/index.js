@@ -306,7 +306,6 @@ export const engineType = {
   1: '多方计算',
 };
 
-
 export const exportCsv = (data, fieldName) => {
   let csv = Papa.unparse(data);
   let content = new Blob([csv]);
@@ -318,3 +317,30 @@ export const exportCsv = (data, fieldName) => {
   el.click();
   urlObject.revokeObjectURL(url);
 };
+
+// 把字符串类型的数字转换成数字类型，如果是字符串类型的字符则不进行转换
+export function convertToNumberIfNeeded(value, fallbackToOriginal = true) {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed) && isFinite(parsed)) {
+      // 检查是否为整数
+      if (Number.isInteger(parsed) && value.includes('.')) {
+        // 如果原字符串包含小数点，保留浮点数形式
+        return parsed;
+      } else if (Number.isInteger(parsed)) {
+        // 如果是整数且原字符串不包含小数点，返回整数
+        return Math.floor(parsed);
+      }
+      return parsed;
+    }
+
+    // 如果无法解析为有效数字，根据参数决定是否返回原值
+    return fallbackToOriginal ? value : 0;
+  }
+
+  return value;
+}
