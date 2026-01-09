@@ -1,21 +1,33 @@
 image: node:20
 
 stages:
-  - install
   - build
-  - test
   - deploy
-
-job_install:
-  stage: install
-  script:
-    - npm install
-  tags:
-    - frontend
 
 job_build:
   stage: build
   script:
+    - npm install
     - npm run build
+    - mkdir -p /home/kaivin/shared/dist && cp -r web/dist/* /home/kaivin/shared/dist
+  artifacts:
+    paths:
+      - web/dist/
+    when: on_success # 仅在成功时保存
+  services:
+    - docker:dind # 使用 Docker in Docker 服务来管理容器卷（可选）
+  volumes:
+    - /home/kaivin/shared
   tags:
     - frontend
+
+job_deploy:
+  stage: deploy
+  dependencies: # 指明这个作业依赖于 build_job
+    - job_build
+  script:
+    - ls -la web/dist/
+    - echo "Deploying dist folder"
+    - sshpass -p A19961004 scp -P 22 /home/kaivin/shared/dist/  fate1:/home/docker_fate/shared/
+  tags:
+    - ssh
