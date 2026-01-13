@@ -350,7 +350,8 @@ async function confirmClick() {
       attrPaths.push('allow_duplicate_keys/no/receiver_parties');
     } else if (
       param.name === 'frac' ||
-      param.name === 'random_state' ||
+      (param.name === 'random_state' &&
+        typeof renderParam.value[0].default == 'string') ||
       param.name === 'observe_feature' ||
       param.name === 'replacements' ||
       param.name === 'quantiles' ||
