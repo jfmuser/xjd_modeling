@@ -32,7 +32,7 @@ const props = defineProps({ operator: { type: Object, required: true }, info: { 
 const route = useRoute()
 const selectedParamVersion = reactive({});
 const projectInfo = ref({})
-
+const activeCollapse = ref(['1', '2', '3', '4', '5', '6'])
 onBeforeMount(async () => {
   projectInfo.value = JSON.parse(localStorage.getItem('projectInfo'))
   console.log(props.operator, 'OPERATOR');
@@ -148,8 +148,9 @@ function isShow (dataList, roleType) {
     </template>
     <template #default>
       <el-form label-width="150px">
-        <el-collapse>
-          <el-collapse-item title="全部参数">
+        <el-collapse v-model="activeCollapse">
+          <el-collapse-item title="全部参数"
+                            name="1">
             <el-tree :data="optionParamList"
                      :props="optionParam"
                      node-key="key"
@@ -164,7 +165,8 @@ function isShow (dataList, roleType) {
               </template>
             </el-tree>
           </el-collapse-item>
-          <el-collapse-item title="数据版本">
+          <el-collapse-item title="数据版本"
+                            name="2">
             <el-form-item v-show="paramVersionList.length > 0"
                           label="参数版本"
                           style="font-weight: bolder">
@@ -186,7 +188,8 @@ function isShow (dataList, roleType) {
             </el-form-item>
           </el-collapse-item>
           <el-collapse-item title="生效参数:业务方"
-                            v-if="isShow(guestVitalParamList, 'guest').length !== 0">
+                            v-if="isShow(guestVitalParamList, 'guest').length !== 0"
+                            name="3">
             <AlgorithmParamTree v-if="isShow(guestVitalParamList, 'guest').length !== 0"
                                 v-for="vitalParam in guestVitalParamList"
                                 :key="vitalParam.id"
@@ -197,7 +200,8 @@ function isShow (dataList, roleType) {
                                 @params-change="changeParams($event, 'guest')" />
           </el-collapse-item>
           <el-collapse-item title="生效参数:数据方"
-                            v-if="isShow(hostVitalParamList, 'host').length !== 0">
+                            v-if="isShow(hostVitalParamList, 'host').length !== 0"
+                            name="4">
             <template v-for="(item, i) in projectInfo?.host">
               <AlgorithmParamTree v-if="isShow(hostVitalParamList, 'host').length !== 0"
                                   v-for="vitalParam in hostVitalParamListObj[`hostVitalParamList${i}`]"
@@ -210,7 +214,8 @@ function isShow (dataList, roleType) {
             </template>
           </el-collapse-item>
           <el-collapse-item title="公共参数"
-                            v-if="isShow(commonVitalParamList, 'common').length !== 0">
+                            v-if="isShow(commonVitalParamList, 'common').length !== 0"
+                            name="5">
             <AlgorithmParamTree v-if="isShow(commonVitalParamList, 'common').length !== 0"
                                 v-for="vitalParam in commonVitalParamList"
                                 :key="vitalParam.id"
@@ -221,7 +226,8 @@ function isShow (dataList, roleType) {
                                 @params-change="changeParams($event, 'common')" />
           </el-collapse-item>
           <el-collapse-item title="生效参数:聚合方"
-                            v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0">
+                            v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0"
+                            name="6">
             <AlgorithmParamTree v-if="isShow(arbiterVitalParamList, 'arbiter').length !== 0"
                                 v-for="vitalParam in arbiterVitalParamList"
                                 :key="vitalParam.id"
