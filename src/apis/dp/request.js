@@ -50,10 +50,11 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     function (response) {
         const { data } = response;
-        // if(data.result == 'login') {
-        //   ElMessage.error('登录过期')
-        //   window.parent.postMessage({type:'dpTokenExpire',message:true})
-        // }
+        if(data.result == 'login') {
+          ElMessage.error('登录过期')
+          // window.parent.postMessage({type:'dpTokenExpire',message:true},'http://localhost:3103')
+          // window.parent?.handleMessageFromIframe(true)
+        }
         return data;
     }
 );
