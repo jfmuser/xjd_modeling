@@ -465,11 +465,14 @@ async function onRun () {
     // console.log({ project, indexedDB })
     // let jobIds = project?.jobIds || []
     // jobIds.unshift(response.data)
-    await saveFateData({ projectId: route.query.id, jobId: response.data });
+    const res = await saveFateData({ projectId: route.query.id, jobId: response.data });
     // await indexedDB.set({ ...project, id: route.query.id, jobIds });
-    ElMessage.success(response?.retmsg || '操作成功');
-    await delay(3000)
-    JobTableRef.value.fetchTableData();
+    if (res.code == 0) {
+      ElMessage.success(response?.retmsg || '操作成功');
+      await delay(3000)
+      JobTableRef.value.fetchTableData();
+    }
+
   } catch (error) {
     ElMessage.error(error);
   } finally {

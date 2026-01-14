@@ -1270,6 +1270,7 @@ export default function useAlgorithmParam() {
     const hostParamsKey = Object.keys(
       hostProjectParams?.[nodes[0].label] || {},
     );
+    console.log({hostParamsKey,nodeLable:nodes[0].label})
     // const hostParamsKey = Object.keys(hostProjectParams[nodes[3].label]);
     const guestProjectParams = JSON.parse(
       localStorage.getItem('guestProjectParams'),
@@ -1757,6 +1758,7 @@ export default function useAlgorithmParam() {
         //   throw new Error('有算子未保存')
         // }
       });
+      console.log({roleHost})
       roleHostList.push({ ...roleHost });
     }
     _.set(dependencyData, `component_list`, componentArray);
@@ -1769,6 +1771,7 @@ export default function useAlgorithmParam() {
         },
       },
     );
+    console.log({roleHostList,host:info.projectJson.job_runtime_conf.component_parameters.role.host})
     roleHostList.forEach((item, i) => {
       if (info.projectJson.job_runtime_conf.component_parameters.role.host) {
         info.projectJson.job_runtime_conf.component_parameters.role.host[i] = {

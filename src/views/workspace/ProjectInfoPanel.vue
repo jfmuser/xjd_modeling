@@ -123,7 +123,9 @@ function onEdit () {
       </el-descriptions>
       <el-form ref="FormRef"
                :model="state.model"
-               label-width="100px"
+               label-width="70px"
+               label-position="right"
+               label-suffix=":"
                :rules="state.rules">
         <el-form-item label="业务方"
                       prop="guest"

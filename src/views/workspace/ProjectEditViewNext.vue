@@ -38,6 +38,7 @@ import * as Base64 from 'js-base64';
 import WebSocketClient from '@/utils/WebSocketClient.js';
 import useSiteStore from '../../stores/dept/site.store';
 import useAlgorithmStore from '@/stores/algorithm.store'
+import { saveFateData } from '@/apis/prjModel/api';
 const { onSaveGraphInfo } = useAlgorithmParam();
 const siteStore = useSiteStore()
 const {
@@ -324,14 +325,17 @@ async function onRun () {
     projectJson = Base64.encode(JSON.stringify(projectJson));
     const response = await runFateProject({ data: projectJson });
     state.newJobId = response.data;
-    let project = await indexedDB.get(route.query.id)
-    console.log({ project, indexedDB })
-    let jobIds = project?.jobIds || []
-    jobIds.unshift(response.data)
-    console.log(33, { project })
-    await indexedDB.set({ ...project, id: route.query.id, jobIds });
-    startPollingStatus();
-    ElMessage.success(response.retmsg || '操作成功');
+    // let project = await indexedDB.get(route.query.id)
+    // console.log({ project, indexedDB })
+    // let jobIds = project?.jobIds || []
+    // jobIds.unshift(response.data)
+    // console.log(33, { project })
+    const res = await saveFateData({ projectId: route.query.id, jobId: response.data });
+    // await indexedDB.set({ ...project, id: route.query.id, jobIds });
+    if (res.code == 0) {
+      startPollingStatus();
+      ElMessage.success(response.retmsg || '操作成功');
+    }
   } catch (error) {
     ElMessage.error(error);
   }

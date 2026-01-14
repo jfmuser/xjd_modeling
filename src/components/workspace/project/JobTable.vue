@@ -322,12 +322,14 @@ onBeforeUnmount(() => {
                    @click="onCancelCollect(row)">
             取消收藏
           </el-link> -->
-          <el-button v-if="!row.modelId"
-                     type="text"
-                     @click="onCollected(row)">收藏</el-button>
-          <el-button v-else
-                     type="text"
-                     @click="onCancelCollect(row)">取消收藏</el-button>
+          <div v-if="row.status ==Status.SUCCEED">
+            <el-button v-if="!row.modelId"
+                       type="text"
+                       @click="onCollected(row)">收藏</el-button>
+            <el-button v-else
+                       type="text"
+                       @click="onCancelCollect(row)">取消收藏</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
