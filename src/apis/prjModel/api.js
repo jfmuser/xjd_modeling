@@ -5,9 +5,10 @@ import request from './request'
  * @param params 请求参数
  * @param params.projectId 项目id
  * @param params.jobId 作业id
+ * @param params.projectJson projectJson
  */
-export const saveFateData = ({ projectId, jobId }) => {
-   return request.post('/fate/job/save',{projectId, jobId});
+export const saveFateData = ({ projectId, jobId ,projectJson}) => {
+   return request.post('/fate/job/save',{projectId, jobId,projectJson});
 };
 
 /**
@@ -34,9 +35,9 @@ export const collectFate = ({ projectId,jobId,modelName,remarks }) => {
 /**
  * 删除模型
  * @param params 请求参数
- * @param params.fateId fateId
+ * @param params.modelMetaId fateId
  * @param params.isCollect 收藏或取消收藏的标记
  */
-export const deleteModel = ({ modelId }) => {
-  return request.post('/fate/model/deleteModel',{params:{modelId}});
+export const deleteModel = (modelMetaId) => {
+  return request.post(`/fate/model/deleteModel?modelMetaId=${modelMetaId}`);
 };

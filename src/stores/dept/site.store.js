@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { getAllParties } from '../../apis/dp/api'
+import { getAllParties } from '../../apis/dp/api';
 import storeId from '../store.id';
 
 // function formatTreeData(data = []) {
@@ -23,9 +23,8 @@ import storeId from '../store.id';
 //   });
 // }
 
-
 const useSiteStore = defineStore(storeId.site, {
-  state: () => ({ mySite: [], otherSite: [] ,otherSiteObj:{}}),
+  state: () => ({ mySite: [], otherSite: [], otherSiteObj: {},otherSiteByPartyIdObj:{} }),
   getters: {
     institutions() {
       return function (id) {
@@ -44,6 +43,9 @@ const useSiteStore = defineStore(storeId.site, {
         return result;
       };
     },
+    getByPartySite(state) {
+      return state.otherSiteByPartyIdObj;
+    },
   },
   actions: {
     async fetchMySite() {
@@ -54,7 +56,7 @@ const useSiteStore = defineStore(storeId.site, {
         //     tDomainEngineList: []
         //   };
         // }
-        
+
         // sessionStorage.setItem('selfParties', JSON.stringify(response))
         // this.mySite = response;
         return Promise.resolve();
@@ -67,62 +69,73 @@ const useSiteStore = defineStore(storeId.site, {
         const res = await getAllParties();
         const list = [];
         let mySite = undefined;
-        let sitObj = {}
-        res?.list?.forEach((item)=>{
+        let sitObj = {};
+        let siteByPartyIdObj = {};
+        res?.list?.forEach((item) => {
           const outterPartyId = JSON.parse(item.outterPartyId);
+
+          let partyId = '';
+          let tDomainEngineList = item.nodeList.map((it) => {
+            // nodeType：1是联邦学习，2是多方学习
+            if (it.nodeType == 1) {
+              partyId = it.nodeName;
+            }
+            return {
+              domainId: item.id,
+              engine: it.nodeType == '2' ? 1 : 0,
+              engineInfo: JSON.stringify({
+                nodeId: it.nodeName,
+                // partyId: item.id
+                partyId: it.nodeName,
+              }),
+            };
+          });
           const row = {
             id: item.id,
             isSelf: item.ptype === '1' ? 1 : 0,
             name: item.pname,
-            nodeId:outterPartyId.nodeId,
-            tDomainEngineList:item.nodeList.map(it => {
-              return {
-                domainId: item.id,
-                engine:it.nodeType=='2'?1:0,
-                engineInfo: JSON.stringify({ 
-                nodeId: it.nodeName,
-                // partyId: item.id
-                partyId:it.nodeName
-              })
-              }
-            }),
+            nodeId: outterPartyId.nodeId,
+            partyId,
+            tDomainEngineList,
             // tDomainEngineList: [{
             //   domainId: item.id,
             //   engine: 1,
-            //   engineInfo: JSON.stringify({ 
+            //   engineInfo: JSON.stringify({
             //     nodeId: outterPartyId.nodeId,
             //     partyId: item.id
             //   })
             // },{
             //   domainId: item.id,
             //   engine: 0,
-            //   engineInfo: JSON.stringify({ 
+            //   engineInfo: JSON.stringify({
             //     nodeId: outterPartyId.nodeId,
             //     partyId: item.id
             //   })
             // }]
           };
 
-          if(item.ptype === '1'){
+          if (item.ptype === '1') {
             mySite = row;
-          } 
+          }
 
           list.push(row);
-          sitObj = {...sitObj,[row.nodeId]:row}
+          siteByPartyIdObj = {...siteByPartyIdObj,[row.partyId]:row}
+          sitObj = { ...sitObj, [row.nodeId]: row };
         });
 
         sessionStorage.setItem('selfParties', JSON.stringify(mySite));
         this.mySite = mySite;
 
         this.otherSite = list;
-        this.otherSiteObj = sitObj
+        this.otherSiteObj = sitObj;
+        this.otherSiteByPartyIdObj = siteByPartyIdObj;
         return list;
       } catch (error) {
         console.error(error);
       }
     },
-    getByNodeId (nodeId)  {
-      return this.otherSiteObj[nodeId]
+    getByNodeId(nodeId) {
+      return this.otherSiteObj[nodeId];
     },
     fetchData() {
       this.fetchMySite();

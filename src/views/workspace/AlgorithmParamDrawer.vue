@@ -4,6 +4,7 @@ import AlgorithmParamTree from './project/AlgorithmParamTree.vue';
 import useAlgorithmParam from '../../hooks/useAlgorithmParam';
 import { ElCard, ElCollapse } from 'element-plus'
 import { useRoute } from 'vue-router';
+import useSiteStore from '@/stores/dept/site.store';
 import _ from 'lodash';
 
 
@@ -27,6 +28,7 @@ const {
   onSaveNode,
 } = useAlgorithmParam();
 const emit = defineEmits(['close']);
+const siteStore = useSiteStore()
 const state = reactive({ loading: false, data: {} });
 const props = defineProps({ operator: { type: Object, required: true }, info: { type: Object, required: true }, currentNode: { type: Object, required: true }, graph: { type: Object, required: true }, isRunning: { type: Boolean, default: false } });
 const route = useRoute()
@@ -63,7 +65,20 @@ watchEffect(handleVitalParamList)
 //   selectedParamVersion.id = paramVersion.value.id;
 //   add();
 // });
-
+console.log({
+  vitalParamList,
+  commonVitalParamList,
+  hostVitalParamList,
+  hostVitalParamListObj,
+  guestVitalParamList,
+  arbiterVitalParamList,
+  constraintList,
+  optionParamList,
+  defaultVitalParamList,
+  optionParam,
+  paramVersionList,
+  paramVersion,
+})
 function handleClose () {
   emit('close');
 }
@@ -203,14 +218,16 @@ function isShow (dataList, roleType) {
                             v-if="isShow(hostVitalParamList, 'host').length !== 0"
                             name="4">
             <template v-for="(item, i) in projectInfo?.host">
-              <AlgorithmParamTree v-if="isShow(hostVitalParamList, 'host').length !== 0"
-                                  v-for="vitalParam in hostVitalParamListObj[`hostVitalParamList${i}`]"
-                                  :key="vitalParam.id"
-                                  :data="vitalParam"
-                                  :operatorName="props.operator.label"
-                                  :constraints="constraintList"
-                                  @params-change="changeParams($event, 'host', hostVitalParamListObj, i)"
-                                  :roleType="'host'" />
+              <div v-if="isShow(hostVitalParamList, 'host').length !== 0">
+                <h4>{{siteStore.getByPartySite[item]?.name}}</h4>
+                <AlgorithmParamTree v-for="vitalParam in hostVitalParamListObj[`hostVitalParamList${i}`]"
+                                    :key="vitalParam.id"
+                                    :data="vitalParam"
+                                    :operatorName="props.operator.label"
+                                    :constraints="constraintList"
+                                    @params-change="changeParams($event, 'host', hostVitalParamListObj, i)"
+                                    :roleType="'host'" />
+              </div>
             </template>
           </el-collapse-item>
           <el-collapse-item title="公共参数"
