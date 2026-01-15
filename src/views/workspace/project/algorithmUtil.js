@@ -88,7 +88,10 @@ export function setParamConfig(data, influencedParam) {
 export function resetParams(data, defaultValues, roleType) {
   data.forEach((param) => {
     defaultValues.forEach((defaultValue) => {
-      if (param.keyPath === defaultValue.keyPath && defaultValue.roleType === roleType) {
+      if (
+        param.keyPath === defaultValue.keyPath &&
+        defaultValue.roleType === roleType
+      ) {
         if (param.inputStyle === 'select') {
           param.defaultValue = _.cloneDeep(defaultValue.value);
         } else {
@@ -96,7 +99,11 @@ export function resetParams(data, defaultValues, roleType) {
         }
       } else {
         if (param.subParams && param.subParams.length > 0) {
-          param.subParams = resetParams(param.subParams, defaultValues, roleType)
+          param.subParams = resetParams(
+            param.subParams,
+            defaultValues,
+            roleType,
+          );
         }
       }
     });
@@ -182,7 +189,6 @@ export function countControllerParams(count, paramList, controllerParam) {
           params[params.key] = params.defaultValue;
         }
       }
-
     }
     if (
       controllerParamKey === currKeyPath &&
@@ -204,7 +210,7 @@ export function formatJsonValue(dataList) {
       if (item.defaultValue) {
         if (item.defaultValue != '') {
           item.defaultValue = item.defaultValue;
-          return
+          return;
         }
       }
       item.subParams = formatJsonValue(item.subParams);
@@ -249,11 +255,11 @@ export function formatParamList(dataList) {
         }
       } else if (item.inputStyle === 'input') {
         if (isJSON(item.defaultValue)) {
-          item.defaultValue = JSON.parse(item.defaultValue)
-          item.defaultValue = JSON.stringify(item.defaultValue, null, 4)
+          item.defaultValue = JSON.parse(item.defaultValue);
+          item.defaultValue = JSON.stringify(item.defaultValue, null, 4);
         }
         if (typeof item.defaultValue === 'object') {
-          item.defaultValue = JSON.stringify(item.defaultValue, null, 4)
+          item.defaultValue = JSON.stringify(item.defaultValue, null, 4);
         }
       }
       item.subParams = formatParamList(item.subParams);
@@ -297,13 +303,10 @@ export function getOptionParamList(vitalParamList, optionParamList) {
     let optionParam = {};
     optionParam = JSON.parse(JSON.stringify(vitalParam));
     optionParam.subParams = [];
-    if (
-      vitalParam.inputStyle === 'level' ||
-      vitalParam.subParams?.length > 0
-    ) {
+    if (vitalParam.inputStyle === 'level' || vitalParam.subParams?.length > 0) {
       optionParam.subParams = getOptionParamList(vitalParam.subParams, []);
     }
-    if (!optionParamList.some(item => item.key === optionParam.key)) {
+    if (!optionParamList.some((item) => item.key === optionParam.key)) {
       optionParamList.push(optionParam);
     }
   });
@@ -330,15 +333,12 @@ export function setParamConfigChecked(data, id, checked) {
   data.forEach((vitalParam) => {
     if (vitalParam.key === id) {
       if (vitalParam.subParams?.length === 0) {
-
         vitalParam.isVitalParam = checked;
-
-      }
-      else {
+      } else {
         vitalParam.isVitalParam = checked;
       }
     } else {
-      if (!vitalParam.subParams?.length > 0) return
+      if (!vitalParam.subParams?.length > 0) return;
       setParamConfigChecked(vitalParam.subParams, id, checked);
     }
   });
@@ -350,20 +350,38 @@ export function formattedFormResult(dataList) {
   console.log(dataList, '1111DATELIST');
   const result = [];
   for (let i = 0; i < dataList.length; i++) {
+    // 如果是hetero_nn算法得把部分key做处理以下
+    if (dataList[i].key.includes('interactive_layer_define_')) {
+      dataList[i].key = dataList[i].key.replace(
+        'interactive_layer_define_',
+        '',
+      );
+      console.log(dataList[i].key, 'dataList[i].key');
+    } else if (dataList[i].key.includes('top_nn_define_')) {
+      dataList[i].key = dataList[i].key.replace('top_nn_define_', '');
+    } else if (dataList[i].key.includes('bottom_nn_define_')) {
+      dataList[i].key = dataList[i].key.replace('bottom_nn_define_', '');
+    } else if (dataList[i].key.includes('_level')) {
+      dataList[i].key = dataList[i].key.replace('_level', '');
+    }
+
     if (dataList[i].inputStyle === 'level') {
       dataList[i].subParams = formattedFormResult(dataList[i].subParams);
       dataList[i][dataList[i].key] = dataList[i].subParams;
-      if (dataList[i].subParams.length === 0) continue
+      if (dataList[i].subParams.length === 0) continue;
       result.push(_.pick(dataList[i], [dataList[i].key]));
     } else {
       const roleType = dataList[i].roleType;
       if (roleType.length > 0 && !roleType.includes('common')) {
         dataList.splice(i, 1);
-        i--
+        i--;
       } else {
         if (dataList[i].isVitalParam) {
           if (dataList[i].inputStyle === 'select') {
-            if (dataList[i].defaultValue === '[]' || dataList[i].defaultValue === '') {
+            if (
+              dataList[i].defaultValue === '[]' ||
+              dataList[i].defaultValue === ''
+            ) {
               dataList[i][dataList[i].key] = '';
             } else {
               const op = dataList[i].options.find(
@@ -377,12 +395,13 @@ export function formattedFormResult(dataList) {
             }
           } else if (dataList[i].inputStyle === 'checkbox') {
             if (isJSON(dataList[i].defaultValue)) {
-              dataList[i][dataList[i].key] = JSON.parse(dataList[i].defaultValue);
+              dataList[i][dataList[i].key] = JSON.parse(
+                dataList[i].defaultValue,
+              );
             } else {
-              dataList[i][dataList[i].key] = dataList[i].defaultValue
+              dataList[i][dataList[i].key] = dataList[i].defaultValue;
             }
-          }
-          else {
+          } else {
             // if (dataList[i].type === 'list') {
             //   let value = [];
             //   if (!dataList[i].defaultValue || dataList[i].defaultValue === 'null') {
@@ -411,7 +430,7 @@ export function formattedFormResult(dataList) {
             //     }
             //   }
             //   dataList[i][dataList[i].key] = value;
-            // } else 
+            // } else
             if (dataList[i].type === 'number') {
               dataList[i][dataList[i].key] = Number(dataList[i].defaultValue);
               // } else if (dataList[i].type === 'int') {
@@ -420,9 +439,11 @@ export function formattedFormResult(dataList) {
               //   dataList[i][dataList[i].key] = parseFloat(dataList[i].defaultValue);
             } else {
               if (isJSON(dataList[i].defaultValue)) {
-                dataList[i][dataList[i].key] = JSON.parse(dataList[i].defaultValue);
+                dataList[i][dataList[i].key] = JSON.parse(
+                  dataList[i].defaultValue,
+                );
               } else {
-                dataList[i][dataList[i].key] = dataList[i].defaultValue
+                dataList[i][dataList[i].key] = dataList[i].defaultValue;
               }
             }
           }
@@ -431,6 +452,7 @@ export function formattedFormResult(dataList) {
       }
     }
   }
+  console.log(result, '看看result结果a');
   return result;
 }
 
@@ -452,13 +474,13 @@ export function setDefaultValue(dataList1, dataList2) {
 export function formatSubParams(dataList, type) {
   const result = [];
   dataList.forEach(function (data) {
-    if (!data.isVitalParam) return
+    if (!data.isVitalParam) return;
     if (data.subParams?.length > 0) {
       data.subParams = formattedFormResult(data.subParams);
       data[data.key] = data.subParams;
       result.push(_.pick(data, [data.key]));
     } else {
-      if (!data.roleType.includes(type)) return
+      if (!data.roleType.includes(type)) return;
       if (data.inputStyle === 'select') {
         if (data.defaultValue === '[]' || data.defaultValue === '') {
           data[data.key] = '';
@@ -488,7 +510,7 @@ export function formatSubParams(dataList, type) {
         //     }
         //   }
         //   data[data.key] = value;
-        // } else 
+        // } else
         if (data.type === 'number') {
           data[data.key] = Number(data.defaultValue);
           // } else if (data.type === 'int') {
@@ -505,24 +527,15 @@ export function formatSubParams(dataList, type) {
   return result;
 }
 
-export function setReaderOptions(
-  currentVersionParams,
-  options,
-  key,
-  roleType,
-) {
-  console.log({currentVersionParams,
-  options,
-  key})
+export function setReaderOptions(currentVersionParams, options, key, roleType) {
+  console.log({ currentVersionParams, options, key });
   for (let i = 0; i < currentVersionParams.length; i++) {
     const param = currentVersionParams[i];
     const subParams = param.subParams;
     if (param.inputStyle === 'level' && subParams.length > 0) {
       for (let j = 0; j < subParams.length; j++) {
         const subParam = subParams[j];
-        if (
-          subParam.label_en === key
-        ) {
+        if (subParam.label_en === key) {
           subParam.options = options;
         }
       }
@@ -605,4 +618,3 @@ export function isJSON(str) {
     }
   }
 }
-

@@ -1010,10 +1010,14 @@ export default function useAlgorithmParam() {
       'arbiterProjectParams',
       JSON.stringify(arbiterProjectParams),
     );
-    console.log('vitalParamList =>>>', vitalParamList.value);
+    console.log(
+      'vitalParamList =>>>',
+      vitalParamList.value,
+      JSON.stringify(commonVitalParamList.value),
+    );
     // const formattedForm = formattedFormResult(vitalParamList.value);
     const commonFormattedForm = formattedFormResult(commonVitalParamList.value);
-
+    console.log('commonFormattedForm', commonFormattedForm);
     // const configInfo = {
     //   [operatorType]: JSON.stringify(formattedForm)
     //     .trim()
@@ -1023,15 +1027,34 @@ export default function useAlgorithmParam() {
     //     .replaceAll('}]', '}')
     //     .replaceAll('[]', '{}'),
     // };
-    const ConfigInfo = {
-      [operatorType]: JSON.stringify(commonFormattedForm)
-        .trim()
-        .slice(1, -1)
-        .replaceAll(new RegExp('},+{', 'gm'), ',')
-        .replaceAll('[{', '{')
-        .replaceAll('}]', '}')
-        .replaceAll('[]', '{}'),
-    };
+    let ConfigInfo;
+    if (
+      operatorType.includes('hetero_nn') ||
+      operatorType.includes('homo_nn') ||
+      operatorType.includes('homo_CNN')
+    ) {
+      ConfigInfo = {
+        [operatorType]: JSON.stringify(commonFormattedForm)
+          .trim()
+          .slice(1, -1)
+          .replaceAll(new RegExp('},+{', 'gm'), ',')
+          .replaceAll('[{', '{')
+          .replaceAll('}]', '}')
+          .replaceAll('"layers":{', '"layers":[{')
+          .replaceAll('}}},', '}}]},')
+          .replaceAll('[]', '{}'),
+      };
+    } else {
+      ConfigInfo = {
+        [operatorType]: JSON.stringify(commonFormattedForm)
+          .trim()
+          .slice(1, -1)
+          .replaceAll(new RegExp('},+{', 'gm'), ',')
+          .replaceAll('[{', '{')
+          .replaceAll('}]', '}')
+          .replaceAll('[]', '{}'),
+      };
+    }
     // const projectConfigInfo = {
     //   ...JSON.parse(localStorage.getItem('projectConfigInfo')),
     //   ...configInfo,
@@ -1065,7 +1088,7 @@ export default function useAlgorithmParam() {
     const nodeList = nodes.filter((node) => {
       return !(node.disableMove == false);
     });
-    console.log({nodeList});
+    console.log({ nodeList });
     // 得到画布上算子的基本信息
     const selectedOperators = nodeList.map((node) => {
       node.algorithm_name = node.component_name;
@@ -1101,9 +1124,13 @@ export default function useAlgorithmParam() {
       componentArray,
     );
     await onSaveDependencyData(nodes, edges, dependencyData);
-    const isSuccess = await onSaveProject(selectedOperators, info, dependencyData);
-    console.log({isSuccess})
-    return isSuccess
+    const isSuccess = await onSaveProject(
+      selectedOperators,
+      info,
+      dependencyData,
+    );
+    console.log({ isSuccess });
+    return isSuccess;
   }
 
   function onSaveDependencyData(nodes, edges, dependencyData) {
@@ -1203,10 +1230,11 @@ export default function useAlgorithmParam() {
             );
             // inputDsl.splice(idx, 1)
           } else {
-            if (
-              info[`projectJson`].job_dsl.components[`${nodes[i].label}`]?.input
-                ?.data[`${input[idx].target.port.split('I')[0]}`]
-            ) {
+            console.log(info, input, 'inputinput');
+            const portName = input?.[idx]?.target?.port?.split('I')[0];
+            const component =
+              info?.projectJson?.job_dsl?.components?.[nodes[i]?.label];
+            if (portName && component?.input?.data?.[portName]) {
               info[`projectJson`].job_dsl.components[
                 `${nodes[i].label}`
               ]?.input.data[`${input[idx].target.port.split('I')[0]}`].push(
@@ -1306,6 +1334,7 @@ export default function useAlgorithmParam() {
       const guestOperatorParams = guestProjectParams?.[labelName];
       // const operatorConfigInfo = projectConfigInfo[labelName];
       const OperatorConfigInfo = ProjectConfigInfo?.[labelName];
+      console.log(OperatorConfigInfo, 'OperatorConfigInfo');
       console.log(operator, labelName, 'operator.name');
 
       componentArray.push({
@@ -1834,6 +1863,7 @@ export default function useAlgorithmParam() {
     // console.log('algorithmParams>>', JSON.parse(algorithmParams));
     let configData = JSON.stringify(ProjectParams);
     let projectJson = JSON.stringify(info.projectJson);
+    console.log('projectJson>>', JSON.parse(projectJson));
     dependencyData = JSON.stringify(dependencyData);
     let edgeData = JSON.stringify(selectedOperators);
     try {
@@ -1861,17 +1891,17 @@ export default function useAlgorithmParam() {
         isNewRecord: false,
         outterTaskId: JSON.stringify(outterTaskId),
       });
-      console.log('请求是否失败',{res})
-       if(res.result =='login') {
-         ElMessage.error(res.message);
-         return false
+      console.log('请求是否失败', { res });
+      if (res.result == 'login') {
+        ElMessage.error(res.message);
+        return false;
       } else {
-       ElMessage.success('应用修改成功');
-       return true
+        ElMessage.success('应用修改成功');
+        return true;
       }
     } catch (error) {
       ElMessage.error('error');
-      return false
+      return false;
     } finally {
       loadingInstance.close();
     }
