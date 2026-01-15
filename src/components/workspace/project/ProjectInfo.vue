@@ -465,7 +465,7 @@ async function onRun () {
     // console.log({ project, indexedDB })
     // let jobIds = project?.jobIds || []
     // jobIds.unshift(response.data)
-    const res = await saveFateData({ projectId: route.query.id, jobId: response.data });
+    const res = await saveFateData({ projectId: route.query.id, jobId: response.data, projectJson: state.projectDetail.projectJson });
     // await indexedDB.set({ ...project, id: route.query.id, jobIds });
     if (res.code == 0) {
       ElMessage.success(response?.retmsg || '操作成功');

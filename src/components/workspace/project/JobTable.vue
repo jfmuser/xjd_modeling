@@ -82,7 +82,7 @@ function syncJobStatus (page) {
   }
   jobStatusInterval = setInterval(() => {
     fetchTableData(page);
-  }, 3000);
+  }, 5000);
 }
 
 async function fetchTableData (page) {
@@ -194,13 +194,13 @@ async function toDetail ({ jobId, fRole, fPartyId }) {
 }
 
 async function onCancelCollect (row) {
-  if (row.modelId) {
+  if (row.modelMetaId) {
     ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName);
     return;
   }
   try {
     state.loading = true;
-    await cancelCollect(row.jobId);
+    await deleteModel(row.modelMetaId);
     ElMessage.success('取消收藏成功');
     onUpdateDataTable();
   } catch (error) {
@@ -322,8 +322,8 @@ onBeforeUnmount(() => {
                    @click="onCancelCollect(row)">
             取消收藏
           </el-link> -->
-          <div v-if="row.status ==Status.SUCCEED">
-            <el-button v-if="!row.modelId"
+          <div v-if="row.status ==Status.SUCCESS||row.status == Status.SUCCEED">
+            <el-button v-if="!row.modelMetaId"
                        type="text"
                        @click="onCollected(row)">收藏</el-button>
             <el-button v-else
