@@ -256,6 +256,10 @@ export default ({ mode }) => {
           //   });
           // },
         },
+        '/pir-model': {
+          target: 'http://192.168.12.76:15666',//`${pzPath}`,//`http://127.0.0.1:15666`,
+          changeOrigin: true,
+        },
         // 9999/10000
         '/log/new': {
           target:

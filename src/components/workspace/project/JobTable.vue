@@ -30,7 +30,7 @@ import { getBoardInfo } from '../../../apis/innovate/innovate.api.js';
 import AES from '../../../utils/aesCrypto';
 import rsa from '../../../utils/encrypt';
 import useEnv from '@/hooks/useEnv.js';
-
+import { queryFateData, collectFate, deleteModel } from '@/apis/prjModel/api';
 let jobStatusInterval;
 let needRun = false;
 const { VITE_GLOB_XJ_PASSWORD, VITE_GLOB_FATEBOARD_UI_URL } = useEnv()
@@ -91,9 +91,18 @@ async function fetchTableData (page) {
     state.loading = true;
     const pager = TableContainerRef.value.pager;
     const currentPage = page || pager.page;
-    let project = await indexedDB.get(route.query.id)
-    console.log({ project, indexedDB })
-    let ids = project?.jobIds || []
+    // let project = await indexedDB.get(route.query.id)
+    const response = await queryFateData({ projectId: props.projectId })
+    // console.log({ project, indexedDB })
+    // let ids = project?.jobIds || []
+    if (response.code != 0) {
+      return
+    }
+    let jobMap = new Map()
+    let ids = response.data.map(item => {
+      jobMap.set(item.jobId, item)
+      return item.jobId
+    });
     const res = await getFateJobList({ ids })
     console.log({ res, ids })
     // const response = await getProjectJobList({
@@ -107,10 +116,14 @@ async function fetchTableData (page) {
     // },
     // );
     // const { records, current, size, total } = response;
-    state.tableData = res?.data?.slice((currentPage - 1) * 10, currentPage * 10) || [];
+    state.tableData = res?.data?.slice((currentPage - 1) * 10, currentPage * 10).map(item => {
+      const originData = jobMap.get(item.jobId)
+      return { ...item, ...originData }
+    }) || [];
+    console.log({ tableData: state.tableData })
     pager.size = 10;//size;
     pager.page = currentPage;
-    pager.total = project?.jobIds?.length || 0 //total;
+    pager.total = ids?.length || 0 //total;
     needRun = state?.tableData?.some?.((item) => {
       return Status.isRunning(item.status);
     });
@@ -181,8 +194,8 @@ async function toDetail ({ jobId, fRole, fPartyId }) {
 }
 
 async function onCancelCollect (row) {
-  if (CollectType.canCollect(row.isCollected)) {
-    ModelCollectRef.value.show(row, props.projectName);
+  if (row.modelId) {
+    ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName);
     return;
   }
   try {
@@ -199,7 +212,7 @@ async function onCancelCollect (row) {
 }
 
 function onCollected (row) {
-  ModelCollectRef.value.show(row.jobId, props.projectName);
+  ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName);
 }
 
 function getFrole (fRole) {
@@ -257,7 +270,7 @@ onBeforeUnmount(() => {
       <el-table-column label="开始时间"
                        min-width="170px">
         <template #default="{ row }">
-          {{ row.startDate }}
+          {{ row.startDate||row.createTime }}
         </template>
       </el-table-column>
       <el-table-column label="结束时间"
@@ -296,8 +309,8 @@ onBeforeUnmount(() => {
                        label="操作"
                        fixed="right"
                        min-width="130px">
-        <!-- <template #default="{ row }">
-          <el-link v-if="CollectType.canCollect(row.collect)"
+        <template #default="{ row }">
+          <!-- <el-link v-if="CollectType.canCollect(row.collect)"
                    type="primary"
                    :underline="false"
                    @click="onCollected(row)">
@@ -308,8 +321,14 @@ onBeforeUnmount(() => {
                    :underline="false"
                    @click="onCancelCollect(row)">
             取消收藏
-          </el-link>
-        </template> -->
+          </el-link> -->
+          <el-button v-if="!row.modelId"
+                     type="text"
+                     @click="onCollected(row)">收藏</el-button>
+          <el-button v-else
+                     type="text"
+                     @click="onCancelCollect(row)">取消收藏</el-button>
+        </template>
       </el-table-column>
     </el-table>
   </TableContainer>

@@ -19,6 +19,7 @@ import {
   createJob,
   updateProject,
 } from '../../../apis/workspace/project.api';
+import { saveFateData } from '@/apis/prjModel/api';
 import { runFateProject } from '@/apis/innovate/innovate.api';
 
 import { formattedFormResult } from '../../../views/workspace/project/algorithmUtil';
@@ -460,11 +461,12 @@ async function onRun () {
     const response = await runFateProject({ data: projectJson });
     console.log(33, { response })
     // const response = await createJob(route.query.id);
-    let project = await indexedDB.get(route.query.id)
-    console.log({ project, indexedDB })
-    let jobIds = project?.jobIds || []
-    jobIds.unshift(response.data)
-    await indexedDB.set({ ...project, id: route.query.id, jobIds });
+    // let project = await indexedDB.get(route.query.id)
+    // console.log({ project, indexedDB })
+    // let jobIds = project?.jobIds || []
+    // jobIds.unshift(response.data)
+    await saveFateData({ projectId: route.query.id, jobId: response.data });
+    // await indexedDB.set({ ...project, id: route.query.id, jobIds });
     ElMessage.success(response?.retmsg || '操作成功');
     await delay(3000)
     JobTableRef.value.fetchTableData();
