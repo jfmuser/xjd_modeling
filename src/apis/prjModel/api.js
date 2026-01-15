@@ -38,6 +38,6 @@ export const collectFate = ({ projectId,jobId,modelName,remarks }) => {
  * @param params.modelMetaId fateId
  * @param params.isCollect 收藏或取消收藏的标记
  */
-export const deleteModel = ({ modelMetaId }) => {
-  return request.post('/fate/model/deleteModel',{params:{modelMetaId}});
+export const deleteModel = (modelMetaId) => {
+  return request.post(`/fate/model/deleteModel?modelMetaId=${modelMetaId}`);
 };

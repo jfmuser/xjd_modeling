@@ -194,10 +194,7 @@ async function toDetail ({ jobId, fRole, fPartyId }) {
 }
 
 async function onCancelCollect (row) {
-  if (row.modelMetaId) {
-    ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName);
-    return;
-  }
+
   try {
     state.loading = true;
     await deleteModel(row.modelMetaId);
