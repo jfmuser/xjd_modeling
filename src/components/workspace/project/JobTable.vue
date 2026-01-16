@@ -31,6 +31,7 @@ import AES from '../../../utils/aesCrypto';
 import rsa from '../../../utils/encrypt';
 import useEnv from '@/hooks/useEnv.js';
 import { queryFateData, collectFate, deleteModel } from '@/apis/prjModel/api';
+
 let jobStatusInterval;
 let needRun = false;
 const { VITE_GLOB_XJ_PASSWORD, VITE_GLOB_FATEBOARD_UI_URL } = useEnv()
@@ -91,20 +92,29 @@ async function fetchTableData (page) {
     state.loading = true;
     const pager = TableContainerRef.value.pager;
     const currentPage = page || pager.page;
+
     // let project = await indexedDB.get(route.query.id)
-    const response = await queryFateData({ projectId: props.projectId })
+    const response = await queryFateData({ projectId: props.projectId, pageSize: 5, pageNum: currentPage })
     // console.log({ project, indexedDB })
     // let ids = project?.jobIds || []
     if (response.code != 0) {
       return
     }
+    // 按时间排序
+    let tableData = _.sortBy(response.data.records, item => item.createTime).reverse()
+
+    // let tableData = sortArr.slice((currentPage - 1) * 10, currentPage * 10)
+    // console.log({ tableData, data: sortArr })
     let jobMap = new Map()
-    let ids = response.data.map(item => {
-      jobMap.set(item.jobId, item)
+
+    let ids = tableData.map(item => {
+
       return item.jobId
-    });
+    })
     const res = await getFateJobList({ ids })
-    console.log({ res, ids })
+    res.data.forEach(item => {
+      jobMap.set(item.jobId, item)
+    })
     // const response = await getProjectJobList({
     //   "pageRequest": {
     //     "pageNumber": currentPage,
@@ -116,16 +126,16 @@ async function fetchTableData (page) {
     // },
     // );
     // const { records, current, size, total } = response;
-    state.tableData = res?.data?.slice((currentPage - 1) * 10, currentPage * 10).map(item => {
+    state.tableData = tableData.map(item => {
       const originData = jobMap.get(item.jobId)
       return { ...item, ...originData }
     }) || [];
     console.log({ tableData: state.tableData })
-    pager.size = 10;//size;
+    pager.size = 5;//size;
     pager.page = currentPage;
-    pager.total = ids?.length || 0 //total;
+    pager.total = response.data?.total || 0 //total;
     needRun = state?.tableData?.some?.((item) => {
-      return Status.isRunning(item.status);
+      return [Status.WAITING, Status.RUNNING, Status.PENDING].includes(item.status);
     });
 
     if (needRun) {

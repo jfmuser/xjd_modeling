@@ -15,10 +15,12 @@ export const saveFateData = ({ projectId, jobId ,projectJson}) => {
  * 根据projectId查询fate数据
  * @param params 请求参数
  * @param params.projectId 项目id
+ *  * @param params.pageSize 分页数量
+ *  * @param params.pageNum 分页起始位
  */
-export const queryFateData = ({ projectId }) => {
+export const queryFateData = ({ projectId,pageNum,pageSize }) => {
    return request.get('/fate/job/listJobsByProjectId', {
-         params:{projectId}
+         params:{projectId,pageNum,pageSize}
     });
 };
 
