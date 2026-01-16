@@ -58,12 +58,19 @@ def check_local_dir(dir_name):
   if not os.path.exists(dir_name):
       os.makedirs(dir_name)
 
+def check_remote_dir(dir_name):
+  """远程文件夹是否存在，不存在则创建"""
+  try:
+      sftp.stat(dir_name)
+  except FileNotFoundError:
+      sftp.mkdir(dir_name)
+
 # 递归上传文件夹，也可以上传文件
 def uploadDir(local_dir_name,remote_dir_name):
   print(local_dir_name)
   if os.path.isdir(local_dir_name):
       # 文件夹，不能直接上传，需要继续循环
-      check_local_dir(remote_dir_name)
+      check_remote_dir(remote_dir_name)
       print('开始上传文件夹：' + local_dir_name)
       for local_file_name in os.listdir(local_dir_name):
           sub_local = os.path.join(local_dir_name, local_file_name)
