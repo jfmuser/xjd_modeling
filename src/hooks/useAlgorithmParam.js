@@ -685,7 +685,7 @@ export default function useAlgorithmParam() {
     res?.nodes?.forEach((item) => {
       item?.datatables?.forEach((it) => {
         console.log({nodeId:site.get(item.nodeId)})
-        if(site.has(it.nodeId)) {
+        if(site.has(item.nodeId)) {
           namespaceOptions.push({
           label: `namespace_${it.datatableId}`,
           value: `namespace_${it.datatableId}`,
