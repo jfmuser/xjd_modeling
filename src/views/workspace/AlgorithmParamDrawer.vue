@@ -191,7 +191,7 @@ function isShow (dataList, roleType) {
               <el-select v-model="selectedParamVersion.id"
                          :disabled="paramVersionList.length === 1"
                          @change="
-              selectParamVersion(selectedParamVersion.id, props.operator.type, props.operator.label, projectInfo.host)
+              selectParamVersion(selectedParamVersion.id, props.operator.type, props.operator.label, projectInfo.host,route.query.id)
               "
                          style="width: 80%"
                          value-key="id">

@@ -103,7 +103,7 @@ export default function useAlgorithmParam() {
   async function getInEffectAlgorithmParams(operatorType, hostList, projectId) {
     const componentName = operatorType;
     operatorType = operatorType.slice(0, -2);
-    console.log('operatorType>>>>', operatorType);
+    console.log('operatorType>>>>', operatorType,hostList, projectId);
     let currentVersionParams = [];
     let hostCurrentVersionParams = [];
     let hostCurrentVersionParamsObj = {};
@@ -308,22 +308,27 @@ export default function useAlgorithmParam() {
         ]);
       });
     }
+    const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
+    const {guest,host} =info
     if (operatorType.includes('reader')) {
       hostCurrentVersionParams = await setOptions(
         hostCurrentVersionParams,
         projectId,
+        host
       );
       hostList.forEach(async (item, i) => {
+        console.log({item,i})
         hostCurrentVersionParamsObj[
           `hostVitalParamList${i}`
         ][0].subParams[0].options =
-          hostCurrentVersionParams?.[0]?.subParams[0]?.options;
+          hostCurrentVersionParams?.[0]?.subParams[0]?.options.filter(it => it.partyId == item);
       });
     }
     if (operatorType.includes('reader')) {
       guestCurrentVersionParams = await setOptions(
         guestCurrentVersionParams,
         projectId,
+        guest
       );
     }
     // 初始校验约束规则
@@ -417,8 +422,8 @@ export default function useAlgorithmParam() {
     );
   }
 
-  async function selectParamVersion(id, operatorType, operatorLabel, hostList) {
-    console.log('selectParamVersion>>', id);
+  async function selectParamVersion(id, operatorType, operatorLabel, hostList,projectId) {
+    console.log('selectParamVersion>>', id,operatorType, operatorLabel, hostList);
     console.log(
       'paramVersionList1>>',
       JSON.parse(JSON.stringify(paramVersionList.value)),
@@ -457,22 +462,26 @@ export default function useAlgorithmParam() {
 
     // constraintList.value = JSON.parse(paramVersion.value.constraintList);
     let currentVersionParams = paramVersion.value.param_list;
+        const info = _.cloneDeep(JSON.parse(localStorage.getItem('projectInfo')));
+    const {guest,host} =info
     if (operatorType.includes('reader')) {
       hostCurrentVersionParams = await setOptions(
         hostCurrentVersionParams,
         projectId,
+        host,
       );
       hostList.forEach(async (item, i) => {
         hostCurrentVersionParamsObj[
           `hostVitalParamList${i}`
         ][0].subParams[0].options =
-          hostCurrentVersionParams[0].subParams[0].options;
+          hostCurrentVersionParams[0].subParams[0].options.filter(it => it.partyId == item);;
       });
     }
     if (operatorType.includes('reader')) {
       guestCurrentVersionParams = await setOptions(
         guestCurrentVersionParams,
         projectId,
+        guest,
       );
     }
     // 进行数据分组
@@ -615,9 +624,13 @@ export default function useAlgorithmParam() {
   }
 
   // 设置reader的namespace和name下拉选项，后端接口获取
-  async function setOptions(currentVersionParams, projectId) {
+  async function setOptions(currentVersionParams, projectId,partyIds=[]) {
     console.log({ currentVersionParams, projectId });
     const siteStore = useSiteStore();
+    let site = new Map()
+     partyIds.forEach(item=>{
+      let party = siteStore.getByPartySite[item]
+      site.set(party.nodeId,party)})
     // if (type === 'guest') {
     // const selfNamespaceOptions = await getSelfDataNamespaceList();
     //   currentVersionParams = setReaderOptions(
@@ -671,10 +684,16 @@ export default function useAlgorithmParam() {
     console.log({ res });
     res?.nodes?.forEach((item) => {
       item?.datatables?.forEach((it) => {
-        namespaceOptions.push({
+        console.log({nodeId:site.get(item.nodeId)})
+        if(site.has(it.nodeId)) {
+          namespaceOptions.push({
           label: `namespace_${it.datatableId}`,
           value: `namespace_${it.datatableId}`,
+          nodeId: item.nodeId,
+          partyId: Number(site.get(item.nodeId).partyId)
         });
+        }
+        
         allTableList.value.push({
           label: it.datatableName,
           value: it.datatableName,
@@ -683,7 +702,9 @@ export default function useAlgorithmParam() {
         });
       });
     });
-    console.log({ namespaceOptions });
+          
+ 
+    console.log({ namespaceOptions,allTableList:allTableList.value });
     authProjectList.value = res.nodes;
     // authProjectList.value = await getAuthData(projectId);
 
@@ -724,6 +745,7 @@ export default function useAlgorithmParam() {
     const keyPath = vars.keyPath;
     const operatorName = vars.operatorName;
     const value = vars.value;
+    console.log({value})
     if (keyPath) {
       console.log(changeValues.value, 'changeValues.value');
       const val = changeValues.value.find((item) => item.key === keyPath);
@@ -763,7 +785,7 @@ export default function useAlgorithmParam() {
       //     });
       //   }
       // });
-
+console.log(23,{allTableList:allTableList.value})
       tableNameOptions = allTableList.value.filter((item) => {
         return item.namespace == value;
       });
