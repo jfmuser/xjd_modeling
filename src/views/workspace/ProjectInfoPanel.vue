@@ -46,7 +46,7 @@ onMounted(() => {
     let engineInfo = role.tDomainEngineList.find(engine => engine.engine == '0')?.engineInfo
     engineInfo = JSON.parse(engineInfo)
     roleNameList.value[Number(engineInfo.partyId)] = role.name
-    return { name: role.name, id: role.id, value: Number(engineInfo.partyId) }
+    return { name: role.name, id: role.id, value: Number(engineInfo.partyId), isSelf: role.isSelf }
 
   })
 
@@ -97,6 +97,7 @@ function selectChange (val, roleType) {
 function onEdit () {
   emit('edit');
 }
+console.log({ roleList })
 </script>
 
 <template>
@@ -132,7 +133,7 @@ function onEdit () {
                       v-if="type == '0'">
           <el-select v-model="state.model.guest"
                      @change="selectChange(state.model.guest,'guest')">
-            <el-option v-for="item in roleList"
+            <el-option v-for="item in roleList.filter(item=>item.isSelf == 1)"
                        :key="item.id"
                        :label="item.name"
                        :value="item.value" />
@@ -144,7 +145,7 @@ function onEdit () {
           <el-select v-model="state.model.host"
                      multiple
                      @change="selectChange(state.model.host,'host')">
-            <el-option v-for="item in roleList"
+            <el-option v-for="item in roleList.filter(item=>item.isSelf == 0)"
                        :key="item.id"
                        :label="item.name"
                        :value="item.value" />
@@ -154,7 +155,8 @@ function onEdit () {
                       prop="arbiter"
                       v-if="type === '0'">
           <el-select v-model="state.model.arbiter"
-                     @change="selectChange(state.model.arbiter,'arbiter')">
+                     @change="selectChange(state.model.arbiter,'arbiter')"
+                     clearable>
             <el-option v-for="item in roleList"
                        :key="item.id"
                        :label="item.name"

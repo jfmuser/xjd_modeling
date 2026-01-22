@@ -1,7 +1,7 @@
 <template>
   <div :style="{ width:'100%'}">
     <el-form-item v-show="data.subParams?.length === 0 ? data.isVitalParam : true"
-                  :label-width="data.roleType?.includes(roleType) && data.isVitalParam ?'120px':'0px'"
+                  :label-width="data.roleType?.includes(roleType) && data.isVitalParam ?'150px':'0px'"
                   :error="errorMessage"
                   :rules="rules"
                   ref="ruleForm">
