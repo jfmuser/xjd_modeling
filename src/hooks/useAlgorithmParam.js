@@ -764,7 +764,7 @@ export default function useAlgorithmParam() {
         roleType: type,
       });
     }
-    if (keyPath.endsWith('namespace') && operatorName.includes('reader')) {
+    if (keyPath?.endsWith('namespace') && operatorName?.includes('reader')) {
       let roleType = '';
       let tableNameOptions = [];
       // if (type === 'host') {

@@ -181,7 +181,7 @@ async function setCurrentAlgorithms () {
 onMounted(async () => {
   await getOperators();
   await setCurrentAlgorithms();
-  await nextTick();
+  // await nextTick();
   timerId = setTimeout(() => {
     const dom = Array.from(
       document.querySelectorAll('.graph-area .graph-node-wrapper'),

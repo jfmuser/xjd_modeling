@@ -237,13 +237,13 @@ async function setCurrentAlgorithms () {
 onMounted(async () => {
   await getOperators();
   await setCurrentAlgorithms();
-  await nextTick();
+  // await nextTick();
   timerId = setTimeout(() => {
     if (
       !localStorage.getItem('projectParams') ||
       localStorage.getItem('projectParams') === 'null'
-    )
-      return;
+    ) return;
+
     const dom = Array.from(
       document.querySelectorAll('.graph-area .graph-node-wrapper'),
     );
@@ -251,14 +251,16 @@ onMounted(async () => {
       JSON.parse(localStorage.getItem('projectParams')),
     );
     dom.forEach((dom) => {
-      if (paramsKey.some((key) => dom.innerHTML.includes(key))) {
+      if (paramsKey.some((key) => {
+        return dom.innerHTML.includes(key)
+      })) {
         dom.style.borderBottom = '6px solid #2a50ec';
       }
     });
     if (dom.length !== 0) {
       clearTimeout(timerId);
     }
-  }, 0);
+  }, 100);
 });
 
 const data = ref();
