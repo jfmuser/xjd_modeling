@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div :style="{ width:'100%'}">
     <el-form-item v-show="data.subParams?.length === 0 ? data.isVitalParam : true"
+                  :label-width="data.roleType?.includes(roleType) && data.isVitalParam ?'120px':'0px'"
                   :error="errorMessage"
                   :rules="rules"
                   ref="ruleForm">
@@ -9,13 +10,16 @@
                     v-if="data.roleType?.includes(roleType) && data.isVitalParam"
                     placement="top-start"
                     :content="data.description + data.placeholder">
-          {{ data.label_zh }}({{ data.label_en }})
+          <div>
+            <div>{{ data.label_zh }}</div>
+            <div>({{ data.label_en }}) </div>
+          </div>
         </el-tooltip>
       </template>
       <!-- 1 -->
       <el-input v-if="data.inputStyle === 'input' && !isJSON(data.defaultValue) && data.roleType.includes(roleType) && data.isVitalParam"
                 v-model="data.defaultValue"
-                style="width: 60%"
+                style="width: 100%"
                 :placeholder="data.placeholder"
                 @input="onValidate(data)"
                 @blur="changeParam(data.key, data.defaultValue, operatorName)" />
@@ -32,7 +36,7 @@
       <el-input v-if="data.inputStyle === 'input' && isJSON(data.defaultValue) && data.roleType.includes(roleType)&& data.isVitalParam"
                 v-model="data.defaultValue"
                 autosize
-                style="width: 60%"
+                style="width: 100%"
                 type="textarea"
                 :placeholder="data.placeholder"
                 @input="onValidateJSON(data)"
@@ -112,7 +116,7 @@ export default {
   },
   setup (props) {
     onBeforeMount(() => {
-      console.log({ data: props.data })
+      console.log({ data: props.data, roleType: props.roleType })
       if (props.roleType === 'host') {
         console.log(props.data, props.data.isVitalParam, '这是host');
       }
@@ -120,6 +124,7 @@ export default {
         props.data.defaultValue = JSON.parse(props.data.defaultValue)
       }
     })
+    console.log({ data: props.data })
   },
   emits: ['paramsChange'],
   data () {

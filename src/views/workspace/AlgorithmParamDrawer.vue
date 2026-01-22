@@ -162,8 +162,30 @@ function isShow (dataList, roleType) {
       <div class="title">参数配置</div>
     </template>
     <template #default>
-      <el-form label-width="150px">
+      <el-form label-position="left">
         <el-collapse v-model="activeCollapse">
+          <el-collapse-item title="数据版本"
+                            name="2">
+            <el-form-item v-show="paramVersionList.length > 0"
+                          label="参数版本"
+                          style="font-weight: bolder">
+              <!--            <span slot="label">-->
+              <!--              <span><strong>参数版本</strong></span>-->
+              <!--            </span>-->
+              <el-select v-model="selectedParamVersion.id"
+                         :disabled="paramVersionList.length === 1"
+                         @change="
+              selectParamVersion(selectedParamVersion.id, props.operator.type, props.operator.label, projectInfo.host,route.query.id)
+              "
+                         style="width: 100%"
+                         value-key="id">
+                <el-option v-for="item in paramVersionList"
+                           :label="item.param_version_description"
+                           :value="item.param_version"
+                           :key="item.param_version" />
+              </el-select>
+            </el-form-item>
+          </el-collapse-item>
           <el-collapse-item title="全部参数"
                             name="1">
             <el-tree :data="optionParamList"
@@ -180,28 +202,7 @@ function isShow (dataList, roleType) {
               </template>
             </el-tree>
           </el-collapse-item>
-          <el-collapse-item title="数据版本"
-                            name="2">
-            <el-form-item v-show="paramVersionList.length > 0"
-                          label="参数版本"
-                          style="font-weight: bolder">
-              <!--            <span slot="label">-->
-              <!--              <span><strong>参数版本</strong></span>-->
-              <!--            </span>-->
-              <el-select v-model="selectedParamVersion.id"
-                         :disabled="paramVersionList.length === 1"
-                         @change="
-              selectParamVersion(selectedParamVersion.id, props.operator.type, props.operator.label, projectInfo.host,route.query.id)
-              "
-                         style="width: 80%"
-                         value-key="id">
-                <el-option v-for="item in paramVersionList"
-                           :label="item.param_version_description"
-                           :value="item.param_version"
-                           :key="item.param_version" />
-              </el-select>
-            </el-form-item>
-          </el-collapse-item>
+
           <el-collapse-item title="生效参数:业务方"
                             v-if="isShow(guestVitalParamList, 'guest').length !== 0"
                             name="3">
@@ -379,6 +380,9 @@ function isShow (dataList, roleType) {
   position: fixed;
   right: 5%;
   bottom: 2%;
+}
+:deep .el-collapse-item__wrap {
+  padding: 0 40px !important;
 }
 .custom-drawer {
   .el-drawer__header {

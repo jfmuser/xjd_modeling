@@ -19,31 +19,34 @@
       <!-- <div>
         
       </div>  -->
-      <span>组件类型:纵向</span>
-      <div v-if="props.operator?.attrs || props.operator?.inputs[0].attrs"
-           style="margin-top: 20px">
-        <el-form label-width="100px"
-                 label-position="left">
-          <el-form-item v-for="param in renderParam"
-                        :key="param.name">
-            <template #label>
-              <el-tooltip v-if="param.desc"
-                          effect="dark"
-                          placement="top-start"
-                          :content="
+      <!-- <span>组件类型:纵向</span> -->
+      <el-collapse v-model="activeCollapse">
+        <el-collapse-item title="组件类型:纵向"
+                          name="1"
+                          v-if="props.operator?.attrs || props.operator?.inputs[0].attrs">
+          <el-form label-width="150px"
+                   label-position="left">
+
+            <el-form-item v-for="param in renderParam"
+                          :key="param.name">
+              <template #label>
+                <el-tooltip v-if="param.desc"
+                            effect="dark"
+                            placement="top-start"
+                            :content="
                   (currentI18n && currentI18n[param.desc]) ?? param.desc
                 ">
-                {{
+                  {{
                   param.name === 'key'
                     ? param.keyI18n
                     : (currentI18n && currentI18n[param.name]) ?? param.name
                 }}
-                <!-- ({{ param.name }}) -->
-              </el-tooltip>
-            </template>
-            <el-button v-if="param.renderType === 'button'"
-                       type="info"
-                       @click="getSubjectInfo(param)">{{
+                  <!-- ({{ param.name }}) -->
+                </el-tooltip>
+              </template>
+              <el-button v-if="param.renderType === 'button'"
+                         type="info"
+                         @click="getSubjectInfo(param)">{{
                 JSON.stringify(fieldInfo) === '{}'
                   ? '未选择字段'
                   : `已选择${
@@ -52,53 +55,59 @@
                         : 0
                     }个字段`
               }}</el-button>
-            <el-select v-else-if="param.renderType === 'selected'"
-                       v-model="param.default"
-                       class="m-2 w-full"
-                       @change="changeParam(param.name, param.default)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.datatableId"
-                         :label="item.datatableName"
-                         :value="item.datatableId" />
-            </el-select>
-            <el-select v-else-if="param.renderType === 'select'"
-                       v-model="param.default"
-                       class="m-2 w-full"
-                       @change="changeParam(param.name, param.default, param.keyI18n)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.value"
-                         :label="item"
-                         :value="item" />
-            </el-select>
-            <el-select v-else-if="param.renderType === 'selected_mult'"
-                       v-model="param.default"
-                       multiple
-                       class="m-2 w-full"
-                       @change="changeParam(param.name, param.default, param.keyI18n)">
-              <el-option v-for="(item, i) in param.options"
-                         :key="item.datatableId"
-                         :label="item.datatableName"
-                         :value="item.datatableId" />
-            </el-select>
-            <el-input v-else-if="param.renderType === 'input'"
-                      v-model="param.default"
-                      @change="changeParam(param.name, param.default)" />
-            <el-switch v-else-if="param.renderType === 'switch'"
-                       v-model="param.default"
-                       @change="changeParam(param.name, param.default)" />
-            <!-- <el-button
+              <el-select v-else-if="param.renderType === 'selected'"
+                         v-model="param.default"
+                         class="m-2 w-full"
+                         @change="changeParam(param.name, param.default)">
+                <el-option v-for="(item, i) in param.options"
+                           :key="item.datatableId"
+                           :label="item.datatableName"
+                           :value="item.datatableId" />
+              </el-select>
+              <el-select v-else-if="param.renderType === 'select'"
+                         v-model="param.default"
+                         class="m-2 w-full"
+                         @change="changeParam(param.name, param.default, param.keyI18n)">
+                <el-option v-for="(item, i) in param.options"
+                           :key="item.value"
+                           :label="item"
+                           :value="item" />
+              </el-select>
+              <el-select v-else-if="param.renderType === 'selected_mult'"
+                         v-model="param.default"
+                         multiple
+                         class="m-2 w-full"
+                         @change="changeParam(param.name, param.default, param.keyI18n)">
+                <el-option v-for="(item, i) in param.options"
+                           :key="item.datatableId"
+                           :label="item.datatableName"
+                           :value="item.datatableId" />
+              </el-select>
+              <el-input v-else-if="param.renderType === 'input'"
+                        v-model="param.default"
+                        @change="changeParam(param.name, param.default)" />
+              <el-switch v-else-if="param.renderType === 'switch'"
+                         v-model="param.default"
+                         @change="changeParam(param.name, param.default)" />
+              <!-- <el-button
               @click="handleRandomNum(param)"
               v-if="param.name == 'random_state'"
               >生成随机种子数</el-button -->
-          </el-form-item>
-        </el-form>
-      </div>
-      <SetField v-if="isVisible"
-                :projectInfo="projectInfo"
-                :operatorName="props.currentGraphNodeName"
-                :field="fieldInfo[specialParam.name]"
-                @save="saveFieldInfo"
-                @closeSetField="closeSetField" />
+            </el-form-item>
+          </el-form>
+        </el-collapse-item>
+        <el-collapse-item title="特殊配置"
+                          v-if="isVisible"
+                          name="2">
+          <SetField v-if="isVisible"
+                    :projectInfo="projectInfo"
+                    :operatorName="props.currentGraphNodeName"
+                    :field="fieldInfo[specialParam.name]"
+                    @save="saveFieldInfo"
+                    @closeSetField="closeSetField" />
+        </el-collapse-item>
+      </el-collapse>
+
     </template>
 
     <template #footer>
@@ -164,7 +173,7 @@ watch(
     graphInfo.value = newVal;
   },
 );
-
+const activeCollapse = ref(['1', '2'])
 const graphInfo = ref(props.graphInfo);
 const paramObj = computed(() => {
   return JSON.parse(localStorage.getItem('projectParams')) ?? {};
@@ -968,17 +977,21 @@ function setDrawerMaskTransparent () {
 }
 </script>
 
-<style lang="scss">
+<style  lang="scss">
 .title {
   color: #000;
   margin: 0 !important;
+}
+:deep .el-collapse-item__wrap {
+  padding: 0 40px !important;
 }
 .custom-drawer {
   .el-drawer__header {
     margin: 0 !important;
   }
 }
-::deep el-drawer.rtl {
+
+:deep .el-drawer.rtl {
   pointer-events: auto;
 }
 </style>
