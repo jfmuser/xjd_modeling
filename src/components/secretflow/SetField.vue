@@ -1,31 +1,29 @@
 <template>
-  <el-dialog
-    :model-value="true"
-    title="设置字段"
-    width="30%"
-    class="dialog_box"
-    @close="() => emit('closeSetField')"
-  >
+  <el-dialog :model-value="true"
+             title="设置字段"
+             width="800px"
+             class="dialog_box"
+             @close="() => emit('closeSetField')">
     <div class="main">
       <div class="left_box">
-        {{ JSON.stringify(leftData).replace('[', '').replace(']', '') }}
+        <el-tree ref="treeRef"
+                 :data="treeData"
+                 show-checkbox
+                 node-key="id"
+                 :default-checked-keys="[...CheckedKeys]"
+                 default-expand-all
+                 @check-change="changeCheckbox" />
       </div>
       <div class="right_box">
-        <el-tree
-          ref="treeRef"
-          :data="treeData"
-          show-checkbox
-          node-key="id"
-          :default-checked-keys="[...CheckedKeys]"
-          default-expand-all
-          @check-change="changeCheckbox"
-        />
+        {{ JSON.stringify(leftData).replace('[', '').replace(']', '') }}
       </div>
+
     </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="() => emit('closeSetField')">取消</el-button>
-        <el-button type="primary" @click="() => emit('save', leftData)">
+        <el-button type="primary"
+                   @click="() => emit('save', leftData)">
           确定
         </el-button>
       </span>
@@ -64,7 +62,7 @@ const leftData = ref([]);
 const CheckedKeys = ref([]);
 const graphInfo = JSON.parse(localStorage.getItem('graphInfo'));
 
-async function handleFieldData() {
+async function handleFieldData () {
   const fieldInfo = [];
   const typeList = [];
   let currentGraphNodeId = '';
@@ -91,9 +89,9 @@ async function handleFieldData() {
       index === -1
         ? ''
         : fieldInfo.push({
-            colType: 'float',
-            colName: sourceNode.nodeDef.attrs[index]?.s ?? '',
-          });
+          colType: 'float',
+          colName: sourceNode.nodeDef.attrs[index]?.s ?? '',
+        });
 
       // const outputData = await getOutputData({
       //     graphId: route.query.graphId,
@@ -169,7 +167,7 @@ async function handleFieldData() {
   console.log(treeData.value, fieldInfo, 'treeData.value');
 }
 
-function changeCheckbox(data, checked, indeterminate) {
+function changeCheckbox (data, checked, indeterminate) {
   console.log(data, checked, '看看字段的取消是啥');
 
   // 处理叶子节点（没有children的节点）
@@ -235,7 +233,7 @@ function changeCheckbox(data, checked, indeterminate) {
   }
 }
 
-async function backflowField() {
+async function backflowField () {
   treeData.value.forEach((data) => {
     data.children.forEach((item) => {
       if (props.field.ss.includes(item.label)) {
@@ -256,13 +254,14 @@ onBeforeMount(async () => {
 <style lang="scss" scoped>
 .main {
   display: flex;
-  height: 500px;
+  height: 300px;
 
   .left_box,
   .right_box {
     flex: 1;
-    height: 500px;
+    height: auto;
     overflow: auto;
+    padding: 10px 20px;
   }
 
   // :deep .el-tree {

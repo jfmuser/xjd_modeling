@@ -767,21 +767,39 @@ const fetchStatus = async () => {
     const graph = GraphViewerRef.value?.getGraph();
     const edges = graph.getEdges();
 
+    let nodeStatus = {}
+    response.nodes.forEach((n) => {
+      nodeStatus = { ...nodeStatus, [n.graphNodeId]: n.status }
+    })
     // 1. 调试输出节点和边信息
     console.log(
       '当前节点状态:',
+      nodeStatus,
       response.nodes.map((n) => `${n.graphNodeId}:${n.status}`),
     );
     console.log('边数量:', edges.length);
 
     // 2. 先清除所有动画
     edges.forEach((edge) => {
+      const currentNode = edge?.store?.data?.data?.edgeId.split('__')[0]
+      console.log({ currentNode })
+      const status = nodeStatus[currentNode]
+      console.log({ currentNode, status })
+      let animation = 'none';
+      let strokeDasharray = '';
+      let edgeColor = '#000';
+      switch (status) {
+        case 'running': strokeDasharray = 5; animation = 'running-line 30s linear infinite'; edgeColor = '#2a50ec'; break;
+        case 'success': edgeColor = '#2a50ec'; break;
+        case 'failed': edgeColor = '#ff4f38'; break;
+        default: break;
+      }
       edge.attr({
         line: {
-          strokeDasharray: '',
+          strokeDasharray,
           style: {
-            animation: 'none',
-            stroke: edge.attr('line/stroke'), // 强制触发重绘
+            animation,
+            stroke: edge.attr('line/stroke', edgeColor), // 强制触发重绘
           },
         },
       });
@@ -1005,7 +1023,8 @@ const onCheckResult = async (node) => {
                                     :currentNode="currentNode"
                                     :graphInfo="graphInfo"
                                     :PrivacyExchangeData="PrivacyExchangeData"
-                                    @close="onCloseParamDrawer" />
+                                    @close="onCloseParamDrawer"
+                                    :isRunning="isRunning" />
   </C2Transition>
   <C2Transition>
     <ResultDrawer v-if="resultDrawer.visible"

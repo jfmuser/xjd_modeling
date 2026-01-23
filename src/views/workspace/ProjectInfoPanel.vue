@@ -97,7 +97,6 @@ function selectChange (val, roleType) {
 function onEdit () {
   emit('edit');
 }
-console.log({ roleList })
 </script>
 
 <template>

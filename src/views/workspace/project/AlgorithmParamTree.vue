@@ -1,7 +1,7 @@
 <template>
   <div :style="{ width:'100%'}">
     <el-form-item v-show="data.subParams?.length === 0 ? data.isVitalParam : true"
-                  :label-width="data.roleType?.includes(roleType) && data.isVitalParam ?'150px':'0px'"
+                  :label-width="data.roleType?.includes(roleType) && data.isVitalParam ?'100px':'0px'"
                   :error="errorMessage"
                   :rules="rules"
                   ref="ruleForm">
@@ -11,8 +11,8 @@
                     placement="top-start"
                     :content="data.description + data.placeholder">
           <div>
-            <div>{{ data.label_zh }}</div>
-            <div>({{ data.label_en }}) </div>
+            <div class="text-ellipsis">{{ data.label_zh }}</div>
+            <div class="text-ellipsis">({{ data.label_en }}) </div>
           </div>
         </el-tooltip>
       </template>
@@ -35,7 +35,7 @@
       <!-- 2 -->
       <el-input v-if="data.inputStyle === 'input' && isJSON(data.defaultValue) && data.roleType.includes(roleType)&& data.isVitalParam"
                 v-model="data.defaultValue"
-                autosize
+                :autosize="{minRows:4, maxRows:8}"
                 style="width: 100%"
                 type="textarea"
                 :placeholder="data.placeholder"
@@ -169,8 +169,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 :deep .asterisk-left {
   min-width: 300px;
+}
+.text-ellipsis {
+  @include texthide;
 }
 </style>

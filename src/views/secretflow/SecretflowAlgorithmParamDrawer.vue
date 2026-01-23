@@ -20,12 +20,13 @@
         
       </div>  -->
       <!-- <span>组件类型:纵向</span> -->
-      <el-collapse v-model="activeCollapse">
-        <el-collapse-item title="组件类型:纵向"
-                          name="1"
-                          v-if="props.operator?.attrs || props.operator?.inputs[0].attrs">
-          <el-form label-width="150px"
-                   label-position="left">
+      <el-form label-width="150px"
+               label-position="left"
+               :disabled="isRunning">
+        <el-collapse v-model="activeCollapse">
+          <el-collapse-item title="组件类型:纵向"
+                            name="1"
+                            v-if="props.operator?.attrs || props.operator?.inputs[0].attrs">
 
             <el-form-item v-for="param in renderParam"
                           :key="param.name">
@@ -94,35 +95,38 @@
               v-if="param.name == 'random_state'"
               >生成随机种子数</el-button -->
             </el-form-item>
-          </el-form>
-        </el-collapse-item>
-        <el-collapse-item title="特殊配置"
-                          v-if="isVisible"
-                          name="2">
-          <SetField v-if="isVisible"
-                    :projectInfo="projectInfo"
-                    :operatorName="props.currentGraphNodeName"
-                    :field="fieldInfo[specialParam.name]"
-                    @save="saveFieldInfo"
-                    @closeSetField="closeSetField" />
-        </el-collapse-item>
-      </el-collapse>
 
+          </el-collapse-item>
+          <el-collapse-item title="特殊配置"
+                            v-if="isVisible"
+                            name="2">
+            <SetField v-if="isVisible"
+                      :projectInfo="projectInfo"
+                      :operatorName="props.currentGraphNodeName"
+                      :field="fieldInfo[specialParam.name]"
+                      @save="saveFieldInfo"
+                      @closeSetField="closeSetField" />
+          </el-collapse-item>
+        </el-collapse>
+      </el-form>
     </template>
 
-    <template #footer>
+    <template #footer
+              v-if="!isRunning">
       <div style="flex: auto">
         <el-button type="primary"
-                   @click="confirmClick">保存</el-button>
+                   @click="deleteNode"
+                   :disabled="isRunning||state.loading">删除</el-button>
         <el-button type="primary"
-                   @click="deleteNode">删除</el-button>
+                   @click="confirmClick"
+                   :disabled="isRunning||state.loading||isError">保存</el-button>
       </div>
     </template>
   </el-drawer>
 </template>
 
 <script setup>
-import { onBeforeMount, ref, computed, watch, nextTick } from 'vue';
+import { onBeforeMount, ref, computed, watch, nextTick, reactive } from 'vue';
 import useSecretflowStore from '@/stores/secretflow/secretflowInfo.store.js';
 import {
   getProject,
@@ -132,7 +136,7 @@ import SetField from '@/components/secretflow/SetField.vue';
 import dictionary from '../../utils/dictionary';
 import PZarithmetic from '../../utils/PZarithmetic';
 import { convertToNumberIfNeeded } from '../../utils';
-import { ElCard, ElCollapse } from 'element-plus'
+import { ElCard, ElCollapse, ElMessage } from 'element-plus'
 const secretflowStore = useSecretflowStore();
 const emit = defineEmits(['close']);
 
@@ -165,6 +169,10 @@ const props = defineProps({
     type: Object,
     default: {},
   },
+  isRunning: {
+    type: Boolean,
+    default: false
+  }
 });
 console.log({ operator: props.operator });
 watch(
@@ -184,6 +192,7 @@ const projectInfo = ref(null);
 const fieldInfo = ref({});
 const isVisible = ref(false);
 const specialParam = ref('');
+const state = reactive({ loading: false, isError: false })
 const currentI18n = computed(() => {
   const keys = secretflowStore.i18n ? Object.keys(secretflowStore.i18n) : [];
   const key =
@@ -203,15 +212,24 @@ const currentI18n = computed(() => {
 });
 
 onBeforeMount(async () => {
-  await initParam();
-  setDrawerMaskTransparent();
-  console.log({
-    paramObj: paramObj.value,
-    currentGraphNodeName: props.currentGraphNodeName,
-  });
-  if (!paramObj.value || !paramObj.value[props.currentGraphNodeName]) return;
-  backflowParam();
-  console.log(renderParam, 'props.currentGraphNodeName');
+  try {
+    state.loading = true
+    await initParam();
+    setDrawerMaskTransparent();
+    console.log({
+      paramObj: paramObj.value,
+      currentGraphNodeName: props.currentGraphNodeName,
+    });
+    if (!paramObj.value || !paramObj.value[props.currentGraphNodeName]) return;
+    backflowParam();
+    console.log(renderParam, 'props.currentGraphNodeName');
+    state.isError = false
+  } catch (error) {
+    state.isError = true
+    ElMessage.error('网络异常，请稍后再试')
+  } finally {
+    state.loading = false
+  }
 });
 
 /**

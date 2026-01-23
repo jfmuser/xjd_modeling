@@ -2,7 +2,7 @@
 import { reactive, onMounted, ref, onBeforeMount, nextTick, watchEffect } from 'vue';
 import AlgorithmParamTree from './project/AlgorithmParamTree.vue';
 import useAlgorithmParam from '../../hooks/useAlgorithmParam';
-import { ElCard, ElCollapse } from 'element-plus'
+import { ElCard, ElCollapse, ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router';
 import useSiteStore from '@/stores/dept/site.store';
 import _ from 'lodash';
@@ -35,21 +35,33 @@ const route = useRoute()
 const selectedParamVersion = reactive({});
 const projectInfo = ref({})
 const activeCollapse = ref(['1', '2', '3', '4', '5', '6'])
+// 是否异常加载
+const isError = ref(false)
 onBeforeMount(async () => {
-  projectInfo.value = JSON.parse(localStorage.getItem('projectInfo'))
-  console.log(props.operator, 'OPERATOR');
-  // const label = props.operator.algorithm_name ?? props.operator.component_name;
-  const label = props.operator.label;
-  let componentName = label;
-  let reg = /._\d$/;
-  if (reg.test(label)) {
-    componentName = label;
+  try {
+    state.loading = true
+    projectInfo.value = JSON.parse(localStorage.getItem('projectInfo'))
+    console.log(props.operator, 'OPERATOR');
+    // const label = props.operator.algorithm_name ?? props.operator.component_name;
+    const label = props.operator.label;
+    let componentName = label;
+    let reg = /._\d$/;
+    if (reg.test(label)) {
+      componentName = label;
+    }
+    await getInEffectAlgorithmParams(componentName, projectInfo.value.host, route.query.id);
+    selectedParamVersion.id = paramVersion.value.param_version;
+    add();
+    // cloneVitalParamList()
+    console.log(guestVitalParamList, 'AKSKSKDO')
+    isError.value = false
+  } catch (error) {
+    isError.value = true
+    ElMessage.error('网络异常,请稍后再试')
+    state.loading = false
+  } finally {
+    state.loading = false
   }
-  await getInEffectAlgorithmParams(componentName, projectInfo.value.host, route.query.id);
-  selectedParamVersion.id = paramVersion.value.param_version;
-  add();
-  // cloneVitalParamList()
-  console.log(guestVitalParamList, 'AKSKSKDO')
 })
 
 watchEffect(handleVitalParamList)
@@ -162,13 +174,13 @@ function isShow (dataList, roleType) {
       <div class="title">参数配置</div>
     </template>
     <template #default>
-      <el-form label-position="left">
+      <el-form label-position="left"
+               :disabled="isRunning">
         <el-collapse v-model="activeCollapse">
           <el-collapse-item title="数据版本"
                             name="2">
             <el-form-item v-show="paramVersionList.length > 0"
-                          label="参数版本"
-                          style="font-weight: bolder">
+                          label="参数版本">
               <!--            <span slot="label">-->
               <!--              <span><strong>参数版本</strong></span>-->
               <!--            </span>-->
@@ -357,15 +369,16 @@ function isShow (dataList, roleType) {
         </el-collapse>
       </el-form>
     </template>
-    <template #footer>
+    <template #footer
+              v-if="!isRunning">
       <div style="flex: auto">
         <el-button type="primary"
                    @click="deleteNode"
-                   :disabled="isRunning">
+                   :disabled="isRunning||state.loading">
           删除
         </el-button>
         <el-button type="primary"
-                   :disabled="isRunning"
+                   :disabled="isRunning||state.loading||isError"
                    @click="onSaveNode(props.operator, handleClose, hostVitalParamListObj)">
           保存
         </el-button>
@@ -381,9 +394,9 @@ function isShow (dataList, roleType) {
   right: 5%;
   bottom: 2%;
 }
-:deep .el-collapse-item__wrap {
-  padding: 0 40px !important;
-}
+// :deep .el-collapse-item__wrap {
+//   padding: 0 0 0 20px !important;
+// }
 .custom-drawer {
   .el-drawer__header {
     margin: 0 !important;
