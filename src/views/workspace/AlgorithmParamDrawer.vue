@@ -49,14 +49,22 @@ onBeforeMount(async () => {
     if (reg.test(label)) {
       componentName = label;
     }
-    await getInEffectAlgorithmParams(componentName, projectInfo.value.host, route.query.id);
-    selectedParamVersion.id = paramVersion.value.param_version;
-    add();
-    // cloneVitalParamList()
-    console.log(guestVitalParamList, 'AKSKSKDO')
-    isError.value = false
+    console.log(77, { host: projectInfo.value?.host })
+    if (projectInfo.value?.host?.length > 0 && projectInfo.value?.guest?.length > 0) {
+      await getInEffectAlgorithmParams(componentName, projectInfo.value.host, route.query.id);
+      selectedParamVersion.id = paramVersion.value.param_version;
+      add();
+      // cloneVitalParamList()
+      console.log(guestVitalParamList, 'AKSKSKDO')
+      isError.value = false
+    } else {
+      isError.value = true
+      ElMessage.error('请先配置业务方和数据方')
+      return;
+    }
   } catch (error) {
     isError.value = true
+    console.error({ error })
     ElMessage.error('网络异常,请稍后再试')
     state.loading = false
   } finally {

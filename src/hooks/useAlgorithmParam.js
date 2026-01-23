@@ -302,7 +302,7 @@ export default function useAlgorithmParam() {
     if (!exist) {
       console.log({ hostList });
       // 这块是在根据添加项目时有几个host方来克隆几个host数据
-      hostList.forEach((item, i) => {
+      hostList?.forEach?.((item, i) => {
         hostCurrentVersionParamsObj[`hostVitalParamList${i}`] = _.cloneDeep([
           ...hostCurrentVersionParams,
         ]);
@@ -316,7 +316,7 @@ export default function useAlgorithmParam() {
         projectId,
         host
       );
-      hostList.forEach(async (item, i) => {
+      hostList?.forEach(async (item, i) => {
         console.log({item,i})
         hostCurrentVersionParamsObj[
           `hostVitalParamList${i}`
@@ -391,7 +391,7 @@ export default function useAlgorithmParam() {
     arbiterVitalParamList.value = await formatParamList(
       arbiterVitalParamList.value,
     );
-    hostList.forEach(async (host, i) => {
+    hostList?.forEach(async (host, i) => {
       hostVitalParamListObj.value[`hostVitalParamList${i}`] =
         await checkConstraints(
           hostCurrentVersionParamsObj[`hostVitalParamList${i}`],
@@ -631,6 +631,7 @@ export default function useAlgorithmParam() {
      partyIds.forEach(item=>{
       let party = siteStore.getByPartySite[item]
       site.set(party.nodeId,party)})
+      console.log({site,partyIds})
     // if (type === 'guest') {
     // const selfNamespaceOptions = await getSelfDataNamespaceList();
     //   currentVersionParams = setReaderOptions(

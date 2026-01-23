@@ -66,12 +66,16 @@ onMounted(() => {
 });
 
 function selectChange (val, roleType) {
+  console.log({ val })
   const projectInfo = JSON.parse(localStorage.getItem('projectInfo'))
   const myPartyId = Number(JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId)
   if (roleType === 'guest') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.guest', [
       parseInt(val)
     ]);
+    _.set(projectInfo, 'guest',
+      [Number(val)]
+    );
   } else if (roleType === 'host') {
     _.set(projectInfo, 'projectJson.job_runtime_conf.role.host',
       val.map(Number)

@@ -112,7 +112,7 @@ async function fetchTableData (page) {
       return item.jobId
     })
     const res = await getFateJobList({ ids })
-    res.data.forEach(item => {
+    res?.data?.forEach(item => {
       jobMap.set(item.jobId, item)
     })
     // const response = await getProjectJobList({
