@@ -66,7 +66,6 @@ onMounted(() => {
 });
 
 function selectChange (val, roleType) {
-  console.log({ val })
   const projectInfo = JSON.parse(localStorage.getItem('projectInfo'))
   const myPartyId = Number(JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0').engineInfo).partyId)
   if (roleType === 'guest') {
