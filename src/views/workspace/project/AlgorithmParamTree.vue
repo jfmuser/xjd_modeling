@@ -131,6 +131,7 @@ export default {
     return {
       errorMessage: '',
       isJSON: isJSON,
+      rules: []
     };
   }, methods: {
     changeParam: function (keyPath, value, operatorName) {

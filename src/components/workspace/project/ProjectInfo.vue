@@ -52,8 +52,24 @@ const formInline = reactive({
   party1: '',
   party2: '',
 });
-
+function cleanLocalStorage () {
+  console.log('fade清除缓存')
+  localStorage.setItem('graphInfo', null);
+  localStorage.setItem('projectInfo', null);
+  localStorage.setItem('projectParams', null);
+  localStorage.setItem('ProjectConfigInfo', null);
+  localStorage.setItem('hostProjectParams', null);
+  localStorage.setItem('hostProjectParamsObj', null);
+  localStorage.setItem('guestProjectParams', null);
+  localStorage.setItem('commonProjectParams', null);
+  localStorage.setItem('commonProjectConfigInfo', null);
+  localStorage.setItem('arbiterProjectParams', null);
+  localStorage.setItem('projectNodeCoord', '{}');
+  sessionStorage.removeItem('projectParamsVersion');
+}
 onMounted(() => {
+  // 防止刷新页面时把上一个例子的localStorage的相关参数加进来
+  cleanLocalStorage()
   getSiteInfo();
   // fetchData();
 });
