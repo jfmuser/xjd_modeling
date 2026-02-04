@@ -616,6 +616,7 @@ async function runPythonProject () {
     <ListContainerItem title="作业概览">
       <JobTable ref="JobTableRef"
                 :projectId="projectId"
+                :secretflowId="state.projectDetail.secretflowPrjId"
                 :projectName="projectName"
                 @JobDetail="handleJobDetail" />
     </ListContainerItem>

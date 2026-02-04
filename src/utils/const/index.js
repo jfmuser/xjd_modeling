@@ -686,6 +686,7 @@ export class Status {
   static WAITING = 'waiting';
   static STOPPED = 'stopped';
   static PENDING = 'pending';
+  static NULL = 'null';
 
   static get options() {
     return [
@@ -698,6 +699,7 @@ export class Status {
       { value: Status.CANCELED, label: '取消' },
       { value: Status.STOPPED, label: '停止' },
       { value: Status.PENDING, label: '等待中' },
+       { value: Status.NULL, label: '未知' },
     ];
   }
 

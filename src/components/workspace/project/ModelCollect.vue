@@ -33,13 +33,13 @@ const onConfirm = async () => {
   }
 }
 
-const show = (jobId, projectId, projectName) => {
-  console.log({ jobId, projectId, projectName })
+const show = (jobId, projectId, projectName, secretflowId) => {
   state.visible = true;
   state.model = {
     jobId: jobId,
     projectId: projectId,
-    modelName: projectName
+    modelName: projectName,
+    secretpadId: secretflowId
   }
 };
 defineExpose({ show });

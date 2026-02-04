@@ -45,6 +45,7 @@ const indexedDB = appContext.config.globalProperties.$indexedDB;
 const props = defineProps({
   projectId: { type: String, required: true },
   projectName: { type: String, required: true },
+  secretflowId: { type: String, required: false }
 });
 const type = computed(() => route.query.type)
 const state = reactive({
@@ -126,10 +127,17 @@ async function fetchTableData (page) {
     // },
     // );
     // const { records, current, size, total } = response;
-    state.tableData = tableData.map(item => {
+
+    let tempData = []
+    tableData.forEach(item => {
       const originData = jobMap.get(item.jobId)
-      return { ...item, ...originData }
+      if (originData) {
+        tempData.push({ ...item, ...originData })
+      } else {
+        tempData.push({ ...item, status: Status.NULL })
+      }
     }) || [];
+    state.tableData = tempData
     console.log({ tableData: state.tableData })
     pager.size = 5;//size;
     pager.page = currentPage;
@@ -174,31 +182,32 @@ async function toDetail ({ jobId, fRole, fPartyId }) {
   //     projectName: props.projectName,
   //   },
   // });
-  const selfParties = JSON.parse(sessionStorage.getItem('selfParties'))
+  // const selfParties = JSON.parse(sessionStorage.getItem('selfParties'))
   const partyId = JSON.parse(siteStore.mySite.tDomainEngineList.find(engine => engine.engine == '0')?.engineInfo ?? "{}").partyId
   //判断有没有登录凭证，没有的话就获取登录凭证
-  if (!localStorage.getItem('CurrentUser')) {
+  // if (!localStorage.getItem('CurrentUser')) {
 
-    //   getkey fb 获取密钥对密码加密
-    const securityInfo = await security();
-    let securityData = '';
-    if (securityInfo && securityInfo.data) {
-      securityData = securityInfo.data;
-    }
-    // 获取系统登录信息
-    const getInfo = await getBoardInfo();
-    const password = rsa(securityData, AES.decrypt(getInfo.password));
-    // fb login 再次登录设置cookie
-    await fblogin(AES.decrypt(getInfo.username), password);
-    localStorage.setItem('CurrentUser', getInfo.username)
-  }
+  //   //   getkey fb 获取密钥对密码加密
+  //   const securityInfo = await security();
+  //   let securityData = '';
+  //   if (securityInfo && securityInfo.data) {
+  //     securityData = securityInfo.data;
+  //   }
+  //   // 获取系统登录信息
+  //   const getInfo = await getBoardInfo();
+  //   const password = rsa(securityData, AES.decrypt(getInfo.password));
+  //   // fb login 再次登录设置cookie
+  //   await fblogin(AES.decrypt(getInfo.username), password);
+  //   localStorage.setItem('CurrentUser', getInfo.username)
+  // }
   //判断有没有登录凭证，有的话就跳转
-  if (localStorage.getItem('CurrentUser')) {
-    const prefix = import.meta.env.DEV ? VITE_GLOB_FATEBOARD_UI_URL : ''
-    // 跳转到fateBoard 算子详情页面
-    const url = `${prefix}/fateboard-ui/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${props.projectId}&projectName=${props.projectName}`;
-    emits('JobDetail', [url, false]);
-  }
+  // if (localStorage.getItem('CurrentUser')) {
+
+  // }
+  const prefix = import.meta.env.DEV ? VITE_GLOB_FATEBOARD_UI_URL : ''
+  // 跳转到fateBoard 算子详情页面
+  const url = `${prefix}/fateboard-ui/#/details?job_id=${jobId}&role=guest&party_id=${partyId}&from=Job%20overview&projectId=${props.projectId}&projectName=${props.projectName}`;
+  emits('JobDetail', [url, false]);
   // const url = `http://localhost:8082/#/details?job_id=${fJobId}&role=${fRole}&party_id=${fPartyId}&from=Job%20overview&projectId=${props.projectId}`;
   // 给父组件传值
 }
@@ -219,7 +228,8 @@ async function onCancelCollect (row) {
 }
 
 function onCollected (row) {
-  ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName);
+  console.log({ row })
+  ModelCollectRef.value.show(row.jobId, row.projectId, props.projectName, props.secretflowId);
 }
 
 function getFrole (fRole) {
@@ -267,7 +277,7 @@ onBeforeUnmount(() => {
         <template #default="{ row }">
           {{ row.platform == 4 ? row.jobId : '' }}
           <el-link type="primary"
-                   :disabled="!row.status || row.status === Status.WAITING"
+                   :disabled="!row.status || [Status.WAITING,Status.NULL].includes(row.status)"
                    v-show="!(row.platform == 4)"
                    @click="toDetail(row)">{{
             row.jobId }}

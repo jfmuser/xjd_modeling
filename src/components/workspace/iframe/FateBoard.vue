@@ -71,7 +71,7 @@ $height: 100%;
     width: 100%;
     height: $height;
     position: relative;
-    padding-top: 5px;
+    // padding-top: 5px;
   }
 }
 
@@ -102,7 +102,7 @@ $height: 100%;
   display: flex;
   align-items: center;
   position: absolute;
-  left: 20px;
+  // left: 20px;
   cursor: pointer;
 }
 </style>

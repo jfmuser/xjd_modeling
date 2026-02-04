@@ -30,8 +30,9 @@ export const queryFateData = ({ projectId,pageNum,pageSize }) => {
  * @param params.fateId fateId
  * @param params.isCollect 收藏或取消收藏的标记
  */
-export const collectFate = ({ projectId,jobId,modelName,remarks }) => {
-  return request.post('/fate/model/collectModel',{projectId,jobId,modelName,remarks});
+export const collectFate = (params) => {
+  const { projectId,jobId,modelName,remarks,taskId,secretpadId } = params
+  return request.post('/fate/model/collectModel',params);
 };
 
 /**
