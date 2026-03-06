@@ -216,9 +216,14 @@ async function onCancelCollect (row) {
 
   try {
     state.loading = true;
-    await deleteModel(row.modelMetaId);
-    ElMessage.success('取消收藏成功');
-    onUpdateDataTable();
+    const res = await deleteModel(row.modelMetaId);
+    if (res.code == 0) {
+      ElMessage.success('取消收藏成功');
+      onUpdateDataTable();
+    } else {
+      ElMessage.error(res.desc || '取消收藏失败');
+    }
+
   } catch (error) {
     console.error(error);
     ElMessage.error('取消收藏失败');
